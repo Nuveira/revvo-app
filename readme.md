@@ -7,7 +7,6 @@
 </p>
 
 ---
----
 
 ## 🧾 Deskripsi Singkat Sistem
 
