@@ -1,5 +1,3 @@
-# REVVO
-
 <p align="center">
   <h1 align="center">🏍️ REVVO</h1>
   <p align="center"><strong>Repair and Vehicle Booking Operations</strong></p>
