@@ -9,7 +9,7 @@
     <nav id="navbar" class="navbar-glass flex justify-between items-center w-full max-w-5xl py-4 px-10 rounded-full shadow-2xl transition-all duration-500">
         <div class="flex items-center gap-12">
             <a href="index.php" class="font-headline font-bold text-2xl tracking-tighter flex items-center gap-2 group">
-                <img src="src/images/logo.png" alt="REVVO" class="h-8 w-auto invert brightness-0 invert">
+                <img src="assets/images/logo.png" alt="REVVO" class="h-8 w-auto invert brightness-0 invert">
                 REVVO
             </a>
             <div class="hidden md:flex gap-8 text-sm font-semibold tracking-tight text-white/60">
