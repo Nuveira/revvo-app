@@ -604,6 +604,7 @@ Berdasarkan ketentuan dosen:
 6. **Comment kode yang kompleks** — terutama bagian state machine & validasi
 7. **Tidak commit `vendor/` & `uploads/`** — pakai `.gitignore`
 8. **Backup database** secara berkala di repo (folder `database/`)
+9. **Sync branch fitur dari `develop` bila perlu** — tidak wajib setiap saat, tetapi wajib dilakukan saat branch sudah tertinggal lama, ada perubahan foundation penting, atau sebelum merge kembali ke `develop`
 
 ---
 

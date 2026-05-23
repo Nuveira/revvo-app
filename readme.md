@@ -250,8 +250,16 @@ Branch lain dapat ditambahkan sesuai kebutuhan fitur.
 ### Alur Branch
 1. Branch fitur dibuat dari `develop`
 2. Pengerjaan dilakukan di branch fitur masing-masing
-3. Setelah selesai, branch fitur di-merge ke `develop`
-4. Jika sudah stabil, `develop` di-merge ke `main`
+3. Jika branch fitur sudah lama tertinggal atau `develop` berubah signifikan, update branch fitur dari `develop` sebelum lanjut kerja
+4. Sebelum merge, sinkronkan branch fitur dengan `develop` agar conflict dan bug integrasi lebih kecil
+5. Setelah selesai, branch fitur di-merge ke `develop`
+6. Jika sudah stabil, `develop` di-merge ke `main`
+
+### Aturan Update Branch Feature
+- Branch feature **tidak harus** selalu up to date setiap saat, tetapi harus cukup dekat dengan `develop`
+- Saat membuat branch baru, selalu mulai dari `develop` terbaru
+- Jika branch didiamkan beberapa hari atau ada perubahan foundation penting di `develop`, lakukan update branch dulu
+- Jika modul menyentuh area yang banyak dependensi, lebih baik lebih sering sync dengan `develop`
 
 ---
 
