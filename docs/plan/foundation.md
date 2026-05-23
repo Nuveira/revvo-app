@@ -19,7 +19,7 @@
 
 - Multi-role pengguna (Customer, Admin Bengkel, Mekanik)
 - **CRUD lengkap pada 7 entitas utama**: Users, Service Types, Mechanics, Time Slots, Motors, Bookings, Spare Parts
-- State machine status servis: **Antri → Dikerjakan → Selesai → Siap Diambil**
+- State machine status servis: **Queued → In Progress → Completed → Ready for Pickup**
 - Validasi double-booking time slot
 - Autentikasi dengan `password_hash()` + session PHP
 - Prepared Statement untuk mencegah SQL Injection
@@ -46,7 +46,7 @@
 | 4 | `motors` | Motor milik customer (merk, plat, tahun, foto) |
 | 5 | `service_types` | Master jenis layanan (nama, durasi, harga jasa) |
 | 6 | `spare_parts` | Master sparepart (nama, stok, harga, satuan) |
-| 7 | `time_slots` | Jam operasional bengkel (slot waktu booking, dikelola admin via CRUD) |
+| 7 | `time_slots` | Jam operasional bengkel (slot waktu booking) |
 | 8 | `bookings` | Transaksi utama (motor, layanan, mekanik, status, harga snapshot) |
 | 9 | `booking_parts` | Junction: sparepart yang dipakai per booking + harga snapshot |
 | 10 | `payments` | Catatan pembayaran (metode, jumlah, status lunas) |
@@ -59,17 +59,17 @@
 ### 1. Booking Lifecycle (Flow Utama)
 
 ```
-[Customer] Booking → Antri
+[Customer] Booking → Queued
     ↓
 [Admin] Assign mekanik
     ↓
-[Mekanik] Mulai kerja → Dikerjakan
+[Mekanik] Mulai kerja → In Progress
     ↓
 [Mekanik] Tambah sparepart (auto-kurang stok)
     ↓
-[Mekanik] Selesai kerja → Selesai (invoice auto-generate)
+[Mekanik] Selesai kerja → Completed (invoice auto-generate)
     ↓
-[Admin] Verifikasi + konfirmasi bayar → Siap Diambil
+[Admin] Verifikasi + konfirmasi bayar → Ready for Pickup
     ↓
 [Customer] Datang ambil + download invoice
 ```
@@ -95,7 +95,7 @@
    - Sparepart (+ monitor stok)
    - Time slots
 4. Assign mekanik ke booking
-5. Verifikasi pengerjaan selesai → ubah status ke "Siap Diambil"
+5. Verifikasi pengerjaan selesai → ubah status ke "Ready for Pickup"
 6. Konfirmasi pembayaran
 7. Lihat audit log
 8. Generate laporan bulanan (PDF/Excel)
@@ -104,7 +104,7 @@
 
 1. Login
 2. Lihat daftar tugas yang di-assign
-3. Update status pengerjaan (Antri → Dikerjakan → Selesai)
+3. Update status pengerjaan (Queued → In Progress → Completed)
 4. Input sparepart yang dipakai (otomatis kurangi stok)
 5. Tulis catatan pengerjaan
 6. Lihat histori pengerjaan personal
@@ -115,25 +115,25 @@
 |---------|------|
 | Register / ubah password | Hash password (`password_hash()`) |
 | Submit booking | Validasi double-booking + snapshot harga jasa + log "created" |
-| Mekanik tambah part | Kurangi `spare_parts.stok` + snapshot ke `booking_parts` + recalc total |
+| Mekanik tambah part | Kurangi `spare_parts.stock` + snapshot ke `booking_parts` + recalc total |
 | Status berubah | Insert `service_logs` (from, to, by, at) |
-| Status → "Selesai" | Auto-generate invoice PDF |
+| Status → "Completed" | Auto-generate invoice PDF |
 | Akses halaman | Cek session + role authorization |
 
 ### 4. Flow Harga (Layered Snapshot)
 
 ```
-service_types.harga (master)
+service_types.base_price (master)
         ↓ saat booking dibuat
-bookings.harga_jasa (snapshot)
+bookings.service_price (snapshot)
         +
-spare_parts.harga_satuan (master)
+spare_parts.price (master)
         ↓ saat mekanik input part
-booking_parts.harga_saat_itu × qty (snapshot)
+booking_parts.price_at_time × qty (snapshot)
         ↓ accumulated
-bookings.total_harga (calculated)
+bookings.total_price (calculated)
         ↓ saat bayar
-payments.jumlah_dibayar (actual)
+payments.amount (actual)
 ```
 
 **Kenapa snapshot?**
@@ -185,11 +185,11 @@ Browser auto-download file
 
 | Status | Arti | Yang Bisa Ubah |
 |--------|------|----------------|
-| **Antri** | Booking diterima, belum dikerjakan | System (saat customer book) |
-| **Dikerjakan** | Mekanik sedang mengerjakan | Mekanik (yang di-assign) |
-| **Selesai** | Pengerjaan selesai, menunggu verifikasi admin | Mekanik (yang di-assign) |
-| **Siap Diambil** | Verifikasi + pembayaran OK, customer bisa ambil | Admin |
-| **Dibatalkan** | Booking dibatalkan (opsional) | Admin / Customer |
+| **Queued** | Booking diterima, menunggu assign mekanik | System (saat customer book) |
+| **In Progress** | Mekanik sedang mengerjakan | Mekanik (yang di-assign) |
+| **Completed** | Pengerjaan selesai, menunggu verifikasi admin | Mekanik (yang di-assign) |
+| **Ready for Pickup** | Verifikasi + pembayaran OK, customer bisa ambil | Admin |
+| **Cancelled** | Booking dibatalkan (opsional) | Admin / Customer |
 
 ---
 
