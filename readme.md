@@ -43,6 +43,7 @@ REVVO adalah aplikasi web berbasis **PHP Native** dan **MySQL** yang mendukung t
   - Bookings
   - Mechanics
   - Service Types
+  - Time Slots
   - Spare Parts
 - 📅 Validasi booking untuk mencegah double-booking
 - 👨‍🔧 Penugasan mekanik ke booking
@@ -142,6 +143,8 @@ REVVO adalah aplikasi web berbasis **PHP Native** dan **MySQL** yang mendukung t
 
 ## 📁 Struktur Folder
 
+`README` ini menjelaskan **target structure** proyek. Saat ini repo masih berada pada tahap fondasi awal, jadi belum semua folder di bawah sudah dibuat.
+
 ```text
 revvo-app/
 ├── assets/
@@ -156,7 +159,7 @@ revvo-app/
 ├── includes/
 │   ├── header.php
 │   ├── footer.php
-│   ├── sidebar.php
+│   ├── navbar.php
 │   ├── auth.php
 │   └── functions.php
 ├── pages/
@@ -181,19 +184,22 @@ revvo-app/
 │   │   ├── motors.php
 │   │   ├── booking_new.php
 │   │   ├── booking_history.php
-│   │   └── invoice.php
+│   │   ├── booking_detail.php
+│   │   ├── invoice.php
+│   │   └── profile.php
 │   └── mekanik/
 │       ├── dashboard.php
 │       ├── my_tasks.php
 │       └── history.php
 ├── uploads/
 │   └── motors/
-├── vendor/
 ├── database/
-│   └── bengkel.sql
-├── .github/
-│   └── workflows/
-│       └── ci.yml
+│   └── revvo.sql
+├── docs/
+│   ├── brd/
+│   ├── design/
+│   ├── diagrams/
+│   └── plan/
 ├── .gitignore
 ├── composer.json
 └── index.php
@@ -233,9 +239,11 @@ Sistem menggunakan **11 tabel utama** dengan relasi foreign key:
 ### Branch yang digunakan
 - `main` → branch utama/final
 - `develop` → branch penggabungan progress
-- `feat/setup-foundation` → setup awal project
-- `feat/database` → pengerjaan database dan koneksi
-- `feat/auth` → pengerjaan autentikasi dan otorisasi
+- `feat-setup-foundation` → setup awal project
+- `feat-database` → pengerjaan database dan koneksi
+- `feat-auth-flow` → pengerjaan autentikasi dan otorisasi
+
+Gunakan format branch feature flat seperti `feat-admin-users-crud`, bukan `feat/...`, agar konsisten dengan repo ini.
 
 Branch lain dapat ditambahkan sesuai kebutuhan fitur.
 
@@ -263,11 +271,11 @@ Branch lain dapat ditambahkan sesuai kebutuhan fitur.
 
 | Anggota | Modul Utama | Status |
 |---------|-------------|--------|
-| Geral Tritama Wahyuady | TBD | ⏳ |
-| Nugraha Adani | TBD | ⏳ |
-| Muhammad Rizky Dermawan | TBD | ⏳ |
-| Raika Maulana Dwi Putra | TBD | ⏳ |
-| Ahmad Hidayat | TBD | ⏳ |
+| Geral Tritama Wahyuady | Foundation + CRUD Users | Planned |
+| Nugraha Adani | CRUD Motors + Customer Pages | Planned |
+| Muhammad Rizky Dermawan | CRUD Spare Parts + Dashboard + Reports | Planned |
+| Raika Maulana Dwi Putra | CRUD Service Types + Mechanics + Time Slots | Planned |
+| Ahmad Hidayat | CRUD Bookings + Mekanik Flow | Planned |
 
 ---
 

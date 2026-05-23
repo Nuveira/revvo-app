@@ -15,7 +15,7 @@ $pageTitle = $pageTitle ?? 'REVVO | Workshop Management System';
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title><?= htmlspecialchars($pageTitle) ?></title>
-    <link rel="icon" type="image/png" href="src/images/logo.png">
+    <link rel="icon" type="image/png" href="assets/images/logo.png">
 
     <!-- Tailwind CSS via CDN Play -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
