@@ -472,7 +472,7 @@ revvo-app/
 │   │   └── main.js
 │   └── images/
 │       └── logo.png
-├── config/btw
+├── config/
 │   └── koneksi.php
 ├── includes/
 │   ├── auth.php
