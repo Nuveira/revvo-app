@@ -11,7 +11,7 @@
             <!-- Brand -->
             <div class="md:col-span-4">
                 <div class="flex items-center gap-3 mb-10">
-                    <img src="src/images/logo.png" alt="REVVO" class="h-10 w-auto invert brightness-0 invert">
+                    <img src="assets/images/logo.png" alt="REVVO" class="h-10 w-auto invert brightness-0 invert">
                     <span class="font-headline font-bold text-3xl tracking-tighter">REVVO</span>
                 </div>
                 <p class="text-stone-400 max-w-xs leading-relaxed text-lg">
