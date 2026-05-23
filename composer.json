@@ -1,0 +1,15 @@
+{
+    "name": "bengkel-app/sistem-booking",
+    "description": "Sistem Booking & Tracking Servis Bengkel Motor - UAS PWB",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "dompdf/dompdf": "^3.0",
+        "phpoffice/phpspreadsheet": "^2.0"
+    },
+    "authors": [
+        {
+            "name": "Kelompok 4 - Geral, Nugi, Dermawan, Raika, Ahmad"
+        }
+    ]
+}
