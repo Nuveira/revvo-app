@@ -46,7 +46,7 @@
 | 4 | `motors` | Motor milik customer (merk, plat, tahun, foto) |
 | 5 | `service_types` | Master jenis layanan (nama, durasi, harga jasa) |
 | 6 | `spare_parts` | Master sparepart (nama, stok, harga, satuan) |
-| 7 | `time_slots` | Jam operasional bengkel (slot waktu booking) |
+| 7 | `time_slots` | Jam operasional bengkel (slot waktu booking, dikelola admin via CRUD) |
 | 8 | `bookings` | Transaksi utama (motor, layanan, mekanik, status, harga snapshot) |
 | 9 | `booking_parts` | Junction: sparepart yang dipakai per booking + harga snapshot |
 | 10 | `payments` | Catatan pembayaran (metode, jumlah, status lunas) |

@@ -16,7 +16,7 @@
 - [ ] Tunggu persetujuan dosen
 - [ ] Setup tools: Laragon/XAMPP, VS Code, MySQL Workbench
 - [ ] Buat repository GitHub (private dulu, ubah jadi public di akhir)
-- [ ] Setup struktur folder project (lihat section D)
+- [ ] Setup struktur folder project awal (lihat section D: current vs target)
 - [ ] Sepakati aturan tim (lihat section G)
 
 ### Phase 1: Design & Setup Database (Hari 3-5)
@@ -47,7 +47,7 @@
 - [ ] **CRUD mechanics** (admin manage data mekanik)
 - [ ] **CRUD spare_parts** (admin manage master sparepart + stok)
 - [ ] **CRUD motors** (customer-side, dengan upload foto)
-- [ ] Settings page untuk `time_slots` (read + update saja, bukan CRUD penuh)
+- [ ] **CRUD time_slots** (admin manage slot operasional bengkel)
 - [ ] List page untuk `customers` (admin view, read-only)
 
 ### Phase 4: Core Booking Flow (Hari 13-17)
@@ -214,7 +214,7 @@ Domain:
 | Checklist | Halaman/File |
 |-----------|-------------|
 | Setup project + `koneksi.php` + `.htaccess` | `config/koneksi.php` |
-| Layout komponen Tailwind | `includes/header.php`, `footer.php`, `sidebar.php` |
+| Layout komponen Tailwind | `includes/header.php`, `footer.php`, `navbar.php` |
 | Login, register, logout | `pages/auth/*.php` |
 | Middleware role protection | `includes/auth.php` |
 | Helper functions: state machine, service_logs, validasi | `includes/functions.php` |
@@ -459,8 +459,51 @@ composer require phpoffice/phpspreadsheet
 
 ## D. Struktur Folder Project
 
+### Current Repo Snapshot
+
+Struktur yang **sudah ada saat dokumen ini ditulis** sudah cukup untuk landing page dan fondasi awal modul, tetapi belum lengkap untuk seluruh flow aplikasi:
+
+```text
+revvo-app/
+├── assets/
+│   ├── css/
+│   │   └── custom.css
+│   ├── js/
+│   │   └── main.js
+│   └── images/
+│       └── logo.png
+├── config/btw
+│   └── koneksi.php
+├── includes/
+│   ├── auth.php
+│   ├── footer.php
+│   ├── header.php
+│   └── navbar.php
+├── pages/
+│   ├── admin/
+│   └── auth/
+│       └── login.php
+│   ├── customer/
+│   └── mekanik/
+├── uploads/
+│   └── motors/
+├── database/
+│   └── revvo.sql
+├── docs/
+│   ├── brd/
+│   ├── design/
+│   ├── diagrams/
+│   └── plan/
+├── composer.json
+└── index.php
 ```
-bengkel-app/
+
+### Target Structure Setelah Implementasi
+
+Ini adalah struktur folder **target** yang akan dibangun bertahap selama pengerjaan fitur.
+
+```text
+revvo-app/
 ├── assets/
 │   ├── css/
 │   │   └── custom.css
@@ -473,7 +516,7 @@ bengkel-app/
 ├── includes/
 │   ├── header.php
 │   ├── footer.php
-│   ├── sidebar.php
+│   ├── navbar.php
 │   ├── auth.php          # Check session & role
 │   └── functions.php     # Helper functions
 ├── pages/
@@ -483,13 +526,13 @@ bengkel-app/
 │   │   └── logout.php
 │   ├── admin/
 │   │   ├── dashboard.php
-│   │   ├── users.php              # CRUD admin & mekanik
-│   │   ├── customers.php          # Read-only list
+│   │   ├── users.php
+│   │   ├── customers.php
 │   │   ├── bookings.php
 │   │   ├── mechanics.php
 │   │   ├── service_types.php
 │   │   ├── spare_parts.php
-│   │   ├── time_slots.php         # Settings (read + update)
+│   │   ├── time_slots.php
 │   │   ├── payments.php
 │   │   ├── reports.php
 │   │   └── audit_logs.php
@@ -498,16 +541,22 @@ bengkel-app/
 │   │   ├── motors.php
 │   │   ├── booking_new.php
 │   │   ├── booking_history.php
-│   │   └── invoice.php
+│   │   ├── booking_detail.php
+│   │   ├── invoice.php
+│   │   └── profile.php
 │   └── mekanik/
 │       ├── dashboard.php
 │       ├── my_tasks.php
 │       └── history.php
 ├── uploads/
-│   └── motors/           # Foto motor customer
-├── vendor/               # Composer dependencies (jangan commit)
+│   └── motors/
 ├── database/
-│   └── bengkel.sql       # File SQL untuk submission
+│   └── revvo.sql
+├── docs/
+│   ├── brd/
+│   ├── design/
+│   ├── diagrams/
+│   └── plan/
 ├── .htaccess
 ├── .gitignore
 ├── composer.json
@@ -535,7 +584,7 @@ Berdasarkan ketentuan dosen:
 
 | Risk | Mitigation |
 |------|------------|
-| Library Composer ribet di environment lokal | Test install DomPDF & PhpSpreadsheet di awal Phase 5, jangan terakhir |
+| Library Composer ribet di environment lokal | Composer dependency sudah dideklarasikan dari awal; test install dan autoload sebelum masuk fitur PDF/Excel |
 | Anggota nggak paham kode bagiannya | Wajib code review per minggu, pair programming kalau perlu |
 | Bug double-booking pas demo | Test stress double-booking di Phase 7 dengan multiple browser session |
 | File `.sql` error pas import | Test import dari scratch setiap akhir phase, bukan cuma di akhir |
@@ -547,7 +596,7 @@ Berdasarkan ketentuan dosen:
 
 ## G. Aturan Tim
 
-1. **Branch per modul** di Git, merge ke `main` setelah review
+1. **Branch per modul** di Git dengan format `feat-nama-modul`, merge ke `develop` setelah review; `develop` di-merge ke `main` hanya saat integration sudah stabil
 2. **Daily check-in singkat** (chat group, 10 menit, bahas progress & blocker)
 3. **Tidak ada yang nyalin kode tanpa paham** — setiap anggota wajib bisa jelasin kodenya pas presentasi
 4. **Commit message deskriptif** (contoh: `feat: add booking validation`, bukan `update` atau `fix bug`)
