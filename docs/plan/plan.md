@@ -52,17 +52,17 @@
 
 ### Phase 4: Core Booking Flow (Hari 13-17)
 
-> **Entitas utama ke-6 (Bookings)** dikerjakan di phase ini karena flow-nya kompleks dan menyentuh multi-role.
+> **Entitas utama ke-7 (Bookings)** dikerjakan di phase ini karena flow-nya kompleks dan menyentuh multi-role.
 
 - [ ] Form booking customer (motor, layanan, tanggal, slot, foto, keluhan)
 - [ ] Validasi double-booking
-- [ ] Snapshot harga saat booking dibuat
+- [ ] Snapshot `service_price` saat booking dibuat
 - [ ] List booking di sisi admin (semua booking)
 - [ ] Fitur assign mekanik ke booking
 - [ ] List booking di sisi mekanik (yang di-assign ke dirinya)
 - [ ] Update status booking (state machine, validate transisi)
 - [ ] Insert ke `service_logs` setiap perubahan status
-- [ ] Form input sparepart oleh mekanik (auto-kurang stok + snapshot harga)
+- [ ] Form input sparepart oleh mekanik (auto-kurang stock + snapshot `price_at_time`)
 - [ ] Verifikasi & konfirmasi pembayaran (admin)
 - [ ] Tracking status real-time di customer dashboard
 
@@ -220,10 +220,10 @@ Domain:
 | Helper functions: state machine, service_logs, validasi | `includes/functions.php` |
 | Halaman 403 forbidden | `pages/403.php` |
 | Form booking customer (multi-step) | `pages/customer/booking_new.php` |
-| Validasi double-booking + snapshot harga | Logic di `booking_new.php` |
+| Validasi double-booking + snapshot `service_price` | Logic di `booking_new.php` |
 
 **Estimasi effort**: Phase 0-2 (hari 1-8) + Phase 4 sebagian (hari 13-14)
-**Yang harus bisa dijelaskan saat presentasi**: Auth flow, session, role-based access, CRUD users end-to-end, validasi double-booking, snapshot harga
+**Yang harus bisa dijelaskan saat presentasi**: Auth flow, session, role-based access, CRUD users end-to-end, validasi double-booking, snapshot `service_price`
 
 ---
 
@@ -325,7 +325,7 @@ Domain:
 | Create | Booking manual oleh admin (untuk walk-in customer) |
 | Read | List semua booking + filter status/tanggal/mekanik |
 | Update | Assign mekanik, ubah status (state machine), edit detail |
-| Delete | Soft delete via status `dibatalkan` + hard delete admin |
+| Delete | Soft delete via status `cancelled` + hard delete admin |
 
 **File**: `pages/admin/bookings.php`
 **Fitur khusus**: State machine validation, auto-insert `service_logs`, integrasi dengan `mechanics` & `payments`
@@ -335,7 +335,7 @@ Domain:
 | Checklist | Halaman/File |
 |-----------|-------------|
 | Admin: form pembayaran + konfirmasi | `pages/admin/payments.php` |
-| Admin: verifikasi selesai → "Siap Diambil" | Logic di `bookings.php` |
+| Admin: verifikasi selesai → "Ready for Pickup" | Logic di `bookings.php` |
 | Mekanik: dashboard (tugas hari ini) | `pages/mekanik/dashboard.php` |
 | Mekanik: list tugas yang di-assign | `pages/mekanik/my_tasks.php` |
 | Mekanik: update status (pakai helper Geral) | `pages/mekanik/my_tasks.php` |
@@ -343,7 +343,7 @@ Domain:
 | Mekanik: histori pengerjaan personal | `pages/mekanik/history.php` |
 
 **Estimasi effort**: Phase 4 (hari 15-17) + Phase 5 sebagian (hari 18)
-**Yang harus bisa dijelaskan saat presentasi**: CRUD bookings + state machine end-to-end, booking_parts logic + auto-kurang stok, payment confirmation flow
+**Yang harus bisa dijelaskan saat presentasi**: CRUD bookings + state machine end-to-end, booking_parts logic + auto-kurang stock, payment confirmation flow
 
 ---
 
@@ -363,7 +363,7 @@ Domain:
 | Delete | Hapus sparepart (cek tidak dipakai di booking) |
 
 **File**: `pages/admin/spare_parts.php`
-**Fitur khusus**: Auto-alert stok di bawah `stok_minimum`, tracking history konsumsi via `booking_parts`
+**Fitur khusus**: Auto-alert stok di bawah `minimum_stock`, tracking history konsumsi via `booking_parts`
 
 #### Pendukung (Dashboard + Reports + Bonus)
 
