@@ -1,1 +1,163 @@
-/* Reserved for landing page custom styles. */
+/* custom styles - glass, gradients, animasi */
+
+/* navbar glass */
+.navbar-glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.navbar-glass-scrolled {
+    background: rgba(12, 10, 9, 0.85);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* glass cards */
+.liquid-glass {
+    background: rgba(28, 25, 23, 0.5);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* gradients */
+.mesh-gradient-red {
+    background: radial-gradient(at 0% 0%, #D32F2F 0%, transparent 50%),
+                radial-gradient(at 100% 0%, #b71c1c 0%, transparent 50%),
+                radial-gradient(at 100% 100%, #d32f2f 0%, transparent 50%),
+                radial-gradient(at 0% 100%, #ff5252 0%, transparent 50%),
+                #D32F2F;
+}
+
+.grid-bg {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
+
+.hero-gradient-overlay {
+    background: linear-gradient(to bottom, rgba(12, 10, 9, 0.8) 0%, rgba(12, 10, 9, 0.4) 50%, rgba(12, 10, 9, 0.9) 100%);
+}
+
+/* interactions */
+.mechanical-press:active {
+    transform: scale(0.98);
+}
+
+.organic-shape {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+}
+
+/* keyframes */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(3deg); }
+    50%      { transform: translateY(-10px) rotate(-2deg); }
+}
+
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(211, 47, 47, 0.4); }
+    50%      { box-shadow: 0 0 40px rgba(211, 47, 47, 0.7); }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+/* scroll animation */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.animate-on-scroll.from-left {
+    transform: translateX(-40px);
+}
+.animate-on-scroll.from-left.visible {
+    transform: translateX(0);
+}
+
+.animate-on-scroll.from-right {
+    transform: translateX(40px);
+}
+.animate-on-scroll.from-right.visible {
+    transform: translateX(0);
+}
+
+.animate-on-scroll.scale-in {
+    transform: scale(0.9);
+}
+.animate-on-scroll.scale-in.visible {
+    transform: scale(1);
+}
+
+/* stagger delay buat animasi bertahap */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+.delay-500 { transition-delay: 0.5s; }
+
+.animate-float {
+    animation: float 6s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+    animation: spin 12s linear infinite;
+}
+
+.shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 3s infinite;
+}
+
+.pulse-glow {
+    animation: pulseGlow 2s ease-in-out infinite;
+}
