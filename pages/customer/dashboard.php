@@ -8,39 +8,59 @@
 </head>
 <body>
     <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 text-white flex flex-col">
-            <div> 
-                <p>PP</p>
-                <P>Geral maulana</P>
-                <p>Customer</p>
-            </div>
-                <nav class="flex-1">
-                    <a href="#" class="block py-2 px-4 hover:bg-gray-700">Dashboard</a>
-                    <a href="#" class="block py-2 px-4 hover:bg-gray-700">Motor Saya</a>
-                    <a href="#" class="block py-2 px-4 hover:bg-gray-700">Booking</a>
-                    <a href="#" class="block py-2 px-4 hover:bg-gray-700">History</a>
-                    <a href="#" class="block py-2 px-4 hover:bg-gray-700">Profil</a>
-                    <a href="#" class="block py-2 px-4 hover:bg-gray-700">Keluar</a>                
-                </nav>
-        </div>
+        <?php include 'nav.php'; ?>
 
-
-
-
-
-        <!-- Main Content -->
         <div class="flex-1 bg-gray-100">
-            <div class="bg-black flex justify-between items-center w-full p-6">
+            <!-- Header -->
+            <div class="bg-[#1D1616] flex justify-between items-center w-full p-6">
                 <div>
-                    <p class="text-yellow-500">SELAMAT DATANG KEMBALI</p>
+                    <p class="text-[#8E1616]">SELAMAT DATANG KEMBALI</p>
                     <p class="text-4xl text-white">Halo, Geral!</p>
                     <p class="text-white">Kamu punya 1 boking aktif dan 2 motor terdaftar</p>
                 </div>
-                <div class="bg-yellow-500 px-6 py-3 rounded inline-block">
+                <div class="bg-[#8E1616] px-6 py-3 rounded inline-block">
                     <p class="text-white">+ Booking Service Baru</p>
                 </div>
             </div>
+
+            <!-- Main Dashboard -->
+            <div class="flex gap-4 mx-4">
+                <div class="flex-[2] bg-white border border-gray-200 p-5 w-full shadow-sm">
+                    <div class="flex items-start justify-between ">
+                        <p class="text-grey-500">BOOKING AKTIF</p>
+                        <p class="bg-red-500 px-4 rounded-full ">Terjadwal</p>
+                    </div>
+
+                    <p>Service rutin</p>
+                    
+                    <div class="flex gap-32 mt-4">
+                        <div>
+                            <p>Motor</p>
+                            <p>-</p>
+                        </div>
+                        <div>
+                            <p>Tanggal</p>
+                            <p>-</p>
+                        </div>
+                        <div>
+                            <p>Waktu</p>
+                            <p>-</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <div class="flex-[2] items-center">
+                            <p class="bg-black-100 p-5 items-center">lihat detail</p>
+                        </div>
+                        <div class="flex-1 justify-center">
+                            <p class="border p-3 items-center">ubah jadwal</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 bg-[#D84040] p-5 w-full">
+                    <p>Motor terdaftar</p>
+                </div>
+            </div> 
+
         </div>
 
     </div>
