@@ -25,40 +25,70 @@
 
             <!-- Main Dashboard -->
             <div class="flex gap-4 mx-4">
-                <div class="flex-[2] bg-white border border-gray-200 p-5 w-full shadow-sm">
-                    <div class="flex items-start justify-between ">
-                        <p class="text-grey-500">BOOKING AKTIF</p>
-                        <p class="bg-red-500 px-4 rounded-full ">Terjadwal</p>
+                <div class="flex-[2] bg-white border border-[#eadede] p-6 w-full shadow-sm">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <p class="text-[11px] tracking-[0.2em] text-gray-400 uppercase">Booking Aktif</p>
+                            <h3 class="mt-2 text-[32px] leading-none font-medium text-[#8E1616]">Service Rutin</h3>
+                        </div>
+
+                        <span class="rounded-full bg-[#f8eeee] px-4 py-1 text-sm font-medium text-[#8E1616]">
+                            Terjadwal
+                        </span>
+                    </div>
+                    
+                    <div class="mt-8 grid grid-cols-3 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-400">Motor</p>
+                            <p>-</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Tanggal</p>
+                            <p>-</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-400">Waktu</p>
+                            <p>-</p>
+                        </div>
                     </div>
 
-                    <p>Service rutin</p>
+                    <div class="mt-8 flex gap-4">
+                        <a 
+                            href="booking.php"
+                            class="flex-[2] bg-[#2f2f2f] px-6 py-4 text-center text-base font-semibold text-white transition hover:bg-black"
+                        >
+                            lihat detail
+                        </a>
                     
-                    <div class="flex gap-32 mt-4">
-                        <div>
-                            <p>Motor</p>
-                            <p>-</p>
-                        </div>
-                        <div>
-                            <p>Tanggal</p>
-                            <p>-</p>
-                        </div>
-                        <div>
-                            <p>Waktu</p>
-                            <p>-</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <div class="flex-[2] items-center">
-                            <p class="bg-black-100 p-5 items-center">lihat detail</p>
-                        </div>
-                        <div class="flex-1 justify-center">
-                            <p class="border p-3 items-center">ubah jadwal</p>
-                        </div>
+                        <a 
+                            href="booking_edit.php"
+                            class="flex-1 bg-[#8E1616] px-6 py-4 text-center text-base font-semibold text-white transition hover:bg-[#6f1111]"
+                        >
+                            ubah jadwal
+                        </a>
                     </div>
                 </div>
-                <div class="flex-1 bg-[#D84040] p-5 w-full">
-                    <p>Motor terdaftar</p>
+
+
+            <div class="flex-1 bg-[#8E1616] border border-[#eadede] p-6 w-full shadow-sm">
+                <p class="items-start text-[11px] tracking-[0.2em] text-gray-400 uppercase"
+                >
+                Motor terdaftar
+                </p>
+                
+                <div class="mt-6 space-y-6">
+                    <div class="items-center gap-4 bg-[#a32828]/40 px-4 py-4">
+                        <p class="text-lg font-semibold text-white">Honda Vario 150</p>
+                        <p class="text-sm text-[#f1caca]">B 1234 ABC</p>
+                    </div>
                 </div>
+                
+                <a
+                    href="motor.php"
+                    class="mt-8 block w-full bg-white py-4 text-center text-base font-medium text-[#8E1616] transition hover:bg-[#f8eeee]"
+                >
+                    Kelola Motor
+                </a>
             </div> 
 
         </div>
