@@ -59,8 +59,7 @@
     </div>
 </footer>
 
-<script>lucide.createIcons();</script>
-
+<script src="<?= asset('assets/js/main.js') ?>"></script>
 <script src="<?= asset('assets/js/navbar.js') ?>"></script>
 
 <?php if (!empty($pageScripts)): ?>
