@@ -42,7 +42,7 @@
 
 > **6 entitas utama dengan full CRUD** — target utama untuk rubrik "Kelengkapan Fitur CRUD" (25%).
 
-- [ ] **CRUD users** (admin manage akun admin & mekanik)
+- [x] **CRUD users** (admin manage akun admin & mekanik)
 - [ ] **CRUD service_types** (admin manage master layanan)
 - [ ] **CRUD mechanics** (admin manage data mekanik)
 - [ ] **CRUD spare_parts** (admin manage master sparepart + stok)
