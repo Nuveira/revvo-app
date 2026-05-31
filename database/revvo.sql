@@ -7,9 +7,9 @@
 --   php -r "echo password_hash('password123', PASSWORD_DEFAULT);"
 -- ============================================================
 
-DROP DATABASE IF EXISTS bengkel_db;
-CREATE DATABASE bengkel_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE bengkel_db;
+DROP DATABASE IF EXISTS revvo;
+CREATE DATABASE revvo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE revvo;
 
 -- ============================================================
 -- 1. USERS
@@ -208,21 +208,21 @@ CREATE TABLE service_logs (
 
 -- users (15 rows: 2 admin, 5 mechanic, 8 customer)
 INSERT INTO users (name, email, password_hash, role, phone, status) VALUES
-('Budi Pemilik Bengkel', 'admin@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '081200000001', 'active'),
-('Sinta Manajer', 'admin2@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '081200000002', 'active'),
-('Andi Saputra', 'andi.mek@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mechanic', '081200000003', 'active'),
-('Budi Hartono', 'budi.mek@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mechanic', '081200000004', 'active'),
-('Cahyo Wijaya', 'cahyo.mek@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mechanic', '081200000005', 'active'),
-('Dimas Pratama', 'dimas.mek@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mechanic', '081200000006', 'active'),
-('Eko Susanto', 'eko.mek@bengkel.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mechanic', '081200000007', 'inactive'),
-('Geral Maulana', 'geral@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567801', 'active'),
-('Rizki Ramadhan', 'rizki@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567802', 'active'),
-('Maya Anggraini', 'maya@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567803', 'active'),
-('Fajar Nugroho', 'fajar@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567804', 'active'),
-('Siti Aminah', 'siti@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567805', 'active'),
-('Hendra Kurniawan', 'hendra@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567806', 'active'),
-('Lisa Permata', 'lisa@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567807', 'active'),
-('Agus Setiawan', 'agus@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'customer', '081234567808', 'active');
+('Budi Pemilik Bengkel', 'admin@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'admin', '081200000001', 'active'),
+('Sinta Manajer', 'admin2@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'admin', '081200000002', 'active'),
+('Andi Saputra', 'andi.mek@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'mechanic', '081200000003', 'active'),
+('Budi Hartono', 'budi.mek@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'mechanic', '081200000004', 'active'),
+('Cahyo Wijaya', 'cahyo.mek@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'mechanic', '081200000005', 'active'),
+('Dimas Pratama', 'dimas.mek@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'mechanic', '081200000006', 'active'),
+('Eko Susanto', 'eko.mek@bengkel.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'mechanic', '081200000007', 'inactive'),
+('Geral Maulana', 'geral@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567801', 'active'),
+('Rizki Ramadhan', 'rizki@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567802', 'active'),
+('Maya Anggraini', 'maya@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567803', 'active'),
+('Fajar Nugroho', 'fajar@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567804', 'active'),
+('Siti Aminah', 'siti@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567805', 'active'),
+('Hendra Kurniawan', 'hendra@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567806', 'active'),
+('Lisa Permata', 'lisa@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567807', 'active'),
+('Agus Setiawan', 'agus@gmail.com', '$2y$12$lNiTtajoC/AxHO1w9C0XMOsOKKpyWYqXu9inuDGfX3GLS7QpObdIS', 'customer', '081234567808', 'active');
 
 -- customers (8 rows)
 INSERT INTO customers (user_id, address, gender, birth_date, no_ktp) VALUES
