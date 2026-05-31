@@ -33,10 +33,10 @@
 - [x] Halaman login + logic (cek role, set session)
 - [x] Halaman register (untuk customer saja)
 - [x] Halaman logout
-- [ ] Middleware proteksi halaman per role (`includes/auth.php`)
+- [x] Middleware proteksi halaman per role (`includes/auth.php`)
 - [x] Layout dasar (header, navbar, footer) dengan Tailwind CSS
 - [x] Halaman 403 forbidden
-- [ ] Test login-logout untuk 3 role
+- [x] Test login-logout untuk 3 role
 
 ### Phase 3: CRUD Master Data (Hari 9-12)
 
