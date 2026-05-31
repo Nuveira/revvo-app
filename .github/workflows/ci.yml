@@ -2,9 +2,9 @@ name: PHP CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: ['**']
   pull_request:
-    branches: [main, develop]
+    branches: ['**']
 
 jobs:
   lint:
@@ -22,6 +22,26 @@ jobs:
       - name: Show PHP version
         run: php -v
 
-      - name: Lint all PHP files
+      - name: Cek syntax semua file PHP
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
+
+      - name: Cek debug statements (var_dump, print_r, die)
+        run: |
+          FOUND=$(grep -rn --include="*.php" "var_dump\|print_r\|die(" . --exclude-dir=vendor || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: ada debug statement yang belum dihapus:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada debug statement"
+
+      - name: Cek file PHP tidak kosong
+        run: |
+          EMPTY=$(find . -type f -name "*.php" -not -path "./vendor/*" -empty)
+          if [ -n "$EMPTY" ]; then
+            echo "GAGAL: ada file PHP yang kosong:"
+            echo "$EMPTY"
+            exit 1
+          fi
+          echo "OK: semua file PHP tidak kosong"
