@@ -7,7 +7,7 @@ include 'includes/navbar.php';
 <!-- Hero Section -->
 <section id="hero" class="relative min-h-screen flex items-center pt-32 pb-20 grid-bg">
 
-    <!-- SVG Animated Workshop Elements (scroll-driven) -->
+    <!-- SVG Animated Workshop Elements (scroll-driven) --> 
     <div class="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
         <!-- Large Gear - Top Right -->
         <svg id="svg-gear-1" class="absolute -top-20 -right-20 w-80 h-80 opacity-[0.06]" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
