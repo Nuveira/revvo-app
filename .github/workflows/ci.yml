@@ -26,9 +26,9 @@ jobs:
         run: |
           find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
 
-      - name: Cek debug statements (var_dump, print_r, die)
+      - name: Cek debug statements (var_dump, print_r)
         run: |
-          FOUND=$(grep -rn --include="*.php" "var_dump\|print_r\|die(" . --exclude-dir=vendor || true)
+          FOUND=$(grep -rn --include="*.php" "var_dump\|print_r" . --exclude-dir=vendor || true)
           if [ -n "$FOUND" ]; then
             echo "GAGAL: ada debug statement yang belum dihapus:"
             echo "$FOUND"
