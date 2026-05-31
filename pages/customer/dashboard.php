@@ -72,6 +72,10 @@ if ($user_id) {
     $booking = $result->fetch_assoc();
     $stmt->close();
 }
+
+$steps = ['queued' => 'Antri', 'in_progress' => 'Dikerjakan', 'completed' => 'Selesai', 'ready_for_pickup' => 'Siap Diambil'];
+$step_keys = array_keys($steps);
+$current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
 ?>
 
 <!DOCTYPE html>
@@ -82,8 +86,7 @@ if ($user_id) {
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=add_circle" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=arrow_menu_close" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
@@ -98,7 +101,7 @@ if ($user_id) {
                 <div class="mx-2">
                     <p class="text-[#8E1616]">SELAMAT DATANG KEMBALI</p>
                     <p class="text-4xl text-white py-2">Halo, <?= htmlspecialchars($nama) ?></p>
-                    <p class="text-white">Kamu punya <?= $jumlah_booking ?> booking aktif dan <?= $jumlah_motor ?> motor terdaftar</p>
+                    <p class="text-white">Kamu punya <span class="text-[#FF0000]"><?= $jumlah_booking ?> booking aktif</span> dan <span class="text-[#FF0000]"><?= $jumlah_motor ?> motor</span> terdaftar</p>
 
                 </div>
                 <div class="ml-3 px-3 py-3 rounded inline-block items-center">
@@ -112,7 +115,7 @@ if ($user_id) {
             </div>
 
             <!-- Main Dashboard -->
-            <div class="flex gap-4 mx-4">
+            <div class="flex gap-4 my-2 mx-4">
                 <div class="flex-[2] bg-white rounded-lg border border-[#eadede] p-6 w-full shadow-sm">
                     <div class="flex items-start justify-between">
                         <div>
@@ -183,9 +186,32 @@ if ($user_id) {
                     Kelola Motor
                 </a>
             </div> 
-
         </div>
+            
+        <!--- Track Progress --->
+        <span class="rounded-full bg-[#FF0000] mx-12 px-4 py-1 text-sm font-medium text-white shadow-[0_0_20px_rgba(255,0,0,0.6)]">Track Progress</span>
+        <div class="flex items-center w-full mt-6 px-15">
+            <?php foreach ($steps as $key => $label): 
+                $index = array_search($key, $step_keys);
+                $is_done = $index <= $current_step;
+            ?>
 
+                <!-- Step -->
+                <div class="flex flex-col items-center">
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center <?= $is_done ? 'bg-orange-400 text-white' : 'bg-gray-200 text-gray-400' ?>">
+                        <?php if ($is_done): ?>
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                        <?php endif; ?>
+                    </div>
+                    <p class="text-xs mt-1 <?= $is_done ? 'text-black font-medium' : 'text-gray-400' ?>"><?= $label ?></p>
+                </div>
+
+            <!-- Line (kecuali setelah step terakhir) -->
+            <?php if ($index < count($steps) - 1): ?>
+                <div class="flex-1 h-0.5 mx-2 <?= $index < $current_step ? 'bg-orange-400' : 'bg-gray-200' ?>"></div>
+            <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
     </div>
 </body>
 </html>

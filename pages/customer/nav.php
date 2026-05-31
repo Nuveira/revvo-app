@@ -25,14 +25,36 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <hr>
             </div>
                 <nav class="flex flex-col gap-2 px-6 py-4">
-                    <a href="dashboard.php" class="<?= $current_page == 'dashboard.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> text-white py-2 px-4  rounded">Dashboard</a>
-                    <a href="motor.php" class="<?= $current_page == 'motor.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> text-white py-2 px-4 hover:bg-[#FF0000] rounded">Motor Saya</a>
-                    <a href="booking.php" class="<?= $current_page == 'booking.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> text-white py-2 px-4 hover:bg-[#FF0000] rounded">Booking</a>
-                    <a href="history.php" class="<?= $current_page == 'history.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> text-white py-2 px-4 hover:bg-[#FF0000] rounded ">History</a>
-                    <a href="profile.php" class="<?= $current_page == 'profile.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> text-white py-2 px-4 hover:bg-[#FF0000] rounded">Profil</a>
+                    <a href="dashboard.php" class="<?= $current_page == 'dashboard.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4  rounded">
+                        <span class="material-symbols-outlined pr-3">
+                            home
+                        </span>Dashboard
+                    </a>
+                    <a href="motor.php" class="<?= $current_page == 'motor.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
+                        <span class="material-symbols-outlined pr-3">
+                            sports_motorsports
+                        </span>Motor Saya
+                    </a>
+                    <a href="booking.php" class="<?= $current_page == 'booking.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
+                        <span class="material-symbols-outlined pr-3">
+                            calendar_today
+                        </span>Booking
+                    </a>
+                    <a href="history.php" class="<?= $current_page == 'history.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded ">
+                        <span class="material-symbols-outlined pr-3">
+                            history
+                        </span>History
+                    </a>
+                    <a href="profile.php" class="<?= $current_page == 'profile.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
+                        <span class="material-symbols-outlined pr-3">
+                            account_box
+                        </span>Profil
+                    </a>
                     <hr>
-                    <a href="#" class="text-white py-2 px-4 hover:bg-black rounded">
-                        Keluar
+                    <a href="#" class="flex text-white py-2 px-4 hover:bg-white hover:text-black rounded">
+                        <span class="material-symbols-outlined">
+                            logout
+                        </span>Keluar
                     </a>                
                 </nav>
         </div>
