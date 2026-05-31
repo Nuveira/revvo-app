@@ -1,86 +1,74 @@
 <?php
+// halaman login - tampilan form aja
 session_start();
-require_once '../../config/koneksi.php';
+require_once __DIR__ . '/../../config/app.php';
 
-$error = '';
+// ambil error dari session kalau ada
+$error = $_SESSION['login_error'] ?? '';
+unset($_SESSION['login_error']);
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
-    $password = $_POST['password'] ?? '';
-
-    if ($email && $password) {
-        $stmt = $conn->prepare("SELECT id, name, role, password_hash FROM users WHERE email = ? AND status = 'active'");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($row = $result->fetch_assoc()) {
-            if (password_verify($password, $row['password_hash'])) {
-                // Set session
-                $_SESSION['user_id'] = $row['id'];
-                $_SESSION['user_name'] = $row['name'];
-                $_SESSION['user_role'] = $row['role'];
-
-                // Redirect berdasarkan role
-                switch ($row['role']) {
-                    case 'admin':
-                        header('Location: ../admin/');
-                        break;
-                    case 'mechanic':
-                        header('Location: ../mekanik/');
-                        break;
-                    case 'customer':
-                        header('Location: ../customer/dashboard.php');
-                        break;
-                }
-                exit;
-            } else {
-                $error = 'Email atau password salah.';
-            }
-        } else {
-            $error = 'Email atau password salah.';
-        }
-        $stmt->close();
-    } else {
-        $error = 'Harap isi email dan password.';
-    }
-}
+$pageTitle = 'Login | REVVO';
+require_once __DIR__ . '/../../includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Revvo</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold text-center mb-6">Login Revvo</h1>
 
-        <?php if ($error): ?>
-            <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm">
-                <?= htmlspecialchars($error) ?>
-            </div>
-        <?php endif; ?>
+<!-- login form -->
+<div class="min-h-screen flex items-center justify-center px-4" style="background-color: #1D1616;">
+    <div class="w-full max-w-md">
+        <!-- logo -->
+        <div class="text-center mb-8">
+            <a href="<?= url('index.php') ?>" class="inline-flex items-center gap-2 mb-6">
+                <img src="<?= asset('assets/images/logo.png') ?>" alt="REVVO" class="h-10 w-auto invert brightness-0 invert">
+                <span class="font-headline font-bold text-3xl tracking-tighter" style="color: #EEEEEE;">REVVO</span>
+            </a>
+            <h1 class="text-2xl font-bold" style="color: #EEEEEE;">Masuk ke Akun Anda</h1>
+            <p class="mt-2 text-sm" style="color: #EEEEEE99;">Silakan login untuk melanjutkan</p>
+        </div>
 
-        <form method="POST" action="">
-            <div class="mb-4">
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input type="email" id="email" name="email" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
-                    value="<?= htmlspecialchars($email ?? '') ?>">
-            </div>
-            <div class="mb-6">
-                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                <input type="password" id="password" name="password" required
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500">
-            </div>
-            <button type="submit"
-                class="w-full bg-[#8E1616] text-white py-2 px-4 rounded-md hover:bg-[#6e1111] transition">
-                Masuk
-            </button>
-        </form>
+        <!-- card form -->
+        <div class="rounded-2xl p-8 border" style="background-color: #2a1f1f; border-color: rgba(238,238,238,0.1);">
+            <?php if ($error): ?>
+                <div class="px-4 py-3 rounded-xl mb-6 text-sm" style="background-color: rgba(216,64,64,0.1); border: 1px solid rgba(216,64,64,0.3); color: #D84040;">
+                    <?= htmlspecialchars($error) ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="<?= url('pages/auth/proses_login.php') ?>">
+                <!-- email -->
+                <div class="mb-5">
+                    <label for="email" class="block text-sm font-semibold mb-2" style="color: #EEEEEE;">Email</label>
+                    <input type="email" id="email" name="email" required
+                        class="w-full rounded-xl px-4 py-3 text-sm transition-colors"
+                        style="background-color: #1D1616; border: 1px solid rgba(238,238,238,0.1); color: #EEEEEE; outline: none; box-shadow: none;"
+                        onfocus="this.style.borderColor='rgba(238,238,238,0.3)'; this.style.outline='none'; this.style.boxShadow='none'" onblur="this.style.borderColor='rgba(238,238,238,0.1)'"
+                        placeholder="nama@email.com">
+                </div>
+
+                <!-- password -->
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-semibold mb-2" style="color: #EEEEEE;">Password</label>
+                    <input type="password" id="password" name="password" required
+                        class="w-full rounded-xl px-4 py-3 text-sm transition-colors"
+                        style="background-color: #1D1616; border: 1px solid rgba(238,238,238,0.1); color: #EEEEEE; outline: none; box-shadow: none;"
+                        onfocus="this.style.borderColor='rgba(238,238,238,0.3)'; this.style.outline='none'; this.style.boxShadow='none'" onblur="this.style.borderColor='rgba(238,238,238,0.1)'"
+                        placeholder="Masukkan password">
+                </div>
+
+                <!-- tombol login -->
+                <button type="submit"
+                    class="w-full py-3 rounded-xl font-bold text-sm transition-all duration-300"
+                    style="background-color: #D84040; color: #EEEEEE; box-shadow: 0 0 20px rgba(216,64,64,0.4);"
+                    onmouseover="this.style.backgroundColor='#8E1616'; this.style.boxShadow='0 0 30px rgba(216,64,64,0.6)'"
+                    onmouseout="this.style.backgroundColor='#D84040'; this.style.boxShadow='0 0 20px rgba(216,64,64,0.4)'">
+                    Masuk
+                </button>
+            </form>
+
+            <!-- link register -->
+            <p class="text-center text-sm mt-6" style="color: #EEEEEE99;">
+                Belum punya akun?
+                <a href="<?= url('pages/auth/register.php') ?>" class="font-semibold transition-colors" style="color: #D84040;"
+                    onmouseover="this.style.color='#8E1616'" onmouseout="this.style.color='#D84040'">Daftar disini</a>
+            </p>
+        </div>
     </div>
-</body>
-</html>
+</div>
