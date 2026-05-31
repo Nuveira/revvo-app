@@ -1,59 +1,12 @@
 <?php
-// halaman register user baru
+// halaman register - tampilan form aja
 session_start();
-require_once __DIR__ . '/../../config/koneksi.php';
+require_once __DIR__ . '/../../config/app.php';
 
-$error = '';
-$success = '';
-
-// proses register kalau form di submit
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $phone = trim($_POST['phone']);
-    $password = $_POST['password'];
-    $confirm = $_POST['confirm_password'];
-
-    // validasi input
-    if (empty($name) || empty($email) || empty($phone) || empty($password) || empty($confirm)) {
-        $error = 'Semua field harus diisi';
-    } elseif ($password !== $confirm) {
-        $error = 'Password tidak cocok';
-    } elseif (strlen($password) < 6) {
-        $error = 'Password minimal 6 karakter';
-    } else {
-        // cek email udah terdaftar atau belum
-        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->store_result();
-
-        if ($stmt->num_rows > 0) {
-            $error = 'Email sudah terdaftar';
-        }
-        $stmt->close();
-
-        // kalau masih gak ada error, insert data
-        if (empty($error)) {
-            $hashed = password_hash($password, PASSWORD_DEFAULT);
-
-            // insert ke tabel users
-            $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash, role, phone, status) VALUES (?, ?, ?, 'customer', ?, 'active')");
-            $stmt->bind_param("ssss", $name, $email, $hashed, $phone);
-            $stmt->execute();
-            $user_id = $conn->insert_id;
-            $stmt->close();
-
-            // insert ke tabel customers
-            $stmt = $conn->prepare("INSERT INTO customers (user_id) VALUES (?)");
-            $stmt->bind_param("i", $user_id);
-            $stmt->execute();
-            $stmt->close();
-
-            $success = 'Registrasi berhasil! Silakan login';
-        }
-    }
-}
+// ambil error/success dari session kalau ada
+$error   = $_SESSION['register_error'] ?? '';
+$success = $_SESSION['register_success'] ?? '';
+unset($_SESSION['register_error'], $_SESSION['register_success']);
 
 $pageTitle = 'Register | REVVO';
 require_once __DIR__ . '/../../includes/header.php';
@@ -86,12 +39,11 @@ require_once __DIR__ . '/../../includes/header.php';
                 </div>
             <?php endif; ?>
 
-            <form method="POST" action="">
+            <form method="POST" action="<?= url('pages/auth/proses_register.php') ?>">
                 <!-- nama lengkap -->
                 <div class="mb-5">
                     <label for="name" class="block text-sm font-semibold mb-2" style="color: #EEEEEE;">Nama Lengkap</label>
                     <input type="text" id="name" name="name" required
-                        value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
                         class="w-full rounded-xl px-4 py-3 text-sm transition-colors"
                         style="background-color: #1D1616; border: 1px solid rgba(238,238,238,0.1); color: #EEEEEE; outline: none; box-shadow: none;"
                         onfocus="this.style.borderColor='rgba(238,238,238,0.3)'" onblur="this.style.borderColor='rgba(238,238,238,0.1)'"
@@ -102,7 +54,6 @@ require_once __DIR__ . '/../../includes/header.php';
                 <div class="mb-5">
                     <label for="email" class="block text-sm font-semibold mb-2" style="color: #EEEEEE;">Email</label>
                     <input type="email" id="email" name="email" required
-                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                         class="w-full rounded-xl px-4 py-3 text-sm transition-colors"
                         style="background-color: #1D1616; border: 1px solid rgba(238,238,238,0.1); color: #EEEEEE; outline: none; box-shadow: none;"
                         onfocus="this.style.borderColor='rgba(238,238,238,0.3)'" onblur="this.style.borderColor='rgba(238,238,238,0.1)'"
@@ -113,7 +64,6 @@ require_once __DIR__ . '/../../includes/header.php';
                 <div class="mb-5">
                     <label for="phone" class="block text-sm font-semibold mb-2" style="color: #EEEEEE;">No. HP</label>
                     <input type="tel" id="phone" name="phone" required
-                        value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>"
                         class="w-full rounded-xl px-4 py-3 text-sm transition-colors"
                         style="background-color: #1D1616; border: 1px solid rgba(238,238,238,0.1); color: #EEEEEE; outline: none; box-shadow: none;"
                         onfocus="this.style.borderColor='rgba(238,238,238,0.3)'" onblur="this.style.borderColor='rgba(238,238,238,0.1)'"
