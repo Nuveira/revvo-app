@@ -35,6 +35,7 @@ $profile_photo = $profile_photo ?? null;
         <a href="mechanics.php" class="<?= $current_page === 'mechanics.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Mechanics</a>
         <a href="spare_parts.php" class="<?= $current_page === 'spare_parts.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Spare Parts</a>
         <a href="time_slots.php" class="<?= $current_page === 'time_slots.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Time Slots</a>
+        <a href="audit_logs.php" class="<?= $current_page === 'audit_logs.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Audit Logs</a>
         <a href="reports.php" class="<?= $current_page === 'reports.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Reports</a>
         <hr class="border-white/20 my-1">
         <a href="<?= url('pages/auth/logout.php') ?>" class="text-white py-2 px-4 hover:bg-white hover:text-black rounded flex items-center gap-2 transition-colors duration-200">
