@@ -17,7 +17,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             <?= strtoupper(substr($nama, 0,1)) ?>
                         </div>
                     <?php endif; ?>
-                     <div class="min-w-0">   
+                    <div class="min-w-0">   
                         <P class="text-white text-center font-semibold text-sm leading-tight truncate"><?= htmlspecialchars($nama) ?></P>
                         <p class="text-white/70 text-xs mt-1"><?= htmlspecialchars($role) ?></p>
                     </div>
@@ -51,7 +51,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </span>Profil
                     </a>
                     <hr>
-                    <a href="#" class="flex text-white py-2 px-4 hover:bg-white hover:text-black rounded">
+                    <a href="<?= url('pages/auth/logout.php') ?>" class="flex text-white py-2 px-4 hover:bg-white hover:text-black rounded">
                         <span class="material-symbols-outlined">
                             logout
                         </span>Keluar

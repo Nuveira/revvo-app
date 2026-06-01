@@ -4,6 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 $pageTitle = 'Booking | REVVO';
 require_once '../../config/koneksi.php';
+require_once '../../includes/auth.php';
+checkRole(['customer']);
 
 // Ambil data user dari session
 $user_id = $_SESSION['user_id'] ?? null;
@@ -38,7 +40,8 @@ if ($user_id) {
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
-<body class="font-['Plus_Jakarta_Sans']">
+<body class="font-['Plus_Jakarta_Sans'] flex h-screen">
     <?php include 'nav.php'; ?>
+
 </body>
 </html>
