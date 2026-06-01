@@ -1,17 +1,13 @@
 <?php
-/**
- * Footer Template
- * Includes: Footer content, closing </body> and </html>
- */
 ?>
-<!-- Footer -->
+<!-- footer -->
 <footer class="bg-stone-900 py-24 border-t border-white/5">
     <div class="max-w-container-max mx-auto px-margin-desktop">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-20">
-            <!-- Brand -->
+            <!-- brand -->
             <div class="md:col-span-4">
                 <div class="flex items-center gap-3 mb-10">
-                    <img src="assets/images/logo.png" alt="REVVO" class="h-10 w-auto invert brightness-0 invert">
+                    <img src="<?= asset('assets/images/logo.png') ?>" alt="REVVO" class="h-10 w-auto invert brightness-0 invert">
                     <span class="font-headline font-bold text-3xl tracking-tighter">REVVO</span>
                 </div>
                 <p class="text-stone-400 max-w-xs leading-relaxed text-lg">
@@ -19,7 +15,7 @@
                 </p>
             </div>
 
-            <!-- Produk -->
+            <!-- produk -->
             <div class="md:col-span-2">
                 <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Produk</h5>
                 <ul class="space-y-5 text-stone-400 font-semibold text-sm">
@@ -30,7 +26,7 @@
                 </ul>
             </div>
 
-            <!-- Perusahaan -->
+            <!-- perusahaan -->
             <div class="md:col-span-2">
                 <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Perusahaan</h5>
                 <ul class="space-y-5 text-stone-400 font-semibold text-sm">
@@ -41,7 +37,7 @@
                 </ul>
             </div>
 
-            <!-- Newsletter -->
+            <!-- newsletter -->
             <div class="md:col-span-4">
                 <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Tetap Terhubung</h5>
                 <p class="text-sm text-stone-400 mb-8 leading-relaxed">Berlangganan newsletter untuk tips eksklusif mengelola bengkel modern.</p>
@@ -52,7 +48,7 @@
             </div>
         </div>
 
-        <!-- Bottom Bar -->
+        <!-- bottom -->
         <div class="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
             <p class="text-xs font-technical text-stone-600">&copy; <?= date('Y') ?> REVVO SYSTEMS. SEMUA HAK DILINDUNGI.</p>
             <div class="flex gap-12 text-stone-600 text-xs font-bold tracking-widest uppercase">
@@ -63,7 +59,13 @@
     </div>
 </footer>
 
-<!-- Initialize Lucide Icons -->
-<script>lucide.createIcons();</script>
+<script src="<?= asset('assets/js/main.js') ?>"></script>
+<script src="<?= asset('assets/js/navbar.js') ?>"></script>
+
+<?php if (!empty($pageScripts)): ?>
+    <?php foreach ($pageScripts as $script): ?>
+        <script src="<?= asset($script) ?>"></script>
+    <?php endforeach; ?>
+<?php endif; ?>
 </body>
 </html>
