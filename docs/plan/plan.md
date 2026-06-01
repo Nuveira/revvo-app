@@ -12,37 +12,37 @@
 
 ### Phase 0: Persiapan & Persetujuan (Hari 1-2)
 
-- [ ] Submit proposal usulan domain ke dosen
-- [ ] Tunggu persetujuan dosen
-- [ ] Setup tools: Laragon/XAMPP, VS Code, MySQL Workbench
-- [ ] Buat repository GitHub (private dulu, ubah jadi public di akhir)
-- [ ] Setup struktur folder project awal (lihat section D: current vs target)
-- [ ] Sepakati aturan tim (lihat section G)
+- [x] Submit proposal usulan domain ke dosen
+- [x] Tunggu persetujuan dosen
+- [x] Setup tools: Laragon/XAMPP, VS Code, MySQL Workbench
+- [x] Buat repository GitHub (private dulu, ubah jadi public di akhir)
+- [x] Setup struktur folder project awal (lihat section D: current vs target)
+- [x] Sepakati aturan tim (lihat section G)
 
 ### Phase 1: Design & Setup Database (Hari 3-5)
 
-- [ ] Finalisasi ERD (11 tabel) — tools: dbdiagram.io / draw.io
-- [ ] Buat file `.sql` lengkap dengan relasi & constraint
-- [ ] Insert data dummy minimal 10 baris per tabel
-- [ ] Test import-export `.sql` dari scratch (wajib bisa di-import ulang tanpa error)
-- [ ] Buat file `config/koneksi.php`
-- [ ] Test koneksi di file dummy
+- [x] Finalisasi ERD (11 tabel) — tools: dbdiagram.io / draw.io
+- [x] Buat file `.sql` lengkap dengan relasi & constraint
+- [x] Insert data dummy minimal 10 baris per tabel
+- [x] Test import-export `.sql` dari scratch (wajib bisa di-import ulang tanpa error)
+- [x] Buat file `config/koneksi.php`
+- [x] Test koneksi di file dummy
 
 ### Phase 2: Authentication & Layout (Hari 6-8)
 
-- [ ] Halaman login + logic (cek role, set session)
-- [ ] Halaman register (untuk customer saja)
-- [ ] Halaman logout
-- [ ] Middleware proteksi halaman per role (`includes/auth.php`)
-- [ ] Layout dasar (header, navbar, footer) dengan Tailwind CSS
-- [ ] Halaman 403 forbidden
-- [ ] Test login-logout untuk 3 role
+- [x] Halaman login + logic (cek role, set session)
+- [x] Halaman register (untuk customer saja)
+- [x] Halaman logout
+- [x] Middleware proteksi halaman per role (`includes/auth.php`)
+- [x] Layout dasar (header, navbar, footer) dengan Tailwind CSS
+- [x] Halaman 403 forbidden
+- [x] Test login-logout untuk 3 role
 
 ### Phase 3: CRUD Master Data (Hari 9-12)
 
 > **6 entitas utama dengan full CRUD** — target utama untuk rubrik "Kelengkapan Fitur CRUD" (25%).
 
-- [ ] **CRUD users** (admin manage akun admin & mekanik)
+- [x] **CRUD users** (admin manage akun admin & mekanik)
 - [ ] **CRUD service_types** (admin manage master layanan)
 - [ ] **CRUD mechanics** (admin manage data mekanik)
 - [ ] **CRUD spare_parts** (admin manage master sparepart + stok)
@@ -80,7 +80,7 @@
 ### Phase 6: Dashboard & Audit Log (Hari 22-23)
 
 - [ ] Dashboard admin (ringkasan harian, alert stok hampir habis)
-- [ ] Dashboard customer (booking aktif, histori)
+- [x] Dashboard customer (booking aktif, histori)
 - [ ] Dashboard mekanik (tugas hari ini, histori personal)
 - [ ] Halaman audit log (read-only, dengan filter)
 
