@@ -7,7 +7,7 @@ require_once '../../includes/auth.php';
 checkRole(['customer']);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: tambah_booking.php');
+    header('Location: history.php');
     exit;
 }
 
@@ -15,7 +15,7 @@ $userId = $_SESSION['user_id'] ?? 0;
 
 /*
 |--------------------------------------------------------------------------
-| Ambil customer login
+| Customer
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
@@ -30,8 +30,10 @@ $stmt->execute();
 $customer = $stmt->get_result()->fetch_assoc();
 
 if (!$customer) {
+
     $_SESSION['error'] = 'Customer tidak ditemukan';
-    header('Location: tambah_booking.php');
+
+    header('Location: history.php');
     exit;
 }
 
@@ -39,35 +41,61 @@ $customerId = $customer['id'];
 
 /*
 |--------------------------------------------------------------------------
-| Ambil data form
+| Data Form
 |--------------------------------------------------------------------------
 */
+$bookingId = (int) ($_POST['booking_id'] ?? 0);
 $motorId = (int) ($_POST['motor_id'] ?? 0);
 $serviceTypeId = (int) ($_POST['service_type_id'] ?? 0);
-$timeSlotId = (int) ($_POST['time_slot_id'] ?? 0);
 
 $bookingDate = trim($_POST['booking_date'] ?? '');
-$complaint = trim($_POST['customer_complaint'] ?? '');
+
+$complaint = trim(
+    $_POST['customer_complaint'] ?? ''
+);
 
 /*
 |--------------------------------------------------------------------------
-| Validasi
+| Booking
 |--------------------------------------------------------------------------
 */
-if (
-    !$motorId ||
-    !$serviceTypeId ||
-    !$timeSlotId ||
-    empty($bookingDate)
-) {
-    $_SESSION['error'] = 'Lengkapi semua data booking';
-    header('Location: tambah_booking.php');
+$stmt = $conn->prepare("
+    SELECT *
+    FROM bookings
+    WHERE id = ?
+    AND customer_id = ?
+");
+
+$stmt->bind_param(
+    "ii",
+    $bookingId,
+    $customerId
+);
+
+$stmt->execute();
+
+$booking = $stmt->get_result()->fetch_assoc();
+
+if (!$booking) {
+
+    $_SESSION['error'] = 'Booking tidak ditemukan';
+
+    header('Location: history.php');
+    exit;
+}
+
+if ($booking['status'] !== 'queued') {
+
+    $_SESSION['error'] =
+        'Booking yang sudah diproses tidak dapat diubah';
+
+    header('Location: history.php');
     exit;
 }
 
 /*
 |--------------------------------------------------------------------------
-| Ambil harga service
+| Harga Service
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
@@ -82,8 +110,11 @@ $stmt->execute();
 $service = $stmt->get_result()->fetch_assoc();
 
 if (!$service) {
-    $_SESSION['error'] = 'Jenis service tidak ditemukan';
-    header('Location: tambah_booking.php');
+
+    $_SESSION['error'] =
+        'Jenis service tidak ditemukan';
+
+    header('Location: history.php');
     exit;
 }
 
@@ -91,58 +122,42 @@ $servicePrice = $service['base_price'];
 
 /*
 |--------------------------------------------------------------------------
-| Simpan booking
+| Update Booking
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
-INSERT INTO bookings
-(
-    customer_id,
-    motor_id,
-    service_type_id,
-    mechanic_id,
-    time_slot_id,
-    booking_date,
-    service_price,
-    total_price,
-    status,
-    customer_complaint,
-    condition_photo,
-    mechanic_note
-)
-VALUES
-(
-    ?, ?, ?,
-    NULL,
-    ?,
-    ?,
-    ?,
-    ?,
-    'queued',
-    ?,
-    NULL,
-    NULL
-)
+UPDATE bookings
+SET
+    motor_id = ?,
+    service_type_id = ?,
+    booking_date = ?,
+    customer_complaint = ?,
+    service_price = ?,
+    total_price = ?
+WHERE id = ?
 ");
 
 $stmt->bind_param(
-    "iiiisdds",
-    $customerId,
+    "iissddi",
     $motorId,
     $serviceTypeId,
-    $timeSlotId,
     $bookingDate,
+    $complaint,
     $servicePrice,
     $servicePrice,
-    $complaint
+    $bookingId
 );
 
 if ($stmt->execute()) {
-    $_SESSION['success'] = 'Booking berhasil dibuat';
-    header('Location: history.php');
-    exit;
+
+    $_SESSION['success'] =
+        'Booking berhasil diperbarui';
+
+} else {
+
+    $_SESSION['error'] =
+        'Gagal memperbarui booking';
 }
 
-$_SESSION['error'] = 'Booking gagal dibuat';
-header('Location: tambah_booking.php');
+header('Location: history.php');
 exit;
