@@ -293,7 +293,8 @@ $bookings = $stmt->get_result();
                                         <?php if($row['status'] == 'queued'): ?>
 
                                             <a
-                                                href="tambah_booking.php?edit=<?= $row['id']; ?>"
+                                                <?= $row['status']; ?>
+                                                href="edit_booking.php?id=<?= $row['id']; ?>"
                                                 class="bg-yellow-500 text-white px-3 py-1 rounded"
                                             >
                                                 Edit
