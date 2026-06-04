@@ -41,7 +41,7 @@ if ($user_id) {
         JOIN customers c ON m.customer_id = c.id
         WHERE c.user_id = ?
         ORDER BY m.id DESC
-        LIMIT 3
+        LIMIT 1
     ");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -114,12 +114,12 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
     <div class="flex h-screen overflow-hidden">
         <?php include 'nav.php'; ?>
 
-        <div class="flex-1 min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
+        <div class="flex-1 flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
             <!-- Header -->
             <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
-                <div class="min-w-0 md:mx-2">
-                    <p class="text-[#8E1616]">SELAMAT DATANG KEMBALI</p>
-                    <p class="text-2xl sm:text-4xl text-white py-2 break-words">Halo, <?= htmlspecialchars($nama) ?></p>
+                <div class="min-w-0">
+                    <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">SELAMAT DATANG KEMBALI</p>
+                    <p class="mt-2 text-2xl sm:text-4xl text-white font-semibold break-words">Halo, <?= htmlspecialchars($nama) ?></p>
                     <p class="text-white">Kamu punya <span class="text-[#FF0000]"><?= $jumlah_booking ?> booking aktif</span> dan <span class="text-[#FF0000]"><?= $jumlah_motor ?> motor</span> terdaftar</p>
 
                 </div>
@@ -184,13 +184,13 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
 
             <div class="flex-1 bg-[#8E1616] rounded-lg border border-[#eadede] p-6 w-full shadow-sm min-w-0">
                 <p class="items-start text-[11px] tracking-[0.2em] text-gray-400 uppercase">
-                    Motor terdaftar
+                    Motor terdaftar | <?= $jumlah_motor ?> motor tersedia
                 </p>
                 
                 <div class="mt-6 space-y-2">
                     <?php if (!empty($motors)): ?>
                     <?php foreach ($motors as $m): ?>
-                    <div class="bg-[#a32828]/40 px-4 py-4">
+                    <div class="bg-[#a32828]/100 px-4 py-4">
                         <p class="text-lg font-semibold text-white break-words"><?= htmlspecialchars($m['brand'] . ' ' . $m['model']) ?></p>
                         <p class="text-sm text-[#f1caca]"><?= htmlspecialchars($m['plate_number']) ?></p>
                     </div>
@@ -204,7 +204,7 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
                 href="motor.php"
                 class="mt-8 block w-full bg-white py-4 rounded-lg text-center text-base font-medium text-[#8E1616] transition hover:bg-gray-300"
                 >
-                Kelola Motor
+                Lihat Selengkapnya →
             </a>
         </div> 
     </div>
@@ -250,7 +250,7 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
             <h3 class="font-semibold text-lg">
                 History Booking
             </h3>
-            <a href='history.php' class="bg-[#8E1616] px-4 py-2 rounded-sm text-center text-base font-semibold text-white transition hover:bg-[#6f1111]">
+            <a href='history.php' class="bg-[#8E1616] px-4 py-2 rounded-sm text-center text-[12px] font-semibold text-white transition hover:bg-[#6f1111]">
                 Lihat Selengkapnya →
             </a>
         </div>

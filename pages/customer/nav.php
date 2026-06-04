@@ -30,17 +30,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             home
                         </span>Dashboard
                     </a>
-                    <a href="motor.php" class="<?= $current_page == 'motor.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
+                    <a href="motor.php" class="<?= in_array($current_page, ['motor.php', 'tambah_motor.php', 'detail_motor.php', 'edit_motor.php']) ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
                         <span class="material-symbols-outlined pr-3">
                             sports_motorsports
                         </span>Motor Saya
                     </a>
-                    <a href="booking.php" class="<?= $current_page == 'booking.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
+                    <a href="booking_new.php" class="<?= $current_page == 'booking.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
                         <span class="material-symbols-outlined pr-3">
                             calendar_today
                         </span>Booking
                     </a>
-                    <a href="history.php" class="<?= $current_page == 'history.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded ">
+                    <a href="history.php" class="<?= in_array($current_page, ['history.php', 'detail_history.php']) ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded ">
                         <span class="material-symbols-outlined pr-3">
                             history
                         </span>History
