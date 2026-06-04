@@ -49,20 +49,19 @@ if ($customer_id) {
     <div class="flex h-screen overflow-hidden">
         <?php include 'nav.php'; ?>
 
-        <main class="flex-1 min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
+        <main class="flex-1 flex flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
             <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
                 <div class="min-w-0">
                     <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">Motor Saya</p>
                     <h1 class="mt-2 text-2xl sm:text-4xl text-white font-semibold break-words">Kelola motor pribadi</h1>
-                    <p class="mt-2 text-sm text-white/70">Total <?= count($motors) ?> motor terdaftar</p>
                 </div>
-                <a href="tambah_motor.php" class="inline-flex w-fit items-center gap-2 rounded bg-[#FF0000] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6e1111]">
+                <a href="tambah_motor.php" class="bg-[#FF0000] px-4 py-3 rounded text-sm font-semibold text-white whitespace-nowrap hover:bg-[#6e1111] transition inline-flex items-center gap-2 shadow-[0_0_15px_rgba(142,22,22,0.3)] shadow-red-500/40">
                     <span class="material-symbols-outlined text-[20px]">add_circle</span>
                     Tambah Motor
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 gap-5 p-4 w-full">
+            <div class="flex-1 grid grid-cols-1 gap-5 p-4 w-full">
                 <section class="min-w-0">
                     <?php if ($successMessage): ?>
                         <div class="mb-4 rounded border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">

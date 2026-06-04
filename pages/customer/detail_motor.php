@@ -13,7 +13,7 @@ if (!$motor_id) {
     exit;
 }
 
-// Ambil data motor — pastikan milik customer ini
+// Ambil data motor 
 $motor = null;
 $stmt = $conn->prepare("
     SELECT m.*
@@ -102,9 +102,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <h1 class="mt-2 text-2xl sm:text-4xl text-white font-semibold break-words">
                         <?= htmlspecialchars($motor['brand'] . ' ' . $motor['model']) ?>
                     </h1>
-                    <p class="mt-1 text-white/70 text-sm"><?= htmlspecialchars($motor['plate_number']) ?></p>
                 </div>
-                <a href="motor.php" class="inline-flex w-fit items-center gap-2 rounded bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20">
+                <a href="motor.php" class="bg-[#FF0000] px-4 py-3 rounded text-sm font-semibold text-white whitespace-nowrap hover:bg-[#6e1111] transition inline-flex items-center gap-2 shadow-[0_0_15px_rgba(142,22,22,0.3)] shadow-red-500/40">
                     <span class="material-symbols-outlined text-[20px]">arrow_back</span>
                     Kembali
                 </a>
@@ -139,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <?= htmlspecialchars($motor['plate_number']) ?>
                             </span>
 
-                            <div class="mt-4 grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
+                            <div class="mt-4 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                                 <div>
                                     <p class="text-xs uppercase tracking-[0.15em] text-gray-400">Tahun</p>
                                     <p class="mt-1 font-medium text-gray-800"><?= $motor['production_year'] ?? '-' ?></p>
@@ -149,12 +148,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                     <p class="mt-1 font-medium text-gray-800"><?= $motor['color'] ? htmlspecialchars($motor['color']) : '-' ?></p>
                                 </div>
                                 <div>
-                                    <p class="text-xs uppercase tracking-[0.15em] text-gray-400">Total Booking</p>
-                                    <p class="mt-1 font-medium text-gray-800"><?= count($bookings) ?> kali</p>
-                                </div>
-                                <div>
                                     <p class="text-xs uppercase tracking-[0.15em] text-gray-400">Terdaftar</p>
                                     <p class="mt-1 font-medium text-gray-800"><?= date('d M Y', strtotime($motor['created_at'])) ?></p>
+                                </div>
+                                <div>
+                                    <p class="text-xs uppercase tracking-[0.15em] text-gray-400">Total Booking</p>
+                                    <p class="mt-1 font-medium text-gray-800"><?= count($bookings) ?> kali</p>
                                 </div>
                             </div>
                         </div>
@@ -168,15 +167,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                             Edit Motor
                         </a>
 
-                        <form method="POST" action="detail_motor.php?id=<?= $motor['id'] ?>"
-                              onsubmit="return confirm('Yakin hapus motor ini? Data tidak bisa dikembalikan.')">
-                            <input type="hidden" name="action" value="delete">
-                            <button type="submit"
-                                class="inline-flex items-center gap-2 rounded border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100">
-                                <span class="material-symbols-outlined text-[18px]">delete</span>
-                                Hapus Motor
+                        <button type="button" onclick="showDeleteModal()"
+                            class="inline-flex items-center gap-2 rounded border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100">
+                            <span class="material-symbols-outlined text-[18px]">delete</span>
+                            Hapus Motor
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal Konfirmasi Hapus -->
+                <div id="deleteModal" class="backdrop-blur-lg fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+                    <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl">
+                        <h3 class="text-lg font-semibold text-gray-900">Hapus Motor?</h3>
+                        <p class="mt-2 text-sm text-gray-500">Motor <strong><?= htmlspecialchars($motor['brand'] . ' ' . $motor['model']) ?></strong> akan dihapus permanen. Data tidak bisa dikembalikan.</p>
+                        <div class="mt-5 flex gap-3">
+                            <button onclick="closeDeleteModal()"
+                                class="flex-1 rounded border border-gray-400 px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-300">
+                                Batal
                             </button>
-                        </form>
+                            <form method="POST" action="detail_motor.php?id=<?= $motor['id'] ?>" class="flex-1">
+                                <input type="hidden" name="action" value="delete">
+                                <button type="submit"
+                                    class="w-full rounded border border-gray-500 bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-900">
+                                    Ya, Hapus
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -214,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                     };
                                 ?>
                                 <tr class="border-b border-gray-50">
-                                    <td class="py-3 text-gray-500">#BK-<?= str_pad($b['id'], 4, '0', STR_PAD_LEFT) ?></td>
+                                    <td class="py-3 text-gray-500">BK-<?= str_pad($b['id'], 4, '0', STR_PAD_LEFT) ?></td>
                                     <td class="py-3"><?= date('d M Y', strtotime($b['booking_date'])) ?></td>
                                     <td class="py-3"><?= htmlspecialchars($b['service_name']) ?></td>
                                     <td class="py-3 font-semibold">Rp<?= number_format($b['total_price'], 0, ',', '.') ?></td>
@@ -233,5 +249,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             <?php include 'footer.php'; ?>
         </main>
     </div>
+
+<script>
+    function showDeleteModal() {
+        document.getElementById('deleteModal').classList.remove('hidden');
+    }
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    }
+    document.getElementById('deleteModal').addEventListener('click', 
+        function(e) {
+            if (e.target === this) closeDeleteModal();
+        });
+</script>
 </body>
+
 </html>
