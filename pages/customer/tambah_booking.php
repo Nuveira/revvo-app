@@ -115,204 +115,184 @@ $timeSlots = $conn->query("
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+<link rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
 
-<body class="font-['Plus_Jakarta_Sans'] bg-gray-100">
+<body class="font-['Plus_Jakarta_Sans']">
 
 <div class="flex h-screen">
 
-```
-<?php include 'nav.php'; ?>
+    <?php include 'nav.php'; ?>
 
-<div class="flex-1 overflow-auto">
+    <div class="flex-1 bg-gray-100">
 
-    <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex justify-between items-center w-full p-5">
 
-        <p class="text-[#8E1616] uppercase text-sm">
-            Booking Service
-        </p>
+            <div class="mx-2">
+                <p class="text-[#8E1616]">
+                    BOOKING SERVICE
+                </p>
 
-        <h1 class="text-4xl text-white py-2">
-            Tambah Booking
-        </h1>
+                <p class="text-4xl text-white py-2">
+                    Tambah Booking
+                </p>
 
-        <p class="text-white">
-            Buat booking servis motor Anda.
-        </p>
+                <p class="text-white">
+                    Buat jadwal service motor Anda.
+                </p>
+            </div>
 
-    </div>
+        </div>
 
-    <div class="p-6">
+        <!-- Form -->
+        <div class="mx-4 mt-4">
 
-        <div class="bg-white border border-[#eadede] rounded-lg shadow-sm p-6">
+            <div class="bg-white rounded-lg border border-[#eadede] p-6 shadow-sm">
 
-            <form
-                action="proses_booking.php"
-                method="POST"
-                class="space-y-5"
-            >
+                <form action="proses_booking.php" method="POST" class="space-y-5">
 
-                <div>
-
-                    <label class="block mb-2 font-medium">
-                        Motor
-                    </label>
-
-                    <select
-                        name="motor_id"
-                        required
-                        class="w-full border rounded-lg p-3"
-                    >
-
-                        <option value="">
+                    <!-- Motor -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
                             Pilih Motor
-                        </option>
+                        </label>
 
-                        <?php while($motor = $motors->fetch_assoc()): ?>
+                        <select
+                            name="motor_id"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-[#8E1616]"
+                            required
+                        >
 
-                            <option value="<?= $motor['id'] ?>">
+                            <?php while($motor = $motors->fetch_assoc()): ?>
 
-                                <?= htmlspecialchars(
-                                    $motor['brand']
-                                    .' '.
-                                    $motor['model']
-                                    .' ('.
-                                    $motor['plate_number']
-                                    .')'
-                                ) ?>
+                                <option value="<?= $motor['id']; ?>">
 
-                            </option>
+                                    <?= htmlspecialchars(
+                                        $motor['brand']
+                                        .' '.
+                                        $motor['model']
+                                        .' - '.
+                                        $motor['plate_number']
+                                    ); ?>
 
-                        <?php endwhile; ?>
+                                </option>
 
-                    </select>
+                            <?php endwhile; ?>
 
-                </div>
+                        </select>
+                    </div>
 
-                <div>
+                    <!-- Service -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Jenis Service
+                        </label>
 
-                    <label class="block mb-2 font-medium">
-                        Jenis Service
-                    </label>
+                        <select
+                            name="service_type_id"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3"
+                            required
+                        >
 
-                    <select
-                        name="service_type_id"
-                        required
-                        class="w-full border rounded-lg p-3"
-                    >
+                            <?php while($service = $serviceTypes->fetch_assoc()): ?>
 
-                        <option value="">
-                            Pilih Service
-                        </option>
+                                <option value="<?= $service['id']; ?>">
 
-                        <?php while($service = $serviceTypes->fetch_assoc()): ?>
+                                    <?= htmlspecialchars($service['name']); ?>
 
-                            <option value="<?= $service['id'] ?>">
+                                </option>
 
-                                <?= htmlspecialchars(
-                                    $service['name']
-                                ) ?>
+                            <?php endwhile; ?>
 
-                                -
+                        </select>
+                    </div>
 
-                                Rp <?= number_format(
-                                    $service['base_price']
-                                ) ?>
+                    <!-- Jadwal -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Tanggal Booking
+                        </label>
 
-                            </option>
+                        <input
+                            type="date"
+                            name="booking_date"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3"
+                            required
+                        >
+                    </div>
 
-                        <?php endwhile; ?>
+                    <!-- Time Slot -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Time Slot
+                        </label>
 
-                    </select>
+                        <select
+                            name="time_slot_id"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3"
+                            required
+                        >
 
-                </div>
+                            <?php while($slot = $timeSlots->fetch_assoc()): ?>
 
-                <div>
+                                <option value="<?= $slot['id']; ?>">
 
-                    <label class="block mb-2 font-medium">
-                        Tanggal Booking
-                    </label>
+                                    <?= htmlspecialchars(
+                                        $slot['day']
+                                        .' | '.
+                                        substr($slot['start_time'],0,5)
+                                        .' - '.
+                                        substr($slot['end_time'],0,5)
+                                    ); ?>
 
-                    <input
-                        type="date"
-                        name="booking_date"
-                        min="<?= date('Y-m-d') ?>"
-                        required
-                        class="w-full border rounded-lg p-3"
-                    >
+                                </option>
 
-                </div>
+                            <?php endwhile; ?>
 
-                <div>
+                        </select>
+                    </div>
 
-                    <label class="block mb-2 font-medium">
-                        Jadwal Service
-                    </label>
+                    <!-- Keluhan -->
+                    <div>
+                        <label class="block text-sm font-medium mb-2">
+                            Keluhan
+                        </label>
 
-                    <select
-                        name="time_slot_id"
-                        required
-                        class="w-full border rounded-lg p-3"
-                    >
+                        <textarea
+                            name="customer_complaint"
+                            rows="4"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-3"
+                            placeholder="Jelaskan keluhan motor..."
+                        ></textarea>
+                    </div>
 
-                        <option value="">
-                            Pilih Jadwal
-                        </option>
+                    <!-- Button -->
+                    <div class="flex gap-3">
 
-                        <?php while($slot = $timeSlots->fetch_assoc()): ?>
+                        <button
+                            type="submit"
+                            class="bg-[#8E1616] px-6 py-3 rounded-lg text-white hover:bg-[#6f1111] transition"
+                        >
+                            Simpan Booking
+                        </button>
 
-                            <option value="<?= $slot['id'] ?>">
+                        <a
+                            href="dashboard.php"
+                            class="bg-gray-200 px-6 py-3 rounded-lg hover:bg-gray-300 transition"
+                        >
+                            Batal
+                        </a>
 
-                                <?= ucfirst($slot['day']) ?>
+                    </div>
 
-                                |
+                </form>
 
-                                <?= substr($slot['start_time'],0,5) ?>
-
-                                -
-
-                                <?= substr($slot['end_time'],0,5) ?>
-
-                            </option>
-
-                        <?php endwhile; ?>
-
-                    </select>
-
-                </div>
-
-                <div>
-
-                    <label class="block mb-2 font-medium">
-                        Keluhan
-                    </label>
-
-                    <textarea
-                        name="customer_complaint"
-                        rows="4"
-                        class="w-full border rounded-lg p-3"
-                        placeholder="Jelaskan keluhan motor..."
-                    ></textarea>
-
-                </div>
-
-                <button
-                    type="submit"
-                    class="bg-[#8E1616] hover:bg-[#6d1111]
-                           text-white px-6 py-3 rounded-lg"
-                >
-                    Buat Booking
-                </button>
-
-            </form>
+            </div>
 
         </div>
 
     </div>
-
-</div>
-```
 
 </div>
 
