@@ -6,281 +6,345 @@ require_once '../../includes/auth.php';
 
 checkRole(['customer']);
 
-$user_id = $_SESSION['user_id'];
-
-$id = (int)($_GET['id'] ?? 0);
-
-if (!$id) {
-    die('Booking tidak ditemukan');
-}
+$userId = $_SESSION['user_id'] ?? 0;
 
 /*
 |--------------------------------------------------------------------------
-| Ambil Customer Login
+| Customer
 |--------------------------------------------------------------------------
 */
-
 $stmt = $conn->prepare("
-SELECT id
-FROM customers
-WHERE user_id = ?
+    SELECT id
+    FROM customers
+    WHERE user_id = ?
 ");
 
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $userId);
 $stmt->execute();
 
-$customer = $stmt
-    ->get_result()
-    ->fetch_assoc();
+$customer = $stmt->get_result()->fetch_assoc();
 
 if (!$customer) {
     die('Customer tidak ditemukan');
 }
 
-$customer_id = $customer['id'];
+$customerId = $customer['id'];
 
-/*
-|--------------------------------------------------------------------------
-| Ambil Booking
-|--------------------------------------------------------------------------
-*/
+$bookingId = (int) ($_GET['id'] ?? 0);
 
-$stmt = $conn->prepare("
-SELECT *
-FROM bookings
-WHERE id = ?
-AND customer_id = ?
-");
+if (!$bookingId) {
+    header('Location: history.php');
+    exit;
+}
 
-$stmt->bind_param(
-    "ii",
-    $id,
-    $customer_id
-);
+$user_id = $_SESSION['user_id'] ?? null;
 
-$stmt->execute();
+$nama = 'Guest';
+$role = '';
+$profile_photo = null;
 
-$booking = $stmt
-    ->get_result()
-    ->fetch_assoc();
+if ($user_id) {
 
-if (!$booking) {
-    die('Booking tidak ditemukan');
+    $stmtUser = $conn->prepare("
+        SELECT name, role, profile_photo
+        FROM users
+        WHERE id = ?
+    ");
+
+    $stmtUser->bind_param("i", $user_id);
+    $stmtUser->execute();
+
+    $userData = $stmtUser->get_result()->fetch_assoc();
+
+    if ($userData) {
+
+        $nama = $userData['name'];
+        $role = $userData['role'];
+        $profile_photo = $userData['profile_photo'];
+
+    }
+
+    $stmtUser->close();
 }
 
 /*
 |--------------------------------------------------------------------------
-| Dropdown Data
+| Detail Booking
 |--------------------------------------------------------------------------
 */
+$stmt = $conn->prepare("
+SELECT
+    b.*,
+    m.brand,
+    m.model,
+    m.plate_number,
+    s.name AS service_name,
+    ts.day,
+    ts.start_time,
+    ts.end_time,
+    me.user_id AS mechanic_name
+FROM bookings b
+INNER JOIN motors m
+    ON b.motor_id = m.id
+INNER JOIN service_types s
+    ON b.service_type_id = s.id
+INNER JOIN time_slots ts
+    ON b.time_slot_id = ts.id
+LEFT JOIN mechanics me
+    ON b.mechanic_id = me.id
+WHERE b.id = ?
+AND b.customer_id = ?
+");
 
-$service_types = $conn
-    ->query("
-    SELECT *
-    FROM service_types
-    ORDER BY name
-")
-    ->fetch_all(MYSQLI_ASSOC);
+$stmt->bind_param(
+    "ii",
+    $bookingId,
+    $customerId
+);
 
-$time_slots = $conn
-    ->query("
-    SELECT *
-    FROM time_slots
-    ORDER BY day,start_time
-")
-    ->fetch_all(MYSQLI_ASSOC);
+$stmt->execute();
 
-include '../../includes/header.php';
+$booking = $stmt->get_result()->fetch_assoc();
+
+if (!$booking) {
+    die('Booking tidak ditemukan');
+}
 ?>
 
-<div class="container">
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-    <h2>Detail Booking</h2>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <table border="1">
+<title>Detail Booking</title>
 
-        <tr>
-            <td>ID</td>
-            <td><?= $booking['id'] ?></td>
-        </tr>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-        <tr>
-            <td>Status</td>
-            <td><?= $booking['status'] ?></td>
-        </tr>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet"href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+</head>
 
-        <tr>
-            <td>Tanggal</td>
-            <td><?= $booking['booking_date'] ?></td>
-        </tr>
+<body class="font-['Plus_Jakarta_Sans'] bg-gray-100">
 
-        <tr>
-            <td>Keluhan</td>
-            <td><?= htmlspecialchars(
-                $booking['customer_complaint']
-            ) ?></td>
-        </tr>
+<div class="flex h-screen">
 
-    </table>
+    <?php include 'nav.php'; ?>
 
-    <br>
+    <div class="flex-1 overflow-auto">
 
-<?php if($booking['status'] === 'queued'): ?>
+        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
 
-    <h3>Edit Booking</h3>
+            <p class="text-[#8E1616] uppercase text-sm">
+                Booking
+            </p>
 
-    <form
-        method="post"
-        action="proses_booking.php"
-    >
+            <h1 class="text-4xl text-white py-2">
+                Detail Booking
+            </h1>
 
-        <input
-            type="hidden"
-            name="action"
-            value="update"
-        >
-
-        <input
-            type="hidden"
-            name="id"
-            value="<?= $booking['id'] ?>"
-        >
-
-        <div>
-
-            <label>Tanggal Booking</label>
-
-            <input
-                type="date"
-                name="booking_date"
-                value="<?= $booking['booking_date'] ?>"
-                required
-            >
+            <p class="text-white">
+                Informasi lengkap booking service.
+            </p>
 
         </div>
 
-        <br>
+        <div class="p-6">
 
-        <div>
+            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6">
 
-            <label>Jenis Service</label>
+                <div class="grid md:grid-cols-2 gap-6">
 
-            <select
-                name="service_type_id"
-                required
-            >
+                    <div>
 
-                <?php foreach($service_types as $service): ?>
+                        <h3 class="font-semibold mb-3">
+                            Data Motor
+                        </h3>
 
-                    <option
-                        value="<?= $service['id'] ?>"
-                        <?= $service['id'] == $booking['service_type_id']
-                            ? 'selected'
-                            : '' ?>
-                    >
+                        <p>
+                            <?= htmlspecialchars(
+                                $booking['brand']
+                                .' '.
+                                $booking['model']
+                            ) ?>
+                        </p>
 
-                        <?= htmlspecialchars(
-                            $service['name']
+                        <p class="text-gray-500">
+                            <?= htmlspecialchars(
+                                $booking['plate_number']
+                            ) ?>
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-semibold mb-3">
+                            Service
+                        </h3>
+
+                        <p>
+                            <?= htmlspecialchars(
+                                $booking['service_name']
+                            ) ?>
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-semibold mb-3">
+                            Jadwal
+                        </h3>
+
+                        <p>
+                            <?= date(
+                                'd M Y',
+                                strtotime(
+                                    $booking['booking_date']
+                                )
+                            ) ?>
+                        </p>
+
+                        <p>
+                            <?= ucfirst(
+                                $booking['day']
+                            ) ?>
+
+                            |
+
+                            <?= substr(
+                                $booking['start_time'],
+                                0,
+                                5
+                            ) ?>
+
+                            -
+
+                            <?= substr(
+                                $booking['end_time'],
+                                0,
+                                5
+                            ) ?>
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-semibold mb-3">
+                            Status
+                        </h3>
+
+                        <p>
+                            <?= ucfirst(
+                                str_replace(
+                                    '_',
+                                    ' ',
+                                    $booking['status']
+                                )
+                            ) ?>
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-semibold mb-3">
+                            Harga Service
+                        </h3>
+
+                        <p>
+                            Rp <?= number_format(
+                                $booking['service_price']
+                            ) ?>
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h3 class="font-semibold mb-3">
+                            Total Harga
+                        </h3>
+
+                        <p>
+                            Rp <?= number_format(
+                                $booking['total_price']
+                            ) ?>
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <hr class="my-6">
+
+                <div class="mb-6">
+
+                    <h3 class="font-semibold mb-3">
+                        Keluhan Customer
+                    </h3>
+
+                    <p class="text-gray-700">
+                        <?= nl2br(
+                            htmlspecialchars(
+                                $booking['customer_complaint']
+                            )
                         ) ?>
+                    </p>
 
-                    </option>
+                </div>
 
-                <?php endforeach; ?>
+                <div class="mb-6">
 
-            </select>
+                    <h3 class="font-semibold mb-3">
+                        Mekanik
+                    </h3>
 
-        </div>
+                    <p>
+                        <?= $booking['mechanic_name']
+                            ? htmlspecialchars($booking['mechanic_name'])
+                            : 'Belum ditugaskan';
+                        ?>
+                    </p>
 
-        <br>
+                </div>
 
-        <div>
+                <div>
 
-            <label>Time Slot</label>
+                    <h3 class="font-semibold mb-3">
+                        Catatan Mekanik
+                    </h3>
 
-            <select
-                name="time_slot_id"
-                required
-            >
+                    <p class="text-gray-700">
+                        <?= $booking['mechanic_note']
+                            ? nl2br(htmlspecialchars($booking['mechanic_note']))
+                            : 'Belum ada catatan';
+                        ?>
+                    </p>
 
-                <?php foreach($time_slots as $slot): ?>
+                </div>
 
-                    <option
-                        value="<?= $slot['id'] ?>"
-                        <?= $slot['id'] == $booking['time_slot_id']
-                            ? 'selected'
-                            : '' ?>
+                <div class="mt-6">
+
+                    <a
+                        href="history.php"
+                        class="bg-[#8E1616] text-white px-5 py-2 rounded-lg"
                     >
+                        Kembali
+                    </a>
 
-                        <?= htmlspecialchars(
-                            $slot['day']
-                        ) ?>
+                </div>
 
-                        -
-
-                        <?= $slot['start_time'] ?>
-
-                    </option>
-
-                <?php endforeach; ?>
-
-            </select>
+            </div>
 
         </div>
 
-        <br>
-
-        <div>
-
-            <label>Keluhan</label>
-
-            <textarea
-                name="customer_complaint"
-            ><?= htmlspecialchars(
-                $booking['customer_complaint']
-            ) ?></textarea>
-
-        </div>
-
-        <br>
-
-        <button type="submit">
-
-            Update Booking
-
-        </button>
-
-    </form>
-
-    <br>
-
-    <form
-        method="post"
-        action="proses_booking.php"
-        onsubmit="return confirm('Batalkan booking ini?')"
-    >
-
-        <input
-            type="hidden"
-            name="action"
-            value="cancel"
-        >
-
-        <input
-            type="hidden"
-            name="id"
-            value="<?= $booking['id'] ?>"
-        >
-
-        <button type="submit">
-
-            Batalkan Booking
-
-        </button>
-
-    </form>
-
-<?php endif; ?>
+    </div>
 
 </div>
 
-<?php include '../../includes/footer.php'; ?>
+</body>
+</html>
