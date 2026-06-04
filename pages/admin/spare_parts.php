@@ -361,7 +361,7 @@ $total_rows = count($spare_parts);
                                         <td class="px-4 py-3">
                                             <?php if ((int)$part['stock'] <= (int)$part['minimum_stock']): ?>
                                                 <span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
-                                                    <?= $part['stock'] ?> ⚠
+                                                    <?= $part['stock'] ?>
                                                 </span>
                                             <?php else: ?>
                                                 <span class="text-gray-700"><?= $part['stock'] ?></span>
@@ -402,7 +402,7 @@ $total_rows = count($spare_parts);
     <!-- Fungsi: Modal Konfirmasi Hapus — custom modal dark theme pengganti confirm() -->
     <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
         <!-- Overlay -->
-        <div id="delete-modal-overlay" onclick="closeDeleteModal()" class="absolute inset-0 bg-black/50 transition-opacity duration-200 opacity-0"></div>
+        <div id="delete-modal-overlay" onclick="closeDeleteModal()" class="absolute inset-0 bg-black/50 transition-opacity duration-200 opacity-0 pointer-events-none"></div>
         <!-- Card Modal -->
         <div id="delete-modal-card" class="relative bg-stone-800 border border-white/10 rounded-xl p-6 w-full max-w-sm mx-4 transition-all duration-200 opacity-0 scale-95">
             <div class="flex flex-col items-center text-center">
@@ -458,7 +458,7 @@ $total_rows = count($spare_parts);
 
             // Trigger transition setelah frame berikutnya
             requestAnimationFrame(function() {
-                overlay.classList.remove('opacity-0');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
                 overlay.classList.add('opacity-100');
                 card.classList.remove('opacity-0', 'scale-95');
                 card.classList.add('opacity-100', 'scale-100');
@@ -478,7 +478,7 @@ $total_rows = count($spare_parts);
 
             // Animasi keluar
             overlay.classList.remove('opacity-100');
-            overlay.classList.add('opacity-0');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
             card.classList.remove('opacity-100', 'scale-100');
             card.classList.add('opacity-0', 'scale-95');
 
