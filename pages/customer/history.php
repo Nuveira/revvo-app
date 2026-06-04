@@ -8,7 +8,7 @@ require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 require_once '../../includes/customer_role.php';
 
-// ── Constants & helpers (inlined) ─────────────────────────────────────────
+// Start function
 const HISTORY_PER_PAGE = 6;
 
 function normalize_history_page($page) {
@@ -57,7 +57,7 @@ function history_status_color($status) {
         default            => 'text-gray-400',
     };
 }
-// ── End helpers ───────────────────────────────────────────────────────────
+// End function 
 
 $customer_id = null;
 $motors = [];

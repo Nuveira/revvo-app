@@ -8,7 +8,7 @@ require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 require_once '../../includes/customer_role.php';
 
-// ── Helpers (inlined) ─────────────────────────────────────────────────────
+// ── Start function 
 function normalize_motor_text($value) {
     $value = trim((string) $value);
     return preg_replace('/\s+/', ' ', $value);
@@ -69,7 +69,7 @@ function validate_customer_motor_input(array $input, $currentYear = null) {
 
     return ['data' => $data, 'errors' => $errors];
 }
-// ── End helpers ───────────────────────────────────────────────────────────
+// ── End function 
 
 $errors = [];
 $formData = [
