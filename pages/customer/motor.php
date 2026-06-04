@@ -116,7 +116,7 @@ if ($customer_id) {
                             </div>
                             <p class="mt-4 text-lg font-semibold text-gray-900">Belum ada motor terdaftar</p>
                             <p class="mt-2 text-sm text-gray-500">Tambahkan motor pertama agar bisa dipilih saat booking servis.</p>
-                            <a href="#form-tambah-motor" class="mt-5 inline-flex items-center gap-2 rounded bg-[#8E1616] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
+                            <a href="tambah_motor.php" class="mt-5 inline-flex items-center gap-2 rounded bg-[#8E1616] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
                                 <span class="material-symbols-outlined text-[20px]">add_circle</span>
                                 Tambah Motor
                             </a>

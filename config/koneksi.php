@@ -3,7 +3,7 @@ require_once __DIR__ . '/app.php';
 
 // Database connection
 $host = 'localhost';
-$dbname = 'pbw';
+$dbname = 'revvo';
 $username = 'root';
 $password = '';
 
