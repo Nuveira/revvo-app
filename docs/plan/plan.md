@@ -45,8 +45,8 @@
 - [x] **CRUD users** (admin manage akun admin & mekanik)
 - [ ] **CRUD service_types** (admin manage master layanan)
 - [ ] **CRUD mechanics** (admin manage data mekanik)
-- [ ] **CRUD spare_parts** (admin manage master sparepart + stok)
-- [ ] **CRUD motors** (customer-side, dengan upload foto)
+- [x] **CRUD spare_parts** (admin manage master sparepart + stok)
+- [x] **CRUD motors** (customer-side, dengan upload foto)
 - [ ] **CRUD time_slots** (admin manage slot operasional bengkel)
 - [ ] List page untuk `customers` (admin view, read-only)
 
@@ -64,25 +64,25 @@
 - [ ] Insert ke `service_logs` setiap perubahan status
 - [ ] Form input sparepart oleh mekanik (auto-kurang stock + snapshot `price_at_time`)
 - [ ] Verifikasi & konfirmasi pembayaran (admin)
-- [ ] Tracking status real-time di customer dashboard
+- [x] Tracking status real-time di customer dashboard
 
 ### Phase 5: Bonus Features (Hari 18-21)
 
 - [ ] Search & filter di list booking (by tanggal, status, mekanik)
 - [ ] Paginasi di semua list (booking, customer, motor, sparepart)
 - [ ] Upload gambar motor (validation extension + rename + size limit)
-- [ ] Install DomPDF via Composer
+- [x] Install DomPDF via Composer
 - [ ] Generate invoice PDF per transaksi
 - [ ] Generate laporan bulanan PDF
-- [ ] Install PhpSpreadsheet via Composer
-- [ ] Generate laporan bulanan Excel
+- [x] Install PhpSpreadsheet via Composer
+- [x] Generate laporan bulanan Excel
 
 ### Phase 6: Dashboard & Audit Log (Hari 22-23)
 
-- [ ] Dashboard admin (ringkasan harian, alert stok hampir habis)
+- [x] Dashboard admin (ringkasan harian, alert stok hampir habis)
 - [x] Dashboard customer (booking aktif, histori)
-- [ ] Dashboard mekanik (tugas hari ini, histori personal)
-- [ ] Halaman audit log (read-only, dengan filter)
+- [x] Dashboard mekanik (tugas hari ini, histori personal)
+- [x] Halaman audit log (read-only, dengan filter)
 
 ### Phase 7: Testing & Polish (Hari 24-26)
 
@@ -190,7 +190,7 @@ Domain:
 | **Ahmad** | 🟧 **CRUD BOOKINGS** (admin-side) | Payment confirmation, mekanik flow |
 | **Dermawan** | 🟧 **CRUD SPARE_PARTS** | Dashboard admin, reports, audit log, bonus features |
 
-**Total: 7 modul CRUD penuh** — jauh melebihi requirement minimal "2 entitas" dalam rubrik.
+**Total: 7 modul CRUD penuh**
 
 ---
 
