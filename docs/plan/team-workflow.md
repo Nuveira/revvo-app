@@ -81,8 +81,6 @@ Branch yang masih relevan:
 - `feat-landing-page`
 - branch feature baru sesuai modul yang sedang dikerjakan
 
-Branch lama seperti `feat/auth`, `feat/database`, dan `feat/setup-foundation` sudah dianggap obsolete dan tidak dipakai lagi.
-
 ---
 
 ## 5. Pembagian Modul Tim

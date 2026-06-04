@@ -216,10 +216,6 @@ Browser auto-download file
 | `booking_parts` | CRUD via parent booking | Junction table, operasi mengikuti flow booking |
 | `service_logs` | Auto-create + Read (immutable) | Audit trail by design — kalau bisa di-edit/delete bukan audit log |
 
-### Argumentasi untuk Dosen
-
-> Sistem memiliki **7 entitas utama dengan operasi CRUD penuh**, jauh melebihi requirement minimal 2 entitas dalam rubrik. Setiap anggota kelompok memegang minimal 1 modul CRUD sebagai kontribusi utamanya. Tabel pendukung seperti `service_logs` (audit trail) dan `booking_parts` (junction table) dirancang sesuai prinsip database design — operasinya terintegrasi dengan flow operasional yang relevan, bukan dengan UI CRUD terpisah.
-
 ---
 
 **Next**: Lihat `plan.md` untuk roadmap pengerjaan & timeline.
