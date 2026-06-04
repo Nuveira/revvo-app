@@ -1,11 +1,6 @@
 -- ============================================================
 -- Database: REVVO — Sistem Booking & Tracking Servis Bengkel Motor
--- Schema: Merged (English naming + Indonesian context fields)
--- ============================================================
 -- Password semua dummy users: 'password123'
--- Jika login gagal, regenerate:
---   php -r "echo password_hash('password123', PASSWORD_DEFAULT);"
--- ============================================================
 
 DROP DATABASE IF EXISTS revvo;
 CREATE DATABASE revvo CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
