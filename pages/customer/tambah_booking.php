@@ -30,6 +30,36 @@ if (!$customer) {
 
 $customerId = $customer['id'];
 
+$user_id = $_SESSION['user_id'] ?? null;
+
+$nama = 'Guest';
+$role = '';
+$profile_photo = null;
+
+if ($user_id) {
+
+    $stmtUser = $conn->prepare("
+        SELECT name, role, profile_photo
+        FROM users
+        WHERE id = ?
+    ");
+
+    $stmtUser->bind_param("i", $user_id);
+    $stmtUser->execute();
+
+    $userData = $stmtUser->get_result()->fetch_assoc();
+
+    if ($userData) {
+
+        $nama = $userData['name'];
+        $role = $userData['role'];
+        $profile_photo = $userData['profile_photo'];
+
+    }
+
+    $stmtUser->close();
+}
+
 /*
 |--------------------------------------------------------------------------
 | Motor Customer
