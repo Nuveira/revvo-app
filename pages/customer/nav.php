@@ -35,7 +35,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             sports_motorsports
                         </span>Motor Saya
                     </a>
-                    <a href="tambah_booking.php" class="<?= in_array($current_page, ['booking.php', 'tambah_booking.php', 'edit_booking.php', 'booking_detail.php']) ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
+                    <a href="booking.php" class="<?= in_array($current_page, ['booking.php', 'tambah_booking.php', 'booking_detail.php']) ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex text-white py-2 px-4 hover:bg-[#FF0000] rounded">
                         <span class="material-symbols-outlined pr-3">
                             calendar_today
                         </span>Booking

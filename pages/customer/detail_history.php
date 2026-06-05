@@ -13,7 +13,7 @@ if (!$booking_id) {
     exit;
 }
 
-// Ambil detail booking — pastikan milik customer ini
+// Ambil detail booking dan pastikan milik customer ini
 $stmt = $conn->prepare("
     SELECT b.id, b.booking_date, b.total_price, b.status,
            b.customer_complaint, b.mechanic_note, b.created_at,
@@ -78,8 +78,10 @@ $status_label = match($booking['status']) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>

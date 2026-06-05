@@ -8,6 +8,7 @@ require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 require_once '../../includes/customer_role.php';
 
+// Start function
 const HISTORY_PER_PAGE = 6;
 
 function normalize_history_page($page) {
@@ -19,10 +20,7 @@ function normalize_history_sort($sort) {
 }
 
 function normalize_history_motor_filter($motorId, array $ownedMotorIds) {
-    if ($motorId === null || $motorId === '' || !is_numeric($motorId)) {
-        return null;
-    }
-
+    if ($motorId === null || $motorId === '' || !is_numeric($motorId)) return null;
     $motorId = (int)$motorId;
     return in_array($motorId, $ownedMotorIds, true) ? $motorId : null;
 }
@@ -33,46 +31,52 @@ function history_total_pages($totalRows) {
 
 function history_page_link($page, $motorId, $sort) {
     $params = ['page' => $page];
-
-    if ($motorId !== null) {
-        $params['motor_id'] = $motorId;
-    }
-
-    if ($sort !== 'latest') {
-        $params['sort'] = $sort;
-    }
-
+    if ($motorId !== null) $params['motor_id'] = $motorId;
+    if ($sort !== 'latest') $params['sort'] = $sort;
     return 'history.php?' . http_build_query($params);
 }
 
 function history_status_label($status) {
     return match ($status) {
         'ready_for_pickup' => 'SIAP DIAMBIL',
-        'completed' => 'SELESAI',
-        'in_progress' => 'DIKERJAKAN',
-        'queued' => 'ANTRI',
-        'cancelled' => 'DIBATALKAN',
-        default => strtoupper((string)$status),
+        'completed'        => 'SELESAI',
+        'in_progress'      => 'DIKERJAKAN',
+        'queued'           => 'ANTRI',
+        'cancelled'        => 'DIBATALKAN',
+        default            => strtoupper((string)$status),
     };
 }
 
 function history_status_color($status) {
     return match ($status) {
         'ready_for_pickup' => 'text-green-600',
-        'completed' => 'text-blue-600',
-        'in_progress' => 'text-yellow-600',
-        'queued' => 'text-gray-600',
-        'cancelled' => 'text-red-500',
-        default => 'text-gray-400',
+        'completed'        => 'text-blue-600',
+        'in_progress'      => 'text-yellow-600',
+        'queued'           => 'text-gray-600',
+        'cancelled'        => 'text-red-500',
+        default            => 'text-gray-400',
     };
 }
+// End function 
 
+$customer_id = null;
 $motors = [];
 $histories = [];
 $total_rows = 0;
 $selected_motor_id = null;
 $page_num = normalize_history_page($_GET['page'] ?? null);
 $sort = normalize_history_sort($_GET['sort'] ?? null);
+
+if ($user_id) {
+    $stmt = $conn->prepare("SELECT id FROM customers WHERE user_id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $customer_id = (int) $row['id'];
+    }
+    $stmt->close();
+}
 
 if ($customer_id) {
     $stmt = $conn->prepare("
@@ -110,13 +114,12 @@ if ($customer_id) {
     $stmt->close();
 
     $total_pages = history_total_pages($total_rows);
-
     if ($page_num > $total_pages) {
         $page_num = $total_pages;
     }
 
     $limit = HISTORY_PER_PAGE;
-    $offset = ($page_num - 1) * HISTORY_PER_PAGE;
+    $offset = (normalize_history_page($page_num) - 1) * HISTORY_PER_PAGE;
     $order_by = match ($sort) {
         'motor_asc' => 'm.brand ASC, m.model ASC, m.plate_number ASC, b.booking_date DESC, b.created_at DESC, b.id DESC',
         'motor_desc' => 'm.brand DESC, m.model DESC, m.plate_number DESC, b.booking_date DESC, b.created_at DESC, b.id DESC',
@@ -125,74 +128,41 @@ if ($customer_id) {
 
     if ($selected_motor_id !== null) {
         $stmt = $conn->prepare("
-            SELECT
-                b.id,
-                b.booking_date,
-                b.total_price,
-                b.status,
-                b.customer_complaint,
-                b.mechanic_note,
-                b.created_at,
-                m.brand,
-                m.model,
-                m.plate_number,
+            SELECT b.id, b.booking_date, b.total_price, b.status, b.customer_complaint,
+                b.mechanic_note, b.created_at,
+                m.brand, m.model, m.plate_number,
                 st.name AS service_name,
-                ts.start_time,
-                ts.end_time,
+                ts.start_time, ts.end_time,
                 mechanic_user.name AS mechanic_name,
-                p.status AS payment_status,
-                p.payment_method
+                p.status AS payment_status, p.payment_method
             FROM bookings b
-            JOIN motors m
-                ON b.motor_id = m.id
-            JOIN service_types st
-                ON b.service_type_id = st.id
-            JOIN time_slots ts
-                ON b.time_slot_id = ts.id
-            LEFT JOIN mechanics me
-                ON b.mechanic_id = me.id
-            LEFT JOIN users mechanic_user
-                ON me.user_id = mechanic_user.id
-            LEFT JOIN payments p
-                ON p.booking_id = b.id
-            WHERE b.customer_id = ?
-            AND b.motor_id = ?
+            JOIN motors m ON b.motor_id = m.id
+            JOIN service_types st ON b.service_type_id = st.id
+            JOIN time_slots ts ON b.time_slot_id = ts.id
+            LEFT JOIN mechanics me ON b.mechanic_id = me.id
+            LEFT JOIN users mechanic_user ON me.user_id = mechanic_user.id
+            LEFT JOIN payments p ON p.booking_id = b.id
+            WHERE b.customer_id = ? AND b.motor_id = ?
             ORDER BY {$order_by}
             LIMIT ? OFFSET ?
         ");
         $stmt->bind_param("iiii", $customer_id, $selected_motor_id, $limit, $offset);
     } else {
         $stmt = $conn->prepare("
-            SELECT
-                b.id,
-                b.booking_date,
-                b.total_price,
-                b.status,
-                b.customer_complaint,
-                b.mechanic_note,
-                b.created_at,
-                m.brand,
-                m.model,
-                m.plate_number,
+            SELECT b.id, b.booking_date, b.total_price, b.status, b.customer_complaint,
+                b.mechanic_note, b.created_at,
+                m.brand, m.model, m.plate_number,
                 st.name AS service_name,
-                ts.start_time,
-                ts.end_time,
+                ts.start_time, ts.end_time,
                 mechanic_user.name AS mechanic_name,
-                p.status AS payment_status,
-                p.payment_method
+                p.status AS payment_status, p.payment_method
             FROM bookings b
-            JOIN motors m
-                ON b.motor_id = m.id
-            JOIN service_types st
-                ON b.service_type_id = st.id
-            JOIN time_slots ts
-                ON b.time_slot_id = ts.id
-            LEFT JOIN mechanics me
-                ON b.mechanic_id = me.id
-            LEFT JOIN users mechanic_user
-                ON me.user_id = mechanic_user.id
-            LEFT JOIN payments p
-                ON p.booking_id = b.id
+            JOIN motors m ON b.motor_id = m.id
+            JOIN service_types st ON b.service_type_id = st.id
+            JOIN time_slots ts ON b.time_slot_id = ts.id
+            LEFT JOIN mechanics me ON b.mechanic_id = me.id
+            LEFT JOIN users mechanic_user ON me.user_id = mechanic_user.id
+            LEFT JOIN payments p ON p.booking_id = b.id
             WHERE b.customer_id = ?
             ORDER BY {$order_by}
             LIMIT ? OFFSET ?
@@ -214,6 +184,7 @@ if ($customer_id) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 
@@ -232,20 +203,6 @@ if ($customer_id) {
         </div>
 
         <main class="p-4 md:p-6 space-y-4">
-            <?php if (isset($_SESSION['success'])): ?>
-                <div class="rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
-                    <?= htmlspecialchars($_SESSION['success']) ?>
-                </div>
-                <?php unset($_SESSION['success']); ?>
-            <?php endif; ?>
-
-            <?php if (isset($_SESSION['error'])): ?>
-                <div class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                    <?= htmlspecialchars($_SESSION['error']) ?>
-                </div>
-                <?php unset($_SESSION['error']); ?>
-            <?php endif; ?>
-
             <section class="bg-white rounded-lg border border-[#eadede] p-5 shadow-sm">
                 <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>
@@ -268,7 +225,6 @@ if ($customer_id) {
                                 </option>
                             <?php endforeach; ?>
                         </select>
-
                         <label for="sort" class="sr-only">Urutkan history</label>
                         <select
                             id="sort"
@@ -279,12 +235,10 @@ if ($customer_id) {
                             <option value="motor_asc" <?= $sort === 'motor_asc' ? 'selected' : '' ?>>Motor A-Z</option>
                             <option value="motor_desc" <?= $sort === 'motor_desc' ? 'selected' : '' ?>>Motor Z-A</option>
                         </select>
-
                         <button type="submit" class="inline-flex items-center justify-center gap-2 rounded bg-[#8E1616] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
                             <span class="material-symbols-outlined text-base">filter_alt</span>
                             Terapkan
                         </button>
-
                         <?php if ($selected_motor_id !== null || $sort !== 'latest'): ?>
                             <a href="history.php" class="inline-flex items-center justify-center rounded border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
                                 Reset
@@ -336,27 +290,10 @@ if ($customer_id) {
                                         </span>
                                     </td>
                                     <td class="py-2 px-3">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <a href="detail_history.php?id=<?= $history['id'] ?>" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-[#8E1616] transition hover:underline">
-                                                <span class="material-symbols-outlined text-[14px]">info</span>
-                                                Detail
-                                            </a>
-
-                                            <?php if ($history['status'] === 'queued'): ?>
-                                                <a href="edit_booking.php?id=<?= $history['id'] ?>" class="inline-flex items-center gap-1 rounded bg-yellow-500 px-2 py-1 text-xs font-semibold text-white transition hover:bg-yellow-600">
-                                                    <span class="material-symbols-outlined text-[14px]">edit</span>
-                                                    Edit
-                                                </a>
-                                                <a
-                                                    href="hapus_booking.php?id=<?= $history['id'] ?>"
-                                                    onclick="return confirm('Hapus booking?')"
-                                                    class="inline-flex items-center gap-1 rounded bg-red-500 px-2 py-1 text-xs font-semibold text-white transition hover:bg-red-600"
-                                                >
-                                                    <span class="material-symbols-outlined text-[14px]">delete</span>
-                                                    Hapus
-                                                </a>
-                                            <?php endif; ?>
-                                        </div>
+                                        <a href="detail_history.php?id=<?= $history['id'] ?>" class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-[#8E1616] transition hover:underline">
+                                            <span class="material-symbols-outlined text-[14px]">info</span>
+                                            Detail
+                                        </a>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -393,13 +330,11 @@ if ($customer_id) {
 
                         <?php
                         $pg_start = max(1, $page_num - 2);
-                        $pg_end = min($total_pages, $page_num + 2);
+                        $pg_end   = min($total_pages, $page_num + 2);
                         for ($pg = $pg_start; $pg <= $pg_end; $pg++):
                         ?>
-                            <a
-                                href="<?= htmlspecialchars(history_page_link($pg, $selected_motor_id, $sort)) ?>"
-                                class="inline-flex h-9 min-w-9 items-center justify-center rounded px-3 text-sm font-semibold transition <?= $pg === $page_num ? 'bg-[#8E1616] text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50' ?>"
-                            >
+                            <a href="<?= htmlspecialchars(history_page_link($pg, $selected_motor_id, $sort)) ?>"
+                               class="inline-flex h-9 min-w-9 items-center justify-center rounded px-3 text-sm font-semibold transition <?= $pg === $page_num ? 'bg-[#8E1616] text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50' ?>">
                                 <?= $pg ?>
                             </a>
                         <?php endfor; ?>
@@ -417,8 +352,7 @@ if ($customer_id) {
                 </div>
             </section>
         </main>
-
-        <?php include 'footer.php'; ?>
+        <?php include 'footer.php';?>
     </div>
 </body>
 </html>
