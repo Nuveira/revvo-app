@@ -11,49 +11,50 @@
                     <span class="font-headline font-bold text-3xl tracking-tighter">REVVO</span>
                 </div>
                 <p class="text-stone-400 max-w-xs leading-relaxed text-lg">
-                    Sistem manajemen bengkel nomor satu di Indonesia. Dibangun untuk presisi, dirancang untuk pertumbuhan bisnis Anda.
+                    Sistem informasi bengkel motor berbasis web untuk membantu proses booking servis, data spare part, pembayaran, dan laporan.
                 </p>
             </div>
 
             <!-- produk -->
             <div class="md:col-span-2">
-                <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Produk</h5>
+                <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Fitur</h5>
                 <ul class="space-y-5 text-stone-400 font-semibold text-sm">
-                    <li><a class="hover:text-white transition-colors" href="#fitur">Fitur Lengkap</a></li>
-                    <li><a class="hover:text-white transition-colors" href="#">Integrasi WA</a></li>
-                    <li><a class="hover:text-white transition-colors" href="#harga">Harga</a></li>
-                    <li><a class="hover:text-white transition-colors" href="#">Update</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#fitur">Manajemen Booking</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#fitur">Data Spare Part</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#fitur">Pembayaran</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#fitur">Laporan</a></li>
                 </ul>
             </div>
 
             <!-- perusahaan -->
             <div class="md:col-span-2">
-                <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Perusahaan</h5>
+                <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Navigasi</h5>
                 <ul class="space-y-5 text-stone-400 font-semibold text-sm">
-                    <li><a class="hover:text-white transition-colors" href="#tentang">Tentang Kami</a></li>
-                    <li><a class="hover:text-white transition-colors" href="#">Karir</a></li>
-                    <li><a class="hover:text-white transition-colors" href="#">Blog</a></li>
-                    <li><a class="hover:text-white transition-colors" href="#">Kontak</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#hero">Beranda</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#fitur">Fitur</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#alur">Alur Sistem</a></li>
+                    <li><a class="hover:text-white transition-colors" href="#tentang">Tentang REVVO</a></li>
                 </ul>
             </div>
 
-            <!-- newsletter -->
+            <!-- ringkasan -->
             <div class="md:col-span-4">
-                <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Tetap Terhubung</h5>
-                <p class="text-sm text-stone-400 mb-8 leading-relaxed">Berlangganan newsletter untuk tips eksklusif mengelola bengkel modern.</p>
-                <div class="flex p-2 bg-stone-800 rounded-2xl border border-white/5 focus-within:border-primary/50 transition-all">
-                    <input class="bg-transparent border-none px-4 py-3 w-full text-sm focus:ring-0 placeholder:text-stone-600" placeholder="Email Anda" type="email" />
-                    <button class="bg-primary text-white px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:scale-105 transition-all mechanical-press">IKUTI</button>
-                </div>
+                <h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-8">Ringkasan Sistem</h5>
+                <p class="text-sm text-stone-400 mb-4 leading-relaxed">REVVO mendukung tiga peran utama:</p>
+                <ul class="space-y-3 text-sm text-stone-400">
+                    <li>Admin mengelola data master, booking, pembayaran, dan laporan.</li>
+                    <li>Customer mengelola motor dan membuat booking servis.</li>
+                    <li>Mekanik melihat tugas dan memperbarui status pengerjaan.</li>
+                </ul>
             </div>
         </div>
 
         <!-- bottom -->
         <div class="mt-24 pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
-            <p class="text-xs font-technical text-stone-600">&copy; <?= date('Y') ?> REVVO SYSTEMS. SEMUA HAK DILINDUNGI.</p>
+            <p class="text-xs font-technical text-stone-600">&copy; <?= date('Y') ?> REVVO. Sistem Informasi Bengkel Motor.</p>
             <div class="flex gap-12 text-stone-600 text-xs font-bold tracking-widest uppercase">
-                <a class="hover:text-white transition-colors" href="#">Syarat &amp; Ketentuan</a>
-                <a class="hover:text-white transition-colors" href="#">Kebijakan Privasi</a>
+                <a class="hover:text-white transition-colors" href="#fitur">Fitur</a>
+                <a class="hover:text-white transition-colors" href="<?= url('pages/auth/login.php') ?>">Login</a>
             </div>
         </div>
     </div>
