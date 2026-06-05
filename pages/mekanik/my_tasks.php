@@ -1,26 +1,35 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$pageTitle = 'My Tasks | REVVO';
 
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 
 checkRole(['mechanic']);
 
-$user_id = $_SESSION['user_id'];
+$userId = $_SESSION['user_id'] ?? 0;
 
 /*
 |--------------------------------------------------------------------------
-| Cari mechanic_id
+| Data Mekanik
 |--------------------------------------------------------------------------
 */
-
 $stmt = $conn->prepare("
-SELECT id
-FROM mechanics
-WHERE user_id = ?
+    SELECT
+        m.id,
+        u.name,
+        u.role,
+        u.profile_photo
+    FROM mechanics m
+    JOIN users u
+        ON m.user_id = u.id
+    WHERE u.id = ?
 ");
 
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("i", $userId);
 $stmt->execute();
 
 $mechanic = $stmt->get_result()->fetch_assoc();
@@ -29,108 +38,290 @@ if (!$mechanic) {
     die('Data mekanik tidak ditemukan');
 }
 
-$mechanic_id = $mechanic['id'];
+$mechanicId = $mechanic['id'];
+
+$nama = $mechanic['name'];
+$role = $mechanic['role'];
+$profile_photo = $mechanic['profile_photo'];
 
 /*
 |--------------------------------------------------------------------------
-| Ambil tugas mekanik
+| Task Mekanik
 |--------------------------------------------------------------------------
 */
-
 $stmt = $conn->prepare("
 SELECT
-    b.*,
+    b.id,
+    b.booking_date,
+    b.status,
+    b.created_at,
+
+    mo.brand,
+    mo.model,
+    mo.plate_number,
+
     st.name AS service_name
+
 FROM bookings b
+
+JOIN motors mo
+    ON b.motor_id = mo.id
+
 JOIN service_types st
-    ON st.id = b.service_type_id
+    ON b.service_type_id = st.id
+
 WHERE b.mechanic_id = ?
-ORDER BY b.id DESC
+
+ORDER BY b.created_at DESC
 ");
 
-$stmt->bind_param("i", $mechanic_id);
+$stmt->bind_param("i", $mechanicId);
 $stmt->execute();
 
-$tasks = $stmt
-    ->get_result()
-    ->fetch_all(MYSQLI_ASSOC);
-
-include '../../includes/header.php';
+$tasks = $stmt->get_result();
 ?>
 
-<h2>Tugas Saya</h2>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 
-<table border="1" cellpadding="5">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <tr>
-        <th>ID</th>
-        <th>Tanggal</th>
-        <th>Service</th>
-        <th>Status</th>
-        <th>Catatan</th>
-        <th>Aksi</th>
-    </tr>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-    <?php foreach ($tasks as $task): ?>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        <tr>
+<title><?= htmlspecialchars($pageTitle) ?></title>
 
-            <td><?= $task['id'] ?></td>
+</head>
 
-            <td><?= $task['booking_date'] ?></td>
+<body class="font-['Plus_Jakarta_Sans']">
 
-            <td><?= htmlspecialchars($task['service_name']) ?></td>
+<div class="flex h-screen">
 
-            <td><?= $task['status'] ?></td>
+    <?php include 'nav.php'; ?>
 
-            <td>
-                <?= htmlspecialchars(
-                    $task['mechanic_note']
-                ) ?>
-            </td>
+    <div class="flex-1 bg-gray-100 overflow-auto">
 
-            <td>
+        <!-- Header -->
 
-                <?php if ($task['status'] === 'queued'): ?>
+        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
 
-                    <form method="post" action="proses_task.php">
+            <p class="text-[#FF0000] uppercase text-sm">
+                Tasks
+            </p>
 
-                        <input type="hidden" name="action" value="start">
+            <h1 class="text-4xl text-white py-2">
+                My Tasks
+            </h1>
 
-                        <input type="hidden" name="id" value="<?= $task['id'] ?>">
+            <p class="text-white">
+                Daftar pekerjaan yang diberikan admin.
+            </p>
 
-                        <button>
-                            Mulai
-                        </button>
+        </div>
 
-                    </form>
+        <!-- Content -->
 
-                <?php endif; ?>
+        <div class="p-6">
 
-                <?php if ($task['status'] === 'in_progress'): ?>
+            <?php if(isset($_SESSION['success'])): ?>
 
-                    <form method="post" action="proses_task.php">
+                <div class="bg-green-100 text-green-700 p-3 rounded-lg mb-4">
+                    <?= $_SESSION['success']; ?>
+                </div>
 
-                        <input type="hidden" name="action" value="complete">
+                <?php unset($_SESSION['success']); ?>
 
-                        <input type="hidden" name="id" value="<?= $task['id'] ?>">
+            <?php endif; ?>
 
-                        <textarea name="mechanic_note" placeholder="Catatan pengerjaan" required></textarea>
+            <?php if(isset($_SESSION['error'])): ?>
 
-                        <button>
-                            Selesai
-                        </button>
+                <div class="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+                    <?= $_SESSION['error']; ?>
+                </div>
 
-                    </form>
+                <?php unset($_SESSION['error']); ?>
 
-                <?php endif; ?>
+            <?php endif; ?>
 
-            </td>
+            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm overflow-hidden">
 
-        </tr>
+                <div class="p-4 border-b">
 
-    <?php endforeach; ?>
+                    <h2 class="font-semibold text-lg">
+                        Daftar Task
+                    </h2>
 
-</table>
+                </div>
 
-<?php include '../../includes/footer.php'; ?>
+                <div class="overflow-x-auto">
+
+                    <table class="w-full">
+
+                        <thead class="bg-gray-50">
+
+                            <tr>
+
+                                <th class="p-4 text-left">
+                                    ID
+                                </th>
+
+                                <th class="p-4 text-left">
+                                    Motor
+                                </th>
+
+                                <th class="p-4 text-left">
+                                    Service
+                                </th>
+
+                                <th class="p-4 text-left">
+                                    Tanggal
+                                </th>
+
+                                <th class="p-4 text-left">
+                                    Status
+                                </th>
+
+                                <th class="p-4 text-left">
+                                    Aksi
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                        <?php while($row = $tasks->fetch_assoc()): ?>
+
+                            <?php
+
+                            $badge =
+                                'bg-gray-100 text-gray-700';
+
+                            if($row['status'] == 'queued'){
+                                $badge =
+                                'bg-yellow-100 text-yellow-700';
+                            }
+
+                            if($row['status'] == 'in_progress'){
+                                $badge =
+                                'bg-blue-100 text-blue-700';
+                            }
+
+                            if($row['status'] == 'completed'){
+                                $badge =
+                                'bg-green-100 text-green-700';
+                            }
+
+                            ?>
+
+                            <tr class="border-t">
+
+                                <td class="p-4">
+                                    #<?= $row['id']; ?>
+                                </td>
+
+                                <td class="p-4">
+
+                                    <?= htmlspecialchars(
+                                        $row['brand']
+                                        .' '.
+                                        $row['model']
+                                    ); ?>
+
+                                    <br>
+
+                                    <span class="text-sm text-gray-500">
+
+                                        <?= htmlspecialchars(
+                                            $row['plate_number']
+                                        ); ?>
+
+                                    </span>
+
+                                </td>
+
+                                <td class="p-4">
+
+                                    <?= htmlspecialchars(
+                                        $row['service_name']
+                                    ); ?>
+
+                                </td>
+
+                                <td class="p-4">
+
+                                    <?= date(
+                                        'd M Y',
+                                        strtotime(
+                                            $row['booking_date']
+                                        )
+                                    ); ?>
+
+                                </td>
+
+                                <td class="p-4">
+
+                                    <span class="px-3 py-1 rounded-full text-sm <?= $badge; ?>">
+
+                                        <?= ucfirst(
+                                            str_replace(
+                                                '_',
+                                                ' ',
+                                                $row['status']
+                                            )
+                                        ); ?>
+
+                                    </span>
+
+                                </td>
+
+                                <td class="p-4">
+
+                                    <a
+                                        href="task_detail.php?id=<?= $row['id']; ?>"
+                                        class="bg-[#8E1616] text-white px-4 py-2 rounded-lg hover:bg-[#6f1111]"
+                                    >
+                                        Detail
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        <?php endwhile; ?>
+
+                        <?php if($tasks->num_rows == 0): ?>
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    class="text-center py-8 text-gray-500"
+                                >
+                                    Belum ada task.
+                                </td>
+
+                            </tr>
+
+                        <?php endif; ?>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
