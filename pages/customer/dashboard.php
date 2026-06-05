@@ -134,7 +134,7 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
             </div>
 
             <!-- Main Dashboard -->
-            <div class="flex flex-col gap-4 my-2 mx-4 lg:flex-row">
+            <div class="flex flex-col p-4 md:p-6 lg:flex-row">
                 <div class="flex-[2] bg-white rounded-lg border border-[#eadede] p-6 w-full shadow-sm min-w-0">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div class="min-w-0">
