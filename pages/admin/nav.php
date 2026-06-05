@@ -28,14 +28,42 @@ $profile_photo = $profile_photo ?? null;
     </div>
 
     <nav class="flex flex-col gap-1 px-6 py-4 overflow-y-auto">
-        <a href="dashboard.php" class="<?= $current_page === 'dashboard.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Dashboard</a>
-        <a href="users.php" class="<?= $current_page === 'users.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Users</a>
-        <a href="bookings.php" class="<?= $current_page === 'bookings.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Bookings</a>
-        <a href="service_types.php" class="<?= $current_page === 'service_types.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Service Types</a>
-        <a href="mechanics.php" class="<?= $current_page === 'mechanics.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Mechanics</a>
-        <a href="spare_parts.php" class="<?= $current_page === 'spare_parts.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Spare Parts</a>
-        <a href="time_slots.php" class="<?= $current_page === 'time_slots.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Time Slots</a>
-        <a href="reports.php" class="<?= $current_page === 'reports.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> text-white py-2 px-4 rounded transition-colors">Reports</a>
+        <a href="dashboard.php" class="<?= $current_page === 'dashboard.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">space_dashboard</span>
+            Dashboard
+        </a>
+        <a href="users.php" class="<?= $current_page === 'users.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">manage_accounts</span>
+            Users
+        </a>
+        <a href="bookings.php" class="<?= $current_page === 'bookings.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">assignment</span>
+            Bookings
+        </a>
+        <a href="service_types.php" class="<?= $current_page === 'service_types.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">build_circle</span>
+            Service Types
+        </a>
+        <a href="mechanics.php" class="<?= $current_page === 'mechanics.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">construction</span>
+            Mechanics
+        </a>
+        <a href="spare_parts.php" class="<?= $current_page === 'spare_parts.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">inventory</span>
+            Spare Parts
+        </a>
+        <a href="time_slots.php" class="<?= $current_page === 'time_slots.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">event_available</span>
+            Time Slots
+        </a>
+        <a href="audit_logs.php" class="<?= $current_page === 'audit_logs.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">history_edu</span>
+            Audit Logs
+        </a>
+        <a href="reports.php" class="<?= $current_page === 'reports.php' ? 'bg-[#FF0000]' : 'hover:bg-white/10' ?> flex items-center text-white py-2 px-4 rounded transition-colors">
+            <span class="material-symbols-outlined pr-3">bar_chart</span>
+            Reports
+        </a>
         <hr class="border-white/20 my-1">
         <a href="<?= url('pages/auth/logout.php') ?>" class="text-white py-2 px-4 hover:bg-white hover:text-black rounded flex items-center gap-2 transition-colors duration-200">
             <span class="material-symbols-outlined" style="font-size: 20px;">exit_to_app</span>
