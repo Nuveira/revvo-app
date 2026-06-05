@@ -10,9 +10,10 @@ $isLoggedIn = !empty($_SESSION['user_id']);
                 REVVO
             </a>
             <div class="hidden md:flex gap-8 text-sm font-semibold tracking-tight text-white/60">
+                <a class="hover:text-white transition-colors duration-300 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full" href="#hero">Beranda</a>
+                <a class="hover:text-white transition-colors duration-300 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full" href="#tentang">Tentang</a>
+                <a class="hover:text-white transition-colors duration-300 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full" href="#alur">Alur</a>
                 <a class="hover:text-white transition-colors duration-300 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full" href="#fitur">Fitur</a>
-                <a class="hover:text-white transition-colors duration-300 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full" href="#harga">Harga</a>
-                <a class="hover:text-white transition-colors duration-300 relative after:absolute after:bottom-[-4px] after:left-0 after:w-0 after:h-[2px] after:bg-primary after:transition-all after:duration-300 hover:after:w-full" href="#tentang">Tentang Kami</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
@@ -27,7 +28,7 @@ $isLoggedIn = !empty($_SESSION['user_id']);
                     Keluar
                 </a>
             <?php else: ?>
-                <a href="<?= url('pages/auth/login.php') ?>" class="bg-primary hover:bg-red-700 text-white px-8 py-2.5 rounded-full text-sm font-bold shadow-glow-red transition-all duration-300 mechanical-press hover:shadow-[0_0_30px_rgba(211,47,47,0.6)]">Go to App</a>
+                <a href="<?= url('pages/auth/login.php') ?>" class="bg-primary hover:bg-red-700 text-white px-8 py-2.5 rounded-full text-sm font-bold shadow-glow-red transition-all duration-300 mechanical-press hover:shadow-[0_0_30px_rgba(211,47,47,0.6)]">Masuk</a>
             <?php endif; ?>
         </div>
     </nav>
