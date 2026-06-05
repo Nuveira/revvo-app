@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+echo "MASUK EDIT BOOKING";
+exit;
+
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 
@@ -293,7 +296,6 @@ $bookings = $stmt->get_result();
                                         <?php if($row['status'] == 'queued'): ?>
 
                                             <a
-                                                <?= $row['status']; ?>
                                                 href="edit_booking.php?id=<?= $row['id']; ?>"
                                                 class="bg-yellow-500 text-white px-3 py-1 rounded"
                                             >
