@@ -1,7 +1,11 @@
 <?php
+ob_start();
+
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+error_reporting(E_ALL & ~E_DEPRECATED);
 
 $pageTitle = 'Detail Task | REVVO';
 
@@ -90,6 +94,8 @@ $task = $stmt->get_result()->fetch_assoc();
 if (!$task) {
     die('Task tidak ditemukan');
 }
+
+ob_clean();
 ?>
 
 <!DOCTYPE html>
@@ -158,7 +164,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                             </p>
 
                             <p class="font-medium">
-                                <?= htmlspecialchars($task['customer_name']); ?>
+                                <?= htmlspecialchars($task['customer_name'] ?? ''); ?>
                             </p>
                         </div>
 
@@ -170,18 +176,14 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                             <p class="font-medium">
 
                                 <?= htmlspecialchars(
-                                    $task['brand']
-                                    .' '.
-                                    $task['model']
+                                    ($task['brand'] ?? '') . ' ' . ($task['model'] ?? '')
                                 ); ?>
 
                             </p>
 
                             <p class="text-sm text-gray-500">
 
-                                <?= htmlspecialchars(
-                                    $task['plate_number']
-                                ); ?>
+                                <?= htmlspecialchars($task['plate_number'] ?? ''); ?>
 
                             </p>
 
@@ -193,7 +195,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                             </p>
 
                             <p class="font-medium">
-                                <?= htmlspecialchars($task['service_name']); ?>
+                                <?= htmlspecialchars($task['service_name'] ?? ''); ?>
                             </p>
                         </div>
 
@@ -213,7 +215,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                             </p>
 
                             <p>
-                                <?= nl2br(htmlspecialchars($task['customer_complaint'])); ?>
+                                <?= nl2br(htmlspecialchars($task['customer_complaint'] ?? '')); ?>
                             </p>
                         </div>
 
@@ -288,7 +290,7 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                                 name="mechanic_note"
                                 rows="8"
                                 class="w-full border rounded-lg p-3"
-                            ><?= htmlspecialchars($task['mechanic_note']); ?></textarea>
+                            ><?= htmlspecialchars($task['mechanic_note'] ?? ''); ?></textarea>
 
                         </div>
 
