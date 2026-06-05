@@ -124,89 +124,141 @@ $lastTask =
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<link rel="stylesheet"
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 <title><?= htmlspecialchars($pageTitle) ?></title>
 
 </head>
 
-<body class="font-['Plus_Jakarta_Sans']">
+<body class="font-['Plus_Jakarta_Sans'] overflow-hidden">
 
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
     <?php include 'nav.php'; ?>
 
-    <div class="flex-1 bg-gray-100">
+    <div class="flex-1 flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
 
         <!-- Header -->
 
-        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
+        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
 
-            <p class="text-[#FF0000]">
-                SELAMAT DATANG
-            </p>
+            <div>
 
-            <h1 class="text-4xl text-white py-2">
-                Halo, <?= htmlspecialchars($nama); ?>
-            </h1>
+                <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">
+                    SELAMAT DATANG KEMBALI
+                </p>
 
-            <p class="text-white">
-                Anda memiliki
-                <?= $jumlahTaskAktif; ?>
-                task aktif.
-            </p>
+                <p class="mt-2 text-2xl sm:text-4xl text-white font-semibold">
+                    Halo, <?= htmlspecialchars($nama) ?>
+                </p>
+
+                <p class="text-white">
+                    Anda memiliki
+                    <span class="text-[#FF0000]">
+                        <?= $jumlahTaskAktif ?>
+                    </span>
+                    tugas aktif.
+                </p>
+
+            </div>
+
+            <div>
+
+                <a
+                    href="my_tasks.php"
+                    class="bg-[#FF0000] px-4 py-3 rounded text-white hover:bg-[#6e1111] transition inline-flex items-center gap-2 shadow-[0_0_15px_rgba(142,22,22,0.3)] shadow-red-500/40"
+                >
+
+                    <span class="material-symbols-outlined">
+                        engineering
+                    </span>
+
+                    Tugas Saya
+
+                </a>
+
+            </div>
 
         </div>
 
         <!-- Content -->
 
-        <div class="p-6">
+        <div class="p-4">
 
-            <div class="grid md:grid-cols-2 gap-5">
+            <!-- Statistik -->
 
-                <!-- Task Aktif -->
+            <div class="grid md:grid-cols-2 gap-4">
 
-                <div class="bg-white rounded-lg p-6 border border-[#eadede] shadow-sm">
+                <!-- Tugas Aktif -->
 
-                    <p class="text-gray-500 text-sm">
-                        TASK AKTIF
-                    </p>
+                <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6">
 
-                    <h2 class="text-4xl font-bold text-[#8E1616] mt-2">
-                        <?= $jumlahTaskAktif; ?>
-                    </h2>
+                    <div class="flex justify-between items-center">
+
+                        <div>
+
+                            <p class="text-[11px] tracking-[0.2em] text-gray-400 uppercase">
+                                Tugas Aktif
+                            </p>
+
+                            <h2 class="mt-3 text-4xl font-bold text-[#8E1616]">
+                                <?= $jumlahTaskAktif ?>
+                            </h2>
+
+                        </div>
+
+                        <span class="material-symbols-outlined text-5xl text-[#8E1616]">
+                            pending_actions
+                        </span>
+
+                    </div>
 
                 </div>
 
-                <!-- Task Selesai -->
+                <!-- Tugas Selesai -->
 
-                <div class="bg-white rounded-lg p-6 border border-[#eadede] shadow-sm">
+                <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6">
 
-                    <p class="text-gray-500 text-sm">
-                        TASK SELESAI
-                    </p>
+                    <div class="flex justify-between items-center">
 
-                    <h2 class="text-4xl font-bold text-green-600 mt-2">
-                        <?= $jumlahTaskSelesai; ?>
-                    </h2>
+                        <div>
+
+                            <p class="text-[11px] tracking-[0.2em] text-gray-400 uppercase">
+                                Tugas Selesai
+                            </p>
+
+                            <h2 class="mt-3 text-4xl font-bold text-green-600">
+                                <?= $jumlahTaskSelesai ?>
+                            </h2>
+
+                        </div>
+
+                        <span class="material-symbols-outlined text-5xl text-green-600">
+                            task_alt
+                        </span>
+
+                    </div>
 
                 </div>
 
             </div>
 
-            <!-- Task Terakhir -->
+            <!-- Task Terbaru -->
 
-            <div class="bg-white rounded-lg p-6 border border-[#eadede] shadow-sm mt-5">
+            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
 
-                <div class="flex justify-between items-center">
+                <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
 
                     <div>
 
-                        <p class="text-gray-500 text-sm">
-                            TASK TERBARU
+                        <p class="text-[11px] tracking-[0.2em] text-gray-400 uppercase">
+                            Tugas Terbaru
                         </p>
 
                         <?php if($lastTask): ?>
 
-                            <h3 class="text-2xl font-semibold mt-2">
+                            <h3 class="mt-2 text-2xl font-semibold text-[#8E1616]">
 
                                 <?= htmlspecialchars(
                                     $lastTask['brand']
@@ -216,7 +268,7 @@ $lastTask =
 
                             </h3>
 
-                            <p class="text-gray-600 mt-1">
+                            <p class="text-gray-600">
 
                                 <?= htmlspecialchars(
                                     $lastTask['service_name']
@@ -224,22 +276,43 @@ $lastTask =
 
                             </p>
 
+                            <p class="text-sm text-gray-400 mt-2">
+
+                                <?= date(
+                                    'd M Y',
+                                    strtotime(
+                                        $lastTask['booking_date']
+                                    )
+                                ); ?>
+
+                            </p>
+
                         <?php else: ?>
 
-                            <h3 class="text-xl">
-                                Belum ada task
+                            <h3 class="mt-2 text-lg text-gray-500">
+                                Belum ada tugas
                             </h3>
 
                         <?php endif; ?>
 
                     </div>
 
-                    <a
-                        href="my_tasks.php"
-                        class="bg-[#8E1616] text-white px-5 py-3 rounded-lg hover:bg-[#6f1111]"
-                    >
-                        Lihat Task
-                    </a>
+                    <div>
+
+                        <a
+                            href="my_tasks.php"
+                            class="bg-[#8E1616] text-white px-5 py-3 rounded-lg hover:bg-[#6f1111] inline-flex items-center gap-2"
+                        >
+
+                            <span class="material-symbols-outlined">
+                                visibility
+                            </span>
+
+                            Lihat Tugas
+
+                        </a>
+
+                    </div>
 
                 </div>
 
@@ -247,6 +320,8 @@ $lastTask =
 
         </div>
 
+        <?php include 'footer.php'; ?>
+        
     </div>
 
 </div>

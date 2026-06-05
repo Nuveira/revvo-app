@@ -103,6 +103,9 @@ if (!$task) {
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<link rel="stylesheet"
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 <title><?= htmlspecialchars($pageTitle) ?></title>
 
 </head>
@@ -304,6 +307,20 @@ if (!$task) {
 
         </div>
 
+        <div class="p-6">
+
+            <a
+                href="my_tasks.php"
+                class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800"
+            >
+
+                <span class="material-symbols-outlined">
+                    arrow_back
+                </span>
+
+                Kembali ke Tugas Saya
+
+            </a>
     </div>
 
 </div>

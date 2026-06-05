@@ -1,126 +1,132 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-$user_id = $_SESSION['user_id'] ?? null;
-
-$nama = 'Mechanic';
-$role = 'mechanic';
-$profile_photo = null;
-
-if ($user_id) {
-
-    $stmt = $conn->prepare("
-        SELECT name, role, profile_photo
-        FROM users
-        WHERE id = ?
-    ");
-
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-
-    $user = $stmt->get_result()->fetch_assoc();
-
-    if ($user) {
-        $nama = $user['name'];
-        $role = $user['role'];
-        $profile_photo = $user['profile_photo'];
-    }
-
-    $stmt->close();
-}
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
-<div class="w-72 bg-black text-white flex flex-col">
+<div class="h-screen w-64 bg-gradient-to-b from-black via-black via-15% to-[#8E1616] text-white flex flex-col">
 
-    <div class="p-6 border-b border-gray-800">
+    <!-- Logo -->
+    <div class="flex flex-col pt-6 gap-2 px-6">
 
-        <h1 class="text-3xl font-bold">
-            REVVO
-        </h1>
-
-        <p class="text-gray-400 text-sm mt-1">
-            Mechanic Panel
-        </p>
-
-    </div>
-
-    <div class="flex items-center gap-3 p-5 border-b border-gray-800">
-
-        <?php if (!empty($profile_photo)): ?>
+        <span class="font-headline font-bold text-2xl tracking-tighter flex items-center gap-2 mx-5 pb-2">
 
             <img
-                src="../../uploads/profile/<?= htmlspecialchars($profile_photo); ?>"
-                class="w-12 h-12 rounded-full object-cover"
+                src="../../assets/images/logo.png"
+                alt="Revvo Logo"
+                class="h-8 w-auto invert brightness-0 invert"
             >
 
-        <?php else: ?>
+            REVVO
 
-            <div class="w-12 h-12 rounded-full bg-[#8E1616] flex items-center justify-center text-lg font-bold">
-                <?= strtoupper(substr($nama, 0, 1)); ?>
+        </span>
+
+        <!-- Profile Summary -->
+
+        <div class="flex items-center gap-3 m-2 pb-1">
+
+            <?php if (!empty($profile_photo)): ?>
+
+                <img
+                    src="../../uploads/profile/<?= htmlspecialchars($profile_photo) ?>"
+                    alt="Profile"
+                    class="w-10 h-10 shrink-0 rounded-full object-cover"
+                >
+
+            <?php else: ?>
+
+                <div class="w-10 h-10 shrink-0 rounded-full bg-white/20 flex items-center justify-center text-lg font-bold">
+
+                    <?= strtoupper(substr($nama ?? '', 0, 1)) ?>
+
+                </div>
+
+            <?php endif; ?>
+
+            <div class="min-w-0">
+
+                <p class="text-white font-semibold text-sm leading-tight truncate">
+
+                    <?= htmlspecialchars($nama ?? '') ?>
+
+                </p>
+
+                <p class="text-white/70 text-xs mt-1">
+                    Mekanik
+                </p>
+
             </div>
-
-        <?php endif; ?>
-
-        <div>
-
-            <p class="font-semibold">
-                <?= htmlspecialchars($nama); ?>
-            </p>
-
-            <p class="text-xs text-gray-400">
-                <?= htmlspecialchars($role); ?>
-            </p>
 
         </div>
 
+        <hr>
+
     </div>
 
-    <nav class="flex-1 p-4">
+    <!-- Navigation -->
 
-        <ul class="space-y-2">
+    <nav class="flex flex-col gap-2 px-6 py-4">
 
-            <li>
-                <a
-                    href="dashboard.php"
-                    class="block px-4 py-3 rounded-lg hover:bg-[#8E1616] transition"
-                >
-                    Dashboard
-                </a>
-            </li>
-
-            <li>
-                <a
-                    href="my_tasks.php"
-                    class="block px-4 py-3 rounded-lg hover:bg-[#8E1616] transition"
-                >
-                    My Tasks
-                </a>
-            </li>
-
-            <li>
-                <a
-                    href="history.php"
-                    class="block px-4 py-3 rounded-lg hover:bg-[#8E1616] transition"
-                >
-                    History
-                </a>
-            </li>
-
-        </ul>
-
-    </nav>
-
-    <div class="p-4 border-t border-gray-800">
+        <!-- Dashboard -->
 
         <a
-            href="../auth/logout.php"
-            class="block text-center bg-[#8E1616] py-3 rounded-lg hover:bg-[#6f1111]"
+            href="dashboard.php"
+            class="<?= $current_page == 'dashboard.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex items-center text-white py-2 px-4 rounded"
         >
-            Logout
+
+            <span class="material-symbols-outlined pr-3">
+                home
+            </span>
+
+            Dashboard
+
         </a>
 
-    </div>
+        <!-- Tugas Saya -->
+
+        <a
+            href="my_tasks.php"
+            class="<?= in_array($current_page, ['my_tasks.php', 'task_detail.php', 'process_task.php']) ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex items-center text-white py-2 px-4 rounded"
+        >
+
+            <span class="material-symbols-outlined pr-3">
+                engineering
+            </span>
+
+            Tugas Saya
+
+        </a>
+
+        <!-- Riwayat Tugas -->
+
+        <a
+            href="history.php"
+            class="<?= $current_page == 'history.php' ? 'bg-[#FF0000]' : 'hover:bg-[#FF0000]' ?> flex items-center text-white py-2 px-4 rounded"
+        >
+
+            <span class="material-symbols-outlined pr-3">
+                history
+            </span>
+
+            Riwayat Tugas
+
+        </a>
+
+        <hr>
+
+        <!-- Logout -->
+
+        <a
+            href="<?= url('pages/auth/logout.php') ?>"
+            class="flex items-center text-white py-2 px-4 hover:bg-white hover:text-black rounded"
+        >
+
+            <span class="material-symbols-outlined pr-3">
+                logout
+            </span>
+
+            Keluar
+
+        </a>
+
+    </nav>
 
 </div>

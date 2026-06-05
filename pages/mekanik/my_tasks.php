@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pageTitle = 'My Tasks | REVVO';
+$pageTitle = 'Tugas Saya | REVVO';
 
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
@@ -50,35 +50,37 @@ $profile_photo = $mechanic['profile_photo'];
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
-SELECT
-    b.id,
-    b.booking_date,
-    b.status,
-    b.created_at,
+    SELECT
+        b.id,
+        b.booking_date,
+        b.status,
+        b.created_at,
 
-    mo.brand,
-    mo.model,
-    mo.plate_number,
+        mo.brand,
+        mo.model,
+        mo.plate_number,
 
-    st.name AS service_name
+        st.name AS service_name
 
-FROM bookings b
+    FROM bookings b
 
-JOIN motors mo
-    ON b.motor_id = mo.id
+    JOIN motors mo
+        ON b.motor_id = mo.id
 
-JOIN service_types st
-    ON b.service_type_id = st.id
+    JOIN service_types st
+        ON b.service_type_id = st.id
 
-WHERE b.mechanic_id = ?
-
-ORDER BY b.created_at DESC
+    WHERE b.mechanic_id = ?
+    AND b.status IN ('queued','in_progress')
+    ORDER BY b.created_at DESC
 ");
 
 $stmt->bind_param("i", $mechanicId);
 $stmt->execute();
 
 $tasks = $stmt->get_result();
+
+$totalTask = $tasks->num_rows;
 ?>
 
 <!DOCTYPE html>
@@ -92,43 +94,54 @@ $tasks = $stmt->get_result();
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+<link rel="stylesheet"
+href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
+
 <title><?= htmlspecialchars($pageTitle) ?></title>
 
 </head>
 
-<body class="font-['Plus_Jakarta_Sans']">
+<body class="font-['Plus_Jakarta_Sans'] overflow-hidden">
 
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
     <?php include 'nav.php'; ?>
 
-    <div class="flex-1 bg-gray-100 overflow-auto">
+    <div class="flex-1 flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
 
         <!-- Header -->
 
-        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
+        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
 
-            <p class="text-[#FF0000] uppercase text-sm">
-                Tasks
-            </p>
+            <div class="min-w-0">
 
-            <h1 class="text-4xl text-white py-2">
-                My Tasks
-            </h1>
+                <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">
+                    TUGAS MEKANIK
+                </p>
 
-            <p class="text-white">
-                Daftar pekerjaan yang diberikan admin.
-            </p>
+                <p class="mt-2 text-2xl sm:text-4xl text-white font-semibold break-words">
+                    Halo, <?= htmlspecialchars($nama) ?>
+                </p>
+
+                <p class="text-white">
+                    Anda memiliki
+                    <span class="text-[#FF0000]">
+                        <?= $totalTask ?>
+                    </span>
+                    tugas yang ditugaskan.
+                </p>
+
+            </div>
 
         </div>
 
         <!-- Content -->
 
-        <div class="p-6">
+        <div class="p-4 md:p-6">
 
             <?php if(isset($_SESSION['success'])): ?>
 
-                <div class="bg-green-100 text-green-700 p-3 rounded-lg mb-4">
+                <div class="bg-green-100 border border-green-200 text-green-700 p-3 rounded-lg mb-4">
                     <?= $_SESSION['success']; ?>
                 </div>
 
@@ -138,7 +151,7 @@ $tasks = $stmt->get_result();
 
             <?php if(isset($_SESSION['error'])): ?>
 
-                <div class="bg-red-100 text-red-700 p-3 rounded-lg mb-4">
+                <div class="bg-red-100 border border-red-200 text-red-700 p-3 rounded-lg mb-4">
                     <?= $_SESSION['error']; ?>
                 </div>
 
@@ -148,43 +161,47 @@ $tasks = $stmt->get_result();
 
             <div class="bg-white rounded-lg border border-[#eadede] shadow-sm overflow-hidden">
 
-                <div class="p-4 border-b">
+                <div class="p-5 border-b border-gray-100">
 
-                    <h2 class="font-semibold text-lg">
-                        Daftar Task
+                    <p class="text-[11px] tracking-[0.2em] text-gray-400 uppercase">
+                        Tugas Servis
+                    </p>
+
+                    <h2 class="mt-1 text-2xl font-semibold text-[#8E1616]">
+                        Tugas Saya
                     </h2>
 
                 </div>
 
                 <div class="overflow-x-auto">
 
-                    <table class="w-full">
+                    <table class="w-full min-w-[900px] text-sm">
 
-                        <thead class="bg-gray-50">
+                        <thead>
 
-                            <tr>
+                            <tr class="text-[11px] tracking-[0.15em] text-gray-400 uppercase border-b border-gray-100 bg-gray-50">
 
-                                <th class="p-4 text-left">
-                                    ID
+                                <th class="text-left py-3 px-4">
+                                    ID Booking
                                 </th>
 
-                                <th class="p-4 text-left">
+                                <th class="text-left py-3 px-4">
                                     Motor
                                 </th>
 
-                                <th class="p-4 text-left">
-                                    Service
+                                <th class="text-left py-3 px-4">
+                                    Layanan
                                 </th>
 
-                                <th class="p-4 text-left">
+                                <th class="text-left py-3 px-4">
                                     Tanggal
                                 </th>
 
-                                <th class="p-4 text-left">
+                                <th class="text-left py-3 px-4">
                                     Status
                                 </th>
 
-                                <th class="p-4 text-left">
+                                <th class="text-left py-3 px-4">
                                     Aksi
                                 </th>
 
@@ -198,53 +215,57 @@ $tasks = $stmt->get_result();
 
                             <?php
 
-                            $badge =
-                                'bg-gray-100 text-gray-700';
+                            $statusColor = 'text-gray-500';
 
                             if($row['status'] == 'queued'){
-                                $badge =
-                                'bg-yellow-100 text-yellow-700';
+                                $statusColor = 'text-yellow-500';
                             }
 
                             if($row['status'] == 'in_progress'){
-                                $badge =
-                                'bg-blue-100 text-blue-700';
+                                $statusColor = 'text-blue-500';
                             }
 
                             if($row['status'] == 'completed'){
-                                $badge =
-                                'bg-green-100 text-green-700';
+                                $statusColor = 'text-green-500';
+                            }
+
+                            if($row['status'] == 'cancelled'){
+                                $statusColor = 'text-red-500';
                             }
 
                             ?>
 
-                            <tr class="border-t">
+                            <tr class="border-b border-gray-50 hover:bg-gray-50">
 
-                                <td class="p-4">
-                                    #<?= $row['id']; ?>
+                                <td class="py-3 px-4 font-semibold text-gray-500">
+
+                                    BK-<?= str_pad($row['id'], 4, '0', STR_PAD_LEFT); ?>
+
                                 </td>
 
-                                <td class="p-4">
+                                <td class="py-3 px-4">
 
-                                    <?= htmlspecialchars(
-                                        $row['brand']
-                                        .' '.
-                                        $row['model']
-                                    ); ?>
+                                    <div class="font-semibold text-gray-900">
 
-                                    <br>
+                                        <?= htmlspecialchars(
+                                            $row['brand']
+                                            .' '.
+                                            $row['model']
+                                        ); ?>
 
-                                    <span class="text-sm text-gray-500">
+                                    </div>
+
+                                    <div class="text-xs text-gray-500">
 
                                         <?= htmlspecialchars(
                                             $row['plate_number']
                                         ); ?>
 
-                                    </span>
+                                    </div>
 
                                 </td>
 
-                                <td class="p-4">
+                                <td class="py-3 px-4">
 
                                     <?= htmlspecialchars(
                                         $row['service_name']
@@ -252,7 +273,7 @@ $tasks = $stmt->get_result();
 
                                 </td>
 
-                                <td class="p-4">
+                                <td class="py-3 px-4">
 
                                     <?= date(
                                         'd M Y',
@@ -263,11 +284,11 @@ $tasks = $stmt->get_result();
 
                                 </td>
 
-                                <td class="p-4">
+                                <td class="py-3 px-4">
 
-                                    <span class="px-3 py-1 rounded-full text-sm <?= $badge; ?>">
+                                    <span class="font-semibold text-xs <?= $statusColor; ?>">
 
-                                        <?= ucfirst(
+                                        <?= strtoupper(
                                             str_replace(
                                                 '_',
                                                 ' ',
@@ -279,11 +300,11 @@ $tasks = $stmt->get_result();
 
                                 </td>
 
-                                <td class="p-4">
+                                <td class="py-3 px-4">
 
                                     <a
                                         href="task_detail.php?id=<?= $row['id']; ?>"
-                                        class="bg-[#8E1616] text-white px-4 py-2 rounded-lg hover:bg-[#6f1111]"
+                                        class="bg-[#8E1616] px-4 py-2 rounded text-white text-sm font-semibold hover:bg-[#6f1111] transition"
                                     >
                                         Detail
                                     </a>
@@ -294,15 +315,24 @@ $tasks = $stmt->get_result();
 
                         <?php endwhile; ?>
 
-                        <?php if($tasks->num_rows == 0): ?>
+                        <?php if($totalTask == 0): ?>
 
                             <tr>
 
-                                <td
-                                    colspan="6"
-                                    class="text-center py-8 text-gray-500"
-                                >
-                                    Belum ada task.
+                                <td colspan="6" class="text-center py-12">
+
+                                    <span class="material-symbols-outlined text-5xl text-gray-300">
+                                        build
+                                    </span>
+
+                                    <p class="mt-3 text-gray-500 font-semibold">
+                                        Belum ada tugas
+                                    </p>
+
+                                    <p class="text-sm text-gray-400">
+                                        Tugas servis yang diberikan admin akan muncul di sini.
+                                    </p>
+
                                 </td>
 
                             </tr>
@@ -318,6 +348,8 @@ $tasks = $stmt->get_result();
             </div>
 
         </div>
+
+        <?php include 'footer.php'; ?>
 
     </div>
 
