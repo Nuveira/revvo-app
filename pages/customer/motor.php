@@ -61,16 +61,15 @@ if ($customer_id) {
                 </a>
             </div>
 
-            <div class="flex-1 grid grid-cols-1 gap-5 p-4 w-full">
-                <section class="min-w-0">
-                    <?php if ($successMessage): ?>
-                        <div class="mb-4 rounded border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
-                            <?= htmlspecialchars($successMessage) ?>
-                        </div>
-                    <?php endif; ?>
+            <div class="flex-1 p-4 md:p-6">
+                <?php if ($successMessage): ?>
+                    <div class="mb-4 rounded border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+                        <?= htmlspecialchars($successMessage) ?>
+                    </div>
+                <?php endif; ?>
 
-                    <?php if (!empty($motors)): ?>
-                        <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                <?php if (!empty($motors)): ?>
+                    <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
                             <?php foreach ($motors as $motor): ?>
                                 <article class="rounded-lg border border-[#eadede] bg-white p-5 shadow-sm">
                                     <div class="flex gap-4">
@@ -108,8 +107,8 @@ if ($customer_id) {
                                     </div>
                                 </article>
                             <?php endforeach; ?>
-                        </div>
-                    <?php else: ?>
+                    </div>
+                <?php else: ?>
                         <div class="rounded-lg border border-dashed border-[#d8b7b7] bg-white px-6 py-14 text-center shadow-sm">
                             <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#f8eeee] text-[#8E1616]">
                                 <span class="material-symbols-outlined text-[30px]">sports_motorsports</span>
