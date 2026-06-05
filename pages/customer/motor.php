@@ -70,8 +70,8 @@ if ($customer_id) {
 
                 <?php if (!empty($motors)): ?>
                     <div class="grid grid-cols-1 gap-4 xl:grid-cols-2">
-                            <?php foreach ($motors as $motor): ?>
-                                <article class="rounded-lg border border-[#eadede] bg-white p-5 shadow-sm">
+                        <?php foreach ($motors as $motor): ?>
+                            <article class="rounded-lg border border-[#eadede] bg-white p-5 shadow-sm">
                                     <div class="flex gap-4">
                                         <div class="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[#f8eeee] text-[#8E1616]">
                                             <?php if (!empty($motor['image_path'])): ?>
@@ -106,7 +106,7 @@ if ($customer_id) {
                                         </a>
                                     </div>
                                 </article>
-                            <?php endforeach; ?>
+                        <?php endforeach; ?>
                     </div>
                 <?php else: ?>
                         <div class="rounded-lg border border-dashed border-[#d8b7b7] bg-white px-6 py-14 text-center shadow-sm">
@@ -120,8 +120,7 @@ if ($customer_id) {
                                 Tambah Motor
                             </a>
                         </div>
-                    <?php endif; ?>
-                </section>
+                <?php endif; ?>
             </div>
 
             <?php include 'footer.php'; ?>
