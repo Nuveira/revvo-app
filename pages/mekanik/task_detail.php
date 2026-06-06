@@ -1,13 +1,9 @@
 <?php
-ob_start();
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-error_reporting(E_ALL & ~E_DEPRECATED);
-
-$pageTitle = 'Detail Task | REVVO';
+$pageTitle = 'Detail Tugas | REVVO';
 
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
@@ -15,22 +11,24 @@ require_once '../../includes/auth.php';
 checkRole(['mechanic']);
 
 $userId = $_SESSION['user_id'] ?? 0;
-$bookingId = (int)($_GET['id'] ?? 0);
 
-if (!$bookingId) {
+if (!isset($_GET['id'])) {
     header('Location: my_tasks.php');
     exit;
 }
 
+$bookingId = (int) $_GET['id'];
+
 /*
 |--------------------------------------------------------------------------
-| Mekanik
+| Data Mekanik
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
-    SELECT id
-    FROM mechanics
-    WHERE user_id = ?
+    SELECT m.id
+    FROM mechanics m
+    JOIN users u ON m.user_id = u.id
+    WHERE u.id = ?
 ");
 
 $stmt->bind_param("i", $userId);
@@ -46,36 +44,218 @@ $mechanicId = $mechanic['id'];
 
 /*
 |--------------------------------------------------------------------------
-| Detail Task
+| Tambah Sparepart
+|--------------------------------------------------------------------------
+*/
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['add_part'])
+) {
+
+    $partId = (int) $_POST['spare_part_id'];
+    $qty = (int) $_POST['qty'];
+
+    $stmt = $conn->prepare("
+        SELECT *
+        FROM spare_parts
+        WHERE id = ?
+    ");
+
+    $stmt->bind_param("i", $partId);
+    $stmt->execute();
+
+    $part = $stmt->get_result()->fetch_assoc();
+
+    if ($part && $qty > 0) {
+
+        $price = $part['price'];
+        $subtotal = $price * $qty;
+
+        $stmt = $conn->prepare("
+            INSERT INTO booking_parts
+            (
+                booking_id,
+                spare_part_id,
+                qty,
+                price_at_time,
+                subtotal
+            )
+            VALUES (?, ?, ?, ?, ?)
+        ");
+
+        $stmt->bind_param(
+            "iiidd",
+            $bookingId,
+            $partId,
+            $qty,
+            $price,
+            $subtotal
+        );
+
+        $stmt->execute();
+
+        $stmt = $conn->prepare("
+            UPDATE spare_parts
+            SET stock = stock - ?
+            WHERE id = ?
+        ");
+
+        $stmt->bind_param(
+            "ii",
+            $qty,
+            $partId
+        );
+
+        $stmt->execute();
+
+        $_SESSION['success'] =
+            'Sparepart berhasil ditambahkan';
+
+        header(
+            "Location: task_detail.php?id=".$bookingId
+        );
+        exit;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Simpan Catatan Mekanik
+|--------------------------------------------------------------------------
+*/
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['save_note'])
+) {
+
+    $note = trim($_POST['mechanic_note']);
+
+    $stmt = $conn->prepare("
+        UPDATE bookings
+        SET mechanic_note = ?
+        WHERE id = ?
+    ");
+
+    $stmt->bind_param(
+        "si",
+        $note,
+        $bookingId
+    );
+
+    $stmt->execute();
+
+    $_SESSION['success'] =
+        'Catatan berhasil disimpan';
+
+    header(
+        "Location: task_detail.php?id=".$bookingId
+    );
+    exit;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Mulai Kerjakan
+|--------------------------------------------------------------------------
+*/
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['start_job'])
+) {
+
+    $stmt = $conn->prepare("
+        UPDATE bookings
+        SET status='in_progress'
+        WHERE id=?
+    ");
+
+    $stmt->bind_param(
+        "i",
+        $bookingId
+    );
+
+    $stmt->execute();
+
+    $_SESSION['success'] =
+        'Status diubah menjadi In Progress';
+
+    header(
+        "Location: task_detail.php?id=".$bookingId
+    );
+    exit;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Selesaikan Pekerjaan
+|--------------------------------------------------------------------------
+*/
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['finish_job'])
+) {
+
+    $stmt = $conn->prepare("
+        UPDATE bookings
+        SET status='ready_for_pickup'
+        WHERE id=?
+    ");
+
+    $stmt->bind_param(
+        "i",
+        $bookingId
+    );
+
+    $stmt->execute();
+
+    $_SESSION['success'] =
+        'Motor siap diambil customer';
+
+    header(
+        "Location: task_detail.php?id=".$bookingId
+    );
+    exit;
+}
+/*
+|--------------------------------------------------------------------------
+| Detail Booking
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
 SELECT
+
     b.*,
 
-    m.brand,
-    m.model,
-    m.plate_number,
+    u.name AS customer_name,
+    u.phone,
+
+    mo.brand,
+    mo.model,
+    mo.plate_number,
+    mo.production_year,
+    mo.color,
 
     st.name AS service_name,
-    st.base_price,
 
-    c.id AS customer_id,
-    u.name AS customer_name
+    ts.start_time,
+    ts.end_time
 
 FROM bookings b
-
-JOIN motors m
-    ON b.motor_id = m.id
-
-JOIN service_types st
-    ON b.service_type_id = st.id
 
 JOIN customers c
     ON b.customer_id = c.id
 
 JOIN users u
     ON c.user_id = u.id
+
+JOIN motors mo
+    ON b.motor_id = mo.id
+
+JOIN service_types st
+    ON b.service_type_id = st.id
+
+JOIN time_slots ts
+    ON b.time_slot_id = ts.id
 
 WHERE b.id = ?
 AND b.mechanic_id = ?
@@ -89,15 +269,135 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-$task = $stmt->get_result()->fetch_assoc();
+$booking =
+    $stmt->get_result()->fetch_assoc();
 
-if (!$task) {
-    die('Task tidak ditemukan');
+if (!$booking) {
+    die('Tugas tidak ditemukan');
 }
 
-ob_clean();
-?>
+/*
+|--------------------------------------------------------------------------
+| Sparepart Aktif
+|--------------------------------------------------------------------------
+*/
+$parts = $conn->query("
+    SELECT
+        id,
+        sku,
+        name,
+        stock,
+        price
+    FROM spare_parts
+    WHERE status = 'active'
+    ORDER BY name ASC
+");
 
+/*
+|--------------------------------------------------------------------------
+| Sparepart Yang Sudah Dipakai
+|--------------------------------------------------------------------------
+*/
+$stmt = $conn->prepare("
+SELECT
+
+    bp.id,
+    bp.qty,
+    bp.price_at_time,
+    bp.subtotal,
+
+    sp.sku,
+    sp.name
+
+FROM booking_parts bp
+
+JOIN spare_parts sp
+    ON bp.spare_part_id = sp.id
+
+WHERE bp.booking_id = ?
+
+ORDER BY bp.id DESC
+");
+
+$stmt->bind_param(
+    "i",
+    $bookingId
+);
+
+$stmt->execute();
+
+$usedParts =
+    $stmt->get_result();
+
+/*
+|--------------------------------------------------------------------------
+| Total Sparepart
+|--------------------------------------------------------------------------
+*/
+$stmt = $conn->prepare("
+SELECT
+    IFNULL(SUM(subtotal),0) AS total_parts
+FROM booking_parts
+WHERE booking_id = ?
+");
+
+$stmt->bind_param(
+    "i",
+    $bookingId
+);
+
+$stmt->execute();
+
+$totalParts =
+    $stmt
+    ->get_result()
+    ->fetch_assoc()['total_parts'];
+
+/*
+|--------------------------------------------------------------------------
+| Total Keseluruhan
+|--------------------------------------------------------------------------
+*/
+$grandTotal =
+    $booking['service_price']
+    + $totalParts;
+
+/*
+|--------------------------------------------------------------------------
+| Badge Status
+|--------------------------------------------------------------------------
+*/
+$statusBadge =
+    'bg-gray-100 text-gray-700';
+
+switch ($booking['status']) {
+
+    case 'queued':
+        $statusBadge =
+            'bg-yellow-100 text-yellow-700';
+        break;
+
+    case 'in_progress':
+        $statusBadge =
+            'bg-blue-100 text-blue-700';
+        break;
+
+    case 'ready_for_pickup':
+        $statusBadge =
+            'bg-green-100 text-green-700';
+        break;
+
+    case 'completed':
+        $statusBadge =
+            'bg-green-100 text-green-700';
+        break;
+
+    case 'cancelled':
+        $statusBadge =
+            'bg-red-100 text-red-700';
+        break;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -116,216 +416,420 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
 </head>
 
-<body class="font-['Plus_Jakarta_Sans']">
+<body class="font-['Plus_Jakarta_Sans'] overflow-hidden">
 
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
     <?php include 'nav.php'; ?>
 
-    <div class="flex-1 bg-gray-100 overflow-auto">
+    <div class="flex-1 flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
 
-        <!-- HEADER -->
+        <!-- Header -->
 
-        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
+        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
 
-            <p class="text-[#FF0000] uppercase text-sm">
-                Task Detail
-            </p>
+            <div>
 
-            <h1 class="text-4xl text-white py-2">
-                Booking #<?= $task['id']; ?>
-            </h1>
+                <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">
+                    DETAIL TUGAS
+                </p>
 
-            <p class="text-white">
-                Detail pekerjaan servis motor.
-            </p>
+                <p class="mt-2 text-2xl sm:text-4xl text-white font-semibold">
+                    Booking #<?= $booking['id'] ?>
+                </p>
+
+                <p class="text-white">
+                    <?= htmlspecialchars($booking['service_name']) ?>
+                </p>
+
+            </div>
+
+            <a
+                href="my_tasks.php"
+                class="bg-[#FF0000] px-4 py-3 rounded text-white hover:bg-[#6e1111] transition inline-flex items-center gap-2"
+            >
+                <span class="material-symbols-outlined">
+                    arrow_back
+                </span>
+
+                Kembali
+            </a>
 
         </div>
 
-        <!-- CONTENT -->
+        <div class="p-4">
 
-        <div class="p-6">
+            <?php if(isset($_SESSION['success'])): ?>
 
-            <div class="grid md:grid-cols-2 gap-5">
-
-                <!-- DATA BOOKING -->
-
-                <div class="bg-white border border-[#eadede] rounded-lg p-6 shadow-sm">
-
-                    <h2 class="text-xl font-semibold mb-5">
-                        Informasi Booking
-                    </h2>
-
-                    <div class="space-y-4">
-
-                        <div>
-                            <p class="text-gray-500 text-sm">
-                                Customer
-                            </p>
-
-                            <p class="font-medium">
-                                <?= htmlspecialchars($task['customer_name'] ?? ''); ?>
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-gray-500 text-sm">
-                                Motor
-                            </p>
-
-                            <p class="font-medium">
-
-                                <?= htmlspecialchars(
-                                    ($task['brand'] ?? '') . ' ' . ($task['model'] ?? '')
-                                ); ?>
-
-                            </p>
-
-                            <p class="text-sm text-gray-500">
-
-                                <?= htmlspecialchars($task['plate_number'] ?? ''); ?>
-
-                            </p>
-
-                        </div>
-
-                        <div>
-                            <p class="text-gray-500 text-sm">
-                                Service
-                            </p>
-
-                            <p class="font-medium">
-                                <?= htmlspecialchars($task['service_name'] ?? ''); ?>
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-gray-500 text-sm">
-                                Tanggal Booking
-                            </p>
-
-                            <p>
-                                <?= date('d M Y', strtotime($task['booking_date'])); ?>
-                            </p>
-                        </div>
-
-                        <div>
-                            <p class="text-gray-500 text-sm">
-                                Keluhan Customer
-                            </p>
-
-                            <p>
-                                <?= nl2br(htmlspecialchars($task['customer_complaint'] ?? '')); ?>
-                            </p>
-                        </div>
-
-                    </div>
-
+                <div class="bg-green-100 text-green-700 p-4 rounded-lg mb-4">
+                    <?= $_SESSION['success']; ?>
                 </div>
 
-                <!-- FORM UPDATE -->
+                <?php unset($_SESSION['success']); ?>
 
-                <div class="bg-white border border-[#eadede] rounded-lg p-6 shadow-sm">
+            <?php endif; ?>
 
-                    <h2 class="text-xl font-semibold mb-5">
-                        Update Pekerjaan
-                    </h2>
+            <!-- Customer -->
 
-                    <form
-                        action="proses_task.php"
-                        method="POST"
-                        class="space-y-5"
-                    >
+            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6">
 
-                        <input
-                            type="hidden"
-                            name="booking_id"
-                            value="<?= $task['id']; ?>"
-                        >
+                <h3 class="font-semibold text-lg mb-4">
+                    Informasi Customer
+                </h3>
 
-                        <div>
+                <div class="grid md:grid-cols-2 gap-4">
 
-                            <label class="block mb-2 font-medium">
-                                Status
-                            </label>
+                    <div>
+                        <p class="text-gray-400 text-sm">Nama</p>
+                        <p><?= htmlspecialchars($booking['customer_name']) ?></p>
+                    </div>
 
-                            <select
-                                name="status"
-                                class="w-full border rounded-lg p-3"
-                                required
-                            >
-
-                                <option
-                                    value="queued"
-                                    <?= $task['status'] == 'queued' ? 'selected' : ''; ?>
-                                >
-                                    Queued
-                                </option>
-
-                                <option
-                                    value="in_progress"
-                                    <?= $task['status'] == 'in_progress' ? 'selected' : ''; ?>
-                                >
-                                    In Progress
-                                </option>
-
-                                <option
-                                    value="completed"
-                                    <?= $task['status'] == 'completed' ? 'selected' : ''; ?>
-                                >
-                                    Completed
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <div>
-
-                            <label class="block mb-2 font-medium">
-                                Catatan Mekanik
-                            </label>
-
-                            <textarea
-                                name="mechanic_note"
-                                rows="8"
-                                class="w-full border rounded-lg p-3"
-                            ><?= htmlspecialchars($task['mechanic_note'] ?? ''); ?></textarea>
-
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="bg-[#8E1616] text-white px-6 py-3 rounded-lg hover:bg-[#6f1111]"
-                        >
-                            Simpan Perubahan
-                        </button>
-
-                    </form>
+                    <div>
+                        <p class="text-gray-400 text-sm">Telepon</p>
+                        <p><?= htmlspecialchars($booking['phone']) ?></p>
+                    </div>
 
                 </div>
 
             </div>
 
-        </div>
+            <!-- Motor -->
 
-        <div class="p-6">
+            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
 
-            <a
-                href="my_tasks.php"
-                class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800"
-            >
+                <h3 class="font-semibold text-lg mb-4">
+                    Informasi Motor
+                </h3>
 
-                <span class="material-symbols-outlined">
-                    arrow_back
-                </span>
+                <div class="grid md:grid-cols-2 gap-4">
 
-                Kembali ke Tugas Saya
+                    <div>
+                        <p class="text-gray-400 text-sm">Motor</p>
+                        <p>
+                            <?= htmlspecialchars(
+                                $booking['brand'].' '.$booking['model']
+                            ) ?>
+                        </p>
+                    </div>
 
-            </a>
+                    <div>
+                        <p class="text-gray-400 text-sm">Plat Nomor</p>
+                        <p><?= htmlspecialchars($booking['plate_number']) ?></p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-400 text-sm">Tahun</p>
+                        <p><?= $booking['production_year'] ?></p>
+                    </div>
+
+                    <div>
+                        <p class="text-gray-400 text-sm">Warna</p>
+                        <p><?= htmlspecialchars($booking['color']) ?></p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Booking -->
+
+            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
+
+                <h3 class="font-semibold text-lg mb-4">
+                    Informasi Booking
+                </h3>
+
+                <div class="grid md:grid-cols-2 gap-4">
+
+                    <div>
+
+                        <p class="text-gray-400 text-sm">
+                            Status
+                        </p>
+
+                        <span class="px-3 py-1 rounded-full text-sm <?= $statusBadge ?>">
+                            <?= ucfirst(str_replace('_',' ',$booking['status'])) ?>
+                        </span>
+
+                    </div>
+
+                    <div>
+
+                        <p class="text-gray-400 text-sm">
+                            Jadwal
+                        </p>
+
+                        <p>
+                            <?= date('d M Y', strtotime($booking['booking_date'])) ?>
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-4">
+
+                    <p class="text-gray-400 text-sm">
+                        Keluhan Customer
+                    </p>
+
+                    <div class="bg-gray-50 rounded-lg p-4 mt-2">
+                        <?= nl2br(htmlspecialchars($booking['customer_complaint'])) ?>
+                    </div>
+
+                </div>
+
+            </div>
+
+    <!-- ACTION BUTTON -->
+
+<?php if($booking['status'] == 'queued'): ?>
+
+<div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
+
+    <form method="POST">
+
+        <button
+            type="submit"
+            name="start_job"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
+        >
+            <span class="material-symbols-outlined">
+                play_arrow
+            </span>
+
+            Mulai Kerjakan
+        </button>
+
+    </form>
+
+</div>
+
+<?php endif; ?>
+
+
+<?php if($booking['status'] == 'in_progress'): ?>
+
+<div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
+
+    <form method="POST">
+
+        <button
+            type="submit"
+            name="finish_job"
+            class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg inline-flex items-center gap-2"
+        >
+            <span class="material-symbols-outlined">
+                task_alt
+            </span>
+
+            Selesaikan Pekerjaan
+        </button>
+
+    </form>
+
+</div>
+
+<?php endif; ?>
+
+<!-- CATATAN MEKANIK -->
+
+<div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
+
+    <h3 class="font-semibold text-lg mb-4">
+        Catatan Mekanik
+    </h3>
+
+    <form method="POST">
+
+        <textarea
+            name="mechanic_note"
+            rows="5"
+            class="w-full border rounded-lg p-3"
+        ><?= htmlspecialchars($booking['mechanic_note'] ?? '') ?></textarea>
+
+        <?php if(
+            $booking['status'] == 'queued'
+            || $booking['status'] == 'in_progress'
+        ): ?>
+
+        <button
+            type="submit"
+            name="save_note"
+            class="mt-4 bg-[#8E1616] hover:bg-[#6f1111] text-white px-5 py-3 rounded-lg"
+        >
+            Simpan Catatan
+        </button>
+
+        <?php endif; ?>
+
+    </form>
+
+</div>
+
+<!-- TAMBAH SPAREPART -->
+
+<?php if(
+    $booking['status'] == 'queued'
+    || $booking['status'] == 'in_progress'
+): ?>
+
+<div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
+
+    <h3 class="font-semibold text-lg mb-4">
+        Tambah Sparepart
+    </h3>
+
+    <form method="POST" class="grid md:grid-cols-3 gap-4">
+
+        <select
+            name="spare_part_id"
+            required
+            class="border rounded-lg p-3"
+        >
+
+            <option value="">
+                Pilih Sparepart
+            </option>
+
+            <?php while($part = $parts->fetch_assoc()): ?>
+
+                <option value="<?= $part['id'] ?>">
+
+                    <?= htmlspecialchars($part['name']) ?>
+
+                    (Stock: <?= $part['stock'] ?>)
+
+                </option>
+
+            <?php endwhile; ?>
+
+        </select>
+
+        <input
+            type="number"
+            name="qty"
+            min="1"
+            required
+            class="border rounded-lg p-3"
+            placeholder="Qty"
+        >
+
+        <button
+            type="submit"
+            name="add_part"
+            class="bg-[#8E1616] hover:bg-[#6f1111] text-white rounded-lg"
+        >
+            Tambah
+        </button>
+
+    </form>
+
+</div>
+
+<?php endif; ?>
+
+<!-- SPAREPART DIGUNAKAN -->
+
+<div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4">
+
+    <h3 class="font-semibold text-lg mb-4">
+        Sparepart Digunakan
+    </h3>
+
+    <div class="overflow-x-auto">
+
+        <table class="w-full">
+
+            <thead>
+
+                <tr class="border-b">
+
+                    <th class="text-left p-3">Sparepart</th>
+                    <th class="text-left p-3">Qty</th>
+                    <th class="text-left p-3">Harga</th>
+                    <th class="text-left p-3">Subtotal</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            <?php while($part = $usedParts->fetch_assoc()): ?>
+
+                <tr class="border-b">
+
+                    <td class="p-3">
+                        <?= htmlspecialchars($part['name']) ?>
+                    </td>
+
+                    <td class="p-3">
+                        <?= $part['qty'] ?>
+                    </td>
+
+                    <td class="p-3">
+                        Rp<?= number_format($part['price_at_time'],0,',','.') ?>
+                    </td>
+
+                    <td class="p-3">
+                        Rp<?= number_format($part['subtotal'],0,',','.') ?>
+                    </td>
+
+                </tr>
+
+            <?php endwhile; ?>
+
+            </tbody>
+
+        </table>
+
     </div>
 
 </div>
 
-</body>
-</html>
+<!-- TOTAL BIAYA -->
+
+<div class="bg-white rounded-lg border border-[#eadede] shadow-sm p-6 mt-4 mb-4">
+
+    <h3 class="font-semibold text-lg mb-4">
+        Ringkasan Biaya
+    </h3>
+
+    <div class="space-y-3">
+
+        <div class="flex justify-between">
+
+            <span>Biaya Service</span>
+
+            <span>
+                Rp<?= number_format($booking['service_price'],0,',','.') ?>
+            </span>
+
+        </div>
+
+        <div class="flex justify-between">
+
+            <span>Total Sparepart</span>
+
+            <span>
+                Rp<?= number_format($totalParts,0,',','.') ?>
+            </span>
+
+        </div>
+
+        <hr>
+
+        <div class="flex justify-between text-xl font-bold text-[#8E1616]">
+
+            <span>Total</span>
+
+            <span>
+                Rp<?= number_format($grandTotal,0,',','.') ?>
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
