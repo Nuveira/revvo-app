@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$pageTitle = 'History | REVVO';
+$pageTitle = 'Riwayat Tugas | REVVO';
 
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
@@ -46,7 +46,7 @@ $profile_photo = $mechanic['profile_photo'];
 
 /*
 |--------------------------------------------------------------------------
-| History Task
+| Riwayat Tugas
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
@@ -54,8 +54,7 @@ SELECT
     b.id,
     b.booking_date,
     b.status,
-    b.mechanic_note,
-    b.created_at,
+    b.total_price,
 
     mo.brand,
     mo.model,
@@ -72,17 +71,19 @@ JOIN service_types st
     ON b.service_type_id = st.id
 
 WHERE b.mechanic_id = ?
+AND b.status IN ('completed','ready_for_pickup','cancelled')
 
-ORDER BY b.created_at DESC
+ORDER BY b.booking_date DESC
 ");
 
 $stmt->bind_param("i", $mechanicId);
 $stmt->execute();
 
-$histories = $stmt->get_result();
+$history = $stmt->get_result();
 ?>
 
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 
@@ -92,6 +93,7 @@ $histories = $stmt->get_result();
 <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet"
 href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
@@ -99,115 +101,135 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
 </head>
 
-<body class="font-['Plus_Jakarta_Sans']">
+<body class="font-['Plus_Jakarta_Sans'] overflow-hidden">
 
-<div class="flex h-screen">
+<div class="flex h-screen overflow-hidden">
 
-    <?php include 'nav.php'; ?>
+<?php include 'nav.php'; ?>
 
-    <div class="flex-1 bg-gray-100 overflow-auto">
+<div class="flex-1 flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
 
-        <!-- HEADER -->
+    <!-- Header -->
 
-        <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] p-5">
+    <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
 
-            <p class="text-[#FF0000] uppercase text-sm">
-                History
+        <div>
+
+            <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">
+                RIWAYAT PEKERJAAN
             </p>
 
-            <h1 class="text-4xl text-white py-2">
-                Riwayat Pekerjaan
-            </h1>
+            <p class="mt-2 text-2xl sm:text-4xl text-white font-semibold">
+                Riwayat Tugas
+            </p>
 
             <p class="text-white">
-                Seluruh pekerjaan yang pernah ditangani mekanik.
+                Daftar tugas yang telah selesai, siap diambil, atau dibatalkan.
             </p>
 
         </div>
 
-        <!-- CONTENT -->
+        <div>
 
-        <div class="p-6">
+            <span class="bg-[#FF0000] px-4 py-3 rounded text-white inline-flex items-center gap-2 shadow-[0_0_15px_rgba(142,22,22,0.3)] shadow-red-500/40">
 
-            <div class="bg-white rounded-lg border border-[#eadede] shadow-sm overflow-hidden">
+                <span class="material-symbols-outlined">
+                    history
+                </span>
 
-                <div class="p-4 border-b">
+                <?= $history->num_rows ?> Riwayat
 
-                    <h2 class="font-semibold text-lg">
-                        History Task
-                    </h2>
+            </span>
 
-                </div>
+        </div>
 
-                <div class="overflow-x-auto">
+    </div>
 
-                    <table class="w-full">
+    <!-- Content -->
 
-                        <thead class="bg-gray-50">
+    <div class="p-4">
 
-                            <tr>
+        <div class="bg-white rounded-lg border border-[#eadede] shadow-sm overflow-hidden">
 
-                                <th class="p-4 text-left">
-                                    ID
-                                </th>
+            <div class="p-4 border-b border-[#eadede]">
 
-                                <th class="p-4 text-left">
-                                    Motor
-                                </th>
+                <h2 class="font-semibold text-lg">
+                    Riwayat Tugas
+                </h2>
 
-                                <th class="p-4 text-left">
-                                    Service
-                                </th>
+            </div>
 
-                                <th class="p-4 text-left">
-                                    Tanggal
-                                </th>
+            <div class="overflow-x-auto">
 
-                                <th class="p-4 text-left">
-                                    Status
-                                </th>
+                <table class="w-full">
 
-                                <th class="p-4 text-left">
-                                    Catatan
-                                </th>
+                    <thead class="bg-gray-50">
 
-                            </tr>
+                        <tr>
 
-                        </thead>
+                            <th class="p-4 text-left">
+                                ID
+                            </th>
 
-                        <tbody>
+                            <th class="p-4 text-left">
+                                Motor
+                            </th>
 
-                        <?php while($row = $histories->fetch_assoc()): ?>
+                            <th class="p-4 text-left">
+                                Layanan
+                            </th>
 
-                            <?php
+                            <th class="p-4 text-left">
+                                Tanggal
+                            </th>
 
-                            $badge =
-                                'bg-gray-100 text-gray-700';
+                            <th class="p-4 text-left">
+                                Total
+                            </th>
 
-                            if($row['status'] == 'queued'){
-                                $badge =
-                                'bg-yellow-100 text-yellow-700';
-                            }
+                            <th class="p-4 text-left">
+                                Status
+                            </th>
 
-                            if($row['status'] == 'in_progress'){
-                                $badge =
-                                'bg-blue-100 text-blue-700';
-                            }
+                            <th class="p-4 text-left">
+                                Aksi
+                            </th>
 
-                            if($row['status'] == 'completed'){
-                                $badge =
-                                'bg-green-100 text-green-700';
-                            }
+                        </tr>
 
-                            ?>
+                    </thead>
 
-                            <tr class="border-t">
+                    <tbody>
 
-                                <td class="p-4">
-                                    #<?= $row['id']; ?>
-                                </td>
+                    <?php while($row = $history->fetch_assoc()): ?>
 
-                                <td class="p-4">
+                        <?php
+
+                        $badge = 'bg-gray-100 text-gray-700';
+
+                        if($row['status'] == 'completed'){
+                            $badge = 'bg-green-100 text-green-700';
+                        }
+
+                        if($row['status'] == 'ready_for_pickup'){
+                            $badge = 'bg-blue-100 text-blue-700';
+                        }
+
+                        if($row['status'] == 'cancelled'){
+                            $badge = 'bg-red-100 text-red-700';
+                        }
+
+                        ?>
+
+                        <tr class="border-t border-[#f2f2f2]">
+
+                            <td class="p-4 font-medium">
+                                #<?= $row['id']; ?>
+                            </td>
+
+                            <td class="p-4">
+
+                                <div class="font-medium">
 
                                     <?= htmlspecialchars(
                                         $row['brand']
@@ -215,93 +237,115 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                                         $row['model']
                                     ); ?>
 
-                                    <br>
+                                </div>
 
-                                    <span class="text-sm text-gray-500">
-
-                                        <?= htmlspecialchars(
-                                            $row['plate_number']
-                                        ); ?>
-
-                                    </span>
-
-                                </td>
-
-                                <td class="p-4">
+                                <div class="text-sm text-gray-500">
 
                                     <?= htmlspecialchars(
-                                        $row['service_name']
+                                        $row['plate_number']
                                     ); ?>
 
-                                </td>
+                                </div>
 
-                                <td class="p-4">
+                            </td>
 
-                                    <?= date(
-                                        'd M Y',
-                                        strtotime(
-                                            $row['booking_date']
+                            <td class="p-4">
+
+                                <?= htmlspecialchars(
+                                    $row['service_name']
+                                ); ?>
+
+                            </td>
+
+                            <td class="p-4">
+
+                                <?= date(
+                                    'd M Y',
+                                    strtotime(
+                                        $row['booking_date']
+                                    )
+                                ); ?>
+
+                            </td>
+
+                            <td class="p-4 font-semibold">
+
+                                Rp<?= number_format(
+                                    $row['total_price'],
+                                    0,
+                                    ',',
+                                    '.'
+                                ); ?>
+
+                            </td>
+
+                            <td class="p-4">
+
+                                <span class="px-3 py-1 rounded-full text-sm <?= $badge ?>">
+
+                                    <?= ucfirst(
+                                        str_replace(
+                                            '_',
+                                            ' ',
+                                            $row['status']
                                         )
                                     ); ?>
 
-                                </td>
+                                </span>
 
-                                <td class="p-4">
+                            </td>
 
-                                    <span class="px-3 py-1 rounded-full text-sm <?= $badge; ?>">
+                            <td class="p-4">
 
-                                        <?= ucfirst(
-                                            str_replace(
-                                                '_',
-                                                ' ',
-                                                $row['status']
-                                            )
-                                        ); ?>
+                                <a
+                                    href="task_detail.php?id=<?= $row['id']; ?>"
+                                    class="bg-[#8E1616] text-white px-4 py-2 rounded-lg hover:bg-[#6f1111] inline-flex items-center gap-2"
+                                >
 
+                                    <span class="material-symbols-outlined text-[18px]">
+                                        visibility
                                     </span>
 
-                                </td>
+                                    Detail
 
-                                <td class="p-4">
+                                </a>
 
-                                    <?= $row['mechanic_note']
-                                        ? htmlspecialchars($row['mechanic_note'])
-                                        : '-'; ?>
+                            </td>
 
-                                </td>
+                        </tr>
 
-                            </tr>
+                    <?php endwhile; ?>
 
-                        <?php endwhile; ?>
+                    <?php if($history->num_rows == 0): ?>
 
-                        <?php if($histories->num_rows == 0): ?>
+                        <tr>
 
-                            <tr>
+                            <td
+                                colspan="7"
+                                class="text-center py-10 text-gray-500"
+                            >
 
-                                <td
-                                    colspan="6"
-                                    class="text-center py-8 text-gray-500"
-                                >
-                                    Belum ada history pekerjaan.
-                                </td>
+                                Belum ada riwayat tugas.
 
-                            </tr>
+                            </td>
 
-                        <?php endif; ?>
+                        </tr>
 
-                        </tbody>
+                    <?php endif; ?>
 
-                    </table>
+                    </tbody>
 
-                </div>
+                </table>
 
             </div>
 
         </div>
-        
-        <?php include 'footer.php'; ?>
-        
+
     </div>
+
+    <?php include 'footer.php'; ?>
+
+</div>
 
 </div>
 
