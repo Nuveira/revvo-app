@@ -139,7 +139,7 @@ $stmt->bind_param(
 
 if ($stmt->execute()) {
     $_SESSION['success'] = 'Booking berhasil dibuat';
-    header('Location: history.php');
+    header('Location: booking.php');
     exit;
 }
 
