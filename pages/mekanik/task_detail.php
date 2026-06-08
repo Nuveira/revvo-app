@@ -197,7 +197,7 @@ if (
 
     $stmt = $conn->prepare("
         UPDATE bookings
-        SET status='ready_for_pickup'
+        SET status='completed'
         WHERE id=?
     ");
 
@@ -209,7 +209,7 @@ if (
     $stmt->execute();
 
     $_SESSION['success'] =
-        'Motor siap diambil customer';
+        'Pekerjaan berhasil diselesaikan';
 
     header(
         "Location: task_detail.php?id=".$bookingId

@@ -27,6 +27,38 @@ if ($user_id) {
 $date_from = $_GET['date_from'] ?? date('Y-m-d', strtotime('-30 days'));
 $date_to   = $_GET['date_to'] ?? date('Y-m-d');
 
+// Fungsi: Pagination — konstanta dan helper
+const AUDIT_LOGS_PER_PAGE = 20;
+
+function audit_logs_total_pages($totalRows) {
+    return max(1, (int)ceil(max(0, (int)$totalRows) / AUDIT_LOGS_PER_PAGE));
+}
+
+function audit_logs_page_link($page, $date_from, $date_to) {
+    $params = ['page' => $page, 'date_from' => $date_from, 'date_to' => $date_to];
+    return 'audit_logs.php?' . http_build_query($params);
+}
+
+$page_num = is_numeric($_GET['page'] ?? null) && (int)($_GET['page']) > 0 ? (int)$_GET['page'] : 1;
+
+// Fungsi: Hitung total rows untuk pagination
+$stmt = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM service_logs sl
+    JOIN bookings b ON sl.booking_id = b.id
+    WHERE DATE(sl.created_at) >= ? AND DATE(sl.created_at) <= ?
+");
+$stmt->bind_param("ss", $date_from, $date_to);
+$stmt->execute();
+$total_logs = (int)$stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
+
+$total_pages = audit_logs_total_pages($total_logs);
+if ($page_num > $total_pages) $page_num = $total_pages;
+
+$limit  = AUDIT_LOGS_PER_PAGE;
+$offset = ($page_num - 1) * AUDIT_LOGS_PER_PAGE;
+
 // Fungsi: Query audit logs — JOIN service_logs dengan users dan bookings
 $stmt = $conn->prepare("
     SELECT 
@@ -43,12 +75,12 @@ $stmt = $conn->prepare("
     JOIN bookings b ON sl.booking_id = b.id
     WHERE DATE(sl.created_at) >= ? AND DATE(sl.created_at) <= ?
     ORDER BY sl.created_at DESC
+    LIMIT ? OFFSET ?
 ");
-$stmt->bind_param("ss", $date_from, $date_to);
+$stmt->bind_param("ssii", $date_from, $date_to, $limit, $offset);
 $stmt->execute();
 $logs = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-$total_logs = count($logs);
 
 // Fungsi: Helper badge status — 3 warna (merah, hijau, abu)
 function getStatusBadgeClass($status) {
@@ -141,7 +173,7 @@ function getStatusBadgeClass($status) {
                                 <?php else: ?>
                                     <?php foreach ($logs as $index => $log): ?>
                                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition">
-                                        <td class="px-4 py-3 text-gray-400"><?php echo $index + 1; ?></td>
+                                        <td class="px-4 py-3 text-gray-400"><?php echo $offset + $index + 1; ?></td>
                                         <td class="px-4 py-3 text-gray-700 text-xs whitespace-nowrap"><?php echo date('d M Y H:i', strtotime($log['created_at'])); ?></td>
                                         <td class="px-4 py-3">
                                             <span class="font-mono text-xs text-gray-700">#<?php echo $log['booking_id']; ?></span>
@@ -166,6 +198,47 @@ function getStatusBadgeClass($status) {
                                 <?php endif; ?>
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Fungsi: Pagination -->
+                    <div class="flex flex-col gap-3 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+                        <p class="text-sm text-gray-500">
+                            Halaman <span class="font-semibold text-gray-800"><?php echo $page_num; ?></span> dari <span class="font-semibold text-gray-800"><?php echo $total_pages; ?></span>
+                            &nbsp;·&nbsp; Total <span class="font-semibold text-gray-800"><?php echo $total_logs; ?></span> log
+                        </p>
+
+                        <div class="flex items-center gap-2">
+                            <?php if ($page_num > 1): ?>
+                                <a href="<?php echo htmlspecialchars(audit_logs_page_link($page_num - 1, $date_from, $date_to)); ?>" class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                    <span class="material-symbols-outlined text-lg">chevron_left</span>
+                                </a>
+                            <?php else: ?>
+                                <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                    <span class="material-symbols-outlined text-lg">chevron_left</span>
+                                </span>
+                            <?php endif; ?>
+
+                            <?php
+                            $pg_start = max(1, $page_num - 2);
+                            $pg_end   = min($total_pages, $page_num + 2);
+                            for ($pg = $pg_start; $pg <= $pg_end; $pg++):
+                            ?>
+                                <a href="<?php echo htmlspecialchars(audit_logs_page_link($pg, $date_from, $date_to)); ?>"
+                                   class="inline-flex h-9 min-w-9 items-center justify-center rounded px-3 text-sm font-semibold transition <?php echo $pg === $page_num ? 'bg-[#8E1616] text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50'; ?>">
+                                    <?php echo $pg; ?>
+                                </a>
+                            <?php endfor; ?>
+
+                            <?php if ($page_num < $total_pages): ?>
+                                <a href="<?php echo htmlspecialchars(audit_logs_page_link($page_num + 1, $date_from, $date_to)); ?>" class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                    <span class="material-symbols-outlined text-lg">chevron_right</span>
+                                </a>
+                            <?php else: ?>
+                                <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                    <span class="material-symbols-outlined text-lg">chevron_right</span>
+                                </span>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
