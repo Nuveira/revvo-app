@@ -160,6 +160,10 @@ function sort_link($col, $label) {
                             'text' => 'Service type tidak dapat dihapus karena sudah digunakan pada booking.',
                             'class' => 'bg-orange-100 text-orange-800 border-orange-300'
                         ],
+                        'name_exists' => [
+                            'text' => 'Tipe service sudah terdaftar. Buat tipe srvice yang lain.',
+                            'class' => 'bg-orange-100 text-orange-800 border-orange-300'
+                        ],
                         'error' => [
                             'text' => 'Terjadi kesalahan, coba lagi.',
                             'class' => 'bg-red-100 text-red-800 border-red-300'
@@ -203,7 +207,7 @@ function sort_link($col, $label) {
                                     name="description"
                                     required
                                     rows="3"
-                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]"
+                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616] resize-none"
                                 ></textarea>
                             </div>
                             <div>
@@ -244,7 +248,12 @@ function sort_link($col, $label) {
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Deskripsi <span class="text-red-500">*</span></label>
-                                <input type="text" name="description" value="<?= htmlspecialchars($edit_service['description']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <textarea
+                                    name="description"
+                                    required
+                                    rows="3"
+                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616] resize-y"
+                                ><?= htmlspecialchars($edit_service['description']) ?></textarea>
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Estimasi  Menit Pengerjaan <span class="text-red-500">*</span></label>
