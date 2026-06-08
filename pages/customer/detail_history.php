@@ -155,6 +155,16 @@ $status_label = match($booking['status']) {
                     <p class="mt-1 text-sm text-gray-700"><?= htmlspecialchars($booking['mechanic_note']) ?></p>
                 </div>
                 <?php endif; ?>
+
+                <?php if (in_array($booking['status'], ['completed', 'ready_for_pickup'])): ?>
+                <div class="mt-5 border-t border-gray-100 pt-4">
+                    <a href="invoice.php?id=<?= $booking['id'] ?>"
+                        class="inline-flex items-center gap-2 rounded bg-[#8E1616] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
+                        <span class="material-symbols-outlined text-[18px]">download</span>
+                        Download Invoice PDF
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Info Motor -->

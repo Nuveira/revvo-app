@@ -13,7 +13,7 @@
 | `pages/admin/mechanics.php` | Raika | Nav link → **404**. CRUD mechanics belum ada |
 | `pages/admin/time_slots.php` | Raika | Nav link → **404**. CRUD time slots belum ada |
 | `pages/admin/customers.php` | Raika | List customer (read-only) belum ada |
-| `pages/customer/invoice.php` | Nugi | Invoice PDF tidak bisa diakses |
+| ~~`pages/customer/invoice.php`~~ | Nugi | ✅ Fixed — DomPDF, muncul di booking_detail saat completed/ready_for_pickup |
 | `includes/pagination.php` | Dermawan | Tidak ada pagination di seluruh app |
 
 **Impact rubrik**: 2 dari 7 CRUD wajib belum ada → risiko nilai CRUD tidak full.
@@ -153,7 +153,7 @@ Composer vendor terinstall, autoload tersedia. Tinggal implement.
 | 6 | ~~total_price recalc setelah add_part (Bug F)~~ | Ahmad | ✅ Fixed |
 | 7 | ~~Stock >= qty check (Bug G)~~ | Ahmad | ✅ Fixed |
 | 8 | ~~State machine validation (Bug E, J, L)~~ | Geral/Ahmad | ✅ Fixed |
-| 9 | Buat `invoice.php` + PDF DomPDF | Nugi | 🟡 Medium — bonus rubrik |
+| 9 | ~~Buat `invoice.php` + PDF DomPDF~~ | Nugi | ✅ Fixed |
 | 10 | PDF export di `reports.php` | Dermawan | 🟡 Medium — bonus rubrik |
 | 11 | Pagination di semua list | Dermawan | 🟡 Medium — bonus rubrik |
 | 12 | Buat `customers.php` | Raika | 🟢 Rendah |
