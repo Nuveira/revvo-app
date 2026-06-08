@@ -178,7 +178,12 @@ $status_label = match($booking['status']) {
 
                 <!-- Tombol Cancel (hanya kalau masih queued) -->
                 <?php if ($booking['status'] === 'queued'): ?>
-                <div class="mt-5 border-t border-gray-100 pt-4">
+                <div class="mt-5 border-t border-gray-100 pt-4 flex gap-3">
+                    <a href="edit_booking.php?id=<?= $booking['id'] ?>"
+                        class="inline-flex items-center gap-2 rounded bg-[#8E1616] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                        Edit Booking
+                    </a>
                     <button type="button" onclick="showCancelModal()"
                         class="inline-flex items-center gap-2 rounded border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition hover:bg-red-100">
                         <span class="material-symbols-outlined text-[18px]">cancel</span>

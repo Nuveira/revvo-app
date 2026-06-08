@@ -54,7 +54,7 @@ $histori = [];
 $booking = null;
 if ($user_id) {
     $stmt = $conn->prepare("
-        SELECT b.status, b.customer_complaint, b.booking_date,
+        SELECT b.id, b.status, b.customer_complaint, b.booking_date,
                m.brand, m.model, m.plate_number,
                st.name AS service_name,
                ts.start_time, ts.end_time
@@ -166,14 +166,14 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
 
                     <div class="mt-8 flex flex-col gap-4 sm:flex-row">
                         <a 
-                            href="booking.php"
+                            href="booking_detail.php?id=<?= $booking ? $booking['id'] : '' ?>"
                             class="flex-[2] bg-[#2f2f2f] px-6 py-4 rounded-lg text-center text-base font-semibold text-white transition hover:bg-black"
                         >
                             lihat detail
                         </a>
                     
                         <a 
-                            href="booking_edit.php"
+                            href="edit_booking.php?id=<?= $booking ? $booking['id'] : '' ?>"
                             class="flex-1 bg-[#8E1616] px-6 py-4 rounded-lg text-center text-base font-semibold text-white transition hover:bg-[#6f1111]"
                         >
                             ubah jadwal
