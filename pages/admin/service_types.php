@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$pageTitle = 'Users | REVVO Admin';
+$pageTitle = 'Service Types | REVVO Admin';
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 checkRole(['admin']);
@@ -22,7 +22,6 @@ if ($user_id) {
 }
 
 // GET params
-$filter_role   = $_GET['role'] ?? '';
 $filter_status = $_GET['status'] ?? '';
 $search        = $_GET['search'] ?? '';
 $search_like   = $search !== '' ? "%{$search}%" : '';
@@ -33,46 +32,51 @@ $per_page      = 10;
 $offset        = ($page - 1) * $per_page;
 
 // Sort — whitelist wajib karena nama kolom tidak bisa di-parameterize
-$allowed_sort  = ['id', 'name', 'email', 'role', 'status', 'created_at'];
+$allowed_sort  = ['id','name','estimated_duration_minutes','base_price','status','created_at'];
 $sort          = in_array($_GET['sort'] ?? '', $allowed_sort) ? $_GET['sort'] : 'id';
 $order         = ($_GET['order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-// Ambil data user yang akan di-edit
-$edit_user = null;
+// Ambil data service types yang akan di-edit
+$edit_service = null;
 if ($show === 'edit' && $edit_id > 0) {
-    $stmt = $conn->prepare("SELECT id, name, email, role, phone, status FROM users WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, name, description, estimated_duration_minutes, base_price, status FROM service_types WHERE id = ?");
     $stmt->bind_param("i", $edit_id);
     $stmt->execute();
-    $edit_user = $stmt->get_result()->fetch_assoc();
+    $edit_service = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
 
 // Hitung total untuk pagination
-$stmt = $conn->prepare("SELECT COUNT(*) as total FROM users WHERE (? = '' OR role = ?) AND (? = '' OR status = ?) AND (? = '' OR name LIKE ? OR email LIKE ?)");
-$stmt->bind_param("sssssss", $filter_role, $filter_role, $filter_status, $filter_status, $search, $search_like, $search_like);
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM service_types WHERE (? = '' OR status = ?) AND (? = '' OR name LIKE ?)");
+$stmt->bind_param("ssss", $filter_status, $filter_status, $search, $search_like
+);
 $stmt->execute();
 $total_rows = $stmt->get_result()->fetch_assoc()['total'];
 $stmt->close();
 $total_pages = (int)ceil($total_rows / $per_page);
 
-// Ambil list users
+// Ambil list service types
 $stmt = $conn->prepare("
-    SELECT id, name, email, role, phone, status, created_at
-    FROM users
-    WHERE (? = '' OR role = ?) AND (? = '' OR status = ?) AND (? = '' OR name LIKE ? OR email LIKE ?)
+    SELECT id, name, description, estimated_duration_minutes, base_price, status, created_at FROM service_types
+    WHERE (? = '' OR status = ?) AND (? = '' OR name LIKE ?)
     ORDER BY {$sort} {$order}
     LIMIT ? OFFSET ?
 ");
-$stmt->bind_param("sssssssii", $filter_role, $filter_role, $filter_status, $filter_status, $search, $search_like, $search_like, $per_page, $offset);
+$stmt->bind_param("ssssii",
+    $filter_status,
+    $filter_status,
+    $search,
+    $search_like,
+    $per_page,
+    $offset);
 $stmt->execute();
-$users = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$service_types = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Helper untuk build query string — gabungkan filter + sort + pagination
 function filter_query($extra = []) {
-    global $filter_role, $filter_status, $search, $sort, $order;
+    global $filter_status, $search, $sort, $order;
     $params = [];
-    if ($filter_role !== '')   $params['role']   = $filter_role;
     if ($filter_status !== '') $params['status'] = $filter_status;
     if ($search !== '')        $params['search'] = $search;
     if ($sort !== 'id')        $params['sort']   = $sort;
@@ -98,7 +102,7 @@ function sort_link($col, $label) {
         $icon_html = '<span class="text-gray-300 text-xs">⇅</span>';
     }
 
-    return '<a href="users.php' . $url . '" class="' . $class . '">'
+    return '<a href="service_types.php' . $url . '" class="' . $class . '">'
          . htmlspecialchars($label) . $icon_html . '</a>';
 }
 ?>
@@ -123,13 +127,15 @@ function sort_link($col, $label) {
             <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex justify-between items-center w-full p-5">
                 <div class="mx-2">
                     <p class="text-[#8E1616] text-sm tracking-widest">ADMIN PANEL</p>
-                    <p class="text-3xl text-white py-1">Manajemen Users</p>
-                    <p class="text-white/70 text-sm">Total <?= $total_rows ?> user<?= $filter_role || $filter_status ? ' (difilter)' : '' ?></p>
+                    <p class="text-3xl text-white py-1">Manajemen Tipe Service</p>
+                    <p class="text-white/70 text-sm">
+                    Total <?= $total_rows ?> service type<?= $filter_status ? ' (difilter)' : '' ?>
+                    </p>
                 </div>
                 <div class="px-3">
-                    <a href="users.php<?= filter_query(['show' => 'create']) ?>"
+                    <a href="service_types.php<?= filter_query(['show' => 'create']) ?>"
                        class="bg-[#FF0000] px-4 py-3 rounded text-white whitespace-nowrap hover:bg-[#6e1111] transition flex items-center gap-2 shadow-red-500/40">
-                        + Tambah User
+                        + Tambah Tipe Service
                     </a>
                 </div>
             </div>
@@ -138,25 +144,53 @@ function sort_link($col, $label) {
                 <!-- Pesan feedback -->
                 <?php
                 $msg_map = [
-                    'created'      => ['text' => 'User berhasil ditambahkan.',        'class' => 'bg-green-100 text-green-800 border-green-300'],
-                    'updated'      => ['text' => 'User berhasil diperbarui.',         'class' => 'bg-blue-100 text-blue-800 border-blue-300'],
-                    'deleted'      => ['text' => 'User berhasil dihapus.',            'class' => 'bg-yellow-100 text-yellow-800 border-yellow-300'],
-                    'email_exists' => ['text' => 'Email sudah digunakan user lain.',  'class' => 'bg-orange-100 text-orange-800 border-orange-300'],
-                    'error'        => ['text' => 'Terjadi kesalahan, coba lagi.',     'class' => 'bg-red-100 text-red-800 border-red-300'],
+                        'created' => [
+                            'text' => 'Service type berhasil ditambahkan.',
+                            'class' => 'bg-green-100 text-green-800 border-green-300'
+                        ],
+                        'updated' => [
+                            'text' => 'Service type berhasil diperbarui.',
+                            'class' => 'bg-blue-100 text-blue-800 border-blue-300'
+                        ],
+                        'deleted' => [
+                            'text' => 'Service type berhasil dihapus.',
+                            'class' => 'bg-yellow-100 text-yellow-800 border-yellow-300'
+                        ],
+                        'in_use' => [
+                            'text' => 'Service type tidak dapat dihapus karena sudah digunakan pada booking.',
+                            'class' => 'bg-orange-100 text-orange-800 border-orange-300'
+                        ],
+                        'error' => [
+                            'text' => 'Terjadi kesalahan, coba lagi.',
+                            'class' => 'bg-red-100 text-red-800 border-red-300'
+                        ]
                 ];
                 $msg_key = $_GET['msg'] ?? '';
                 if (isset($msg_map[$msg_key])):
                 ?>
-                <div class="mb-4 px-4 py-3 rounded border <?= $msg_map[$msg_key]['class'] ?>">
-                    <?= htmlspecialchars($msg_map[$msg_key]['text']) ?>
+                <div id="alert-message"
+                    class="mb-4 px-4 py-3 rounded border <?= $msg_map[$msg_key]['class'] ?>">
+                    
+                    <div class="flex items-center justify-between">
+                        <span>
+                            <?= htmlspecialchars($msg_map[$msg_key]['text']) ?>
+                        </span>
+
+                        <button type="button"
+                                onclick="document.getElementById('alert-message').remove()"
+                                class="ml-4 text-lg leading-none font-bold opacity-60 hover:opacity-100 transition">
+                            &times;
+                        </button>
+                    </div>
+
                 </div>
                 <?php endif; ?>
 
-                <!-- Form Tambah User -->
+                <!-- Form Tambah Service Types -->
                 <?php if ($show === 'create'): ?>
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
-                    <h2 class="text-lg font-semibold mb-4">Tambah User Baru</h2>
-                    <form method="POST" action="proses_users.php">
+                    <h2 class="text-lg font-semibold mb-4">Tambah Tipe Service Baru</h2>
+                    <form method="POST" action="proses_service_types.php">
                         <input type="hidden" name="action" value="create">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
@@ -164,24 +198,21 @@ function sort_link($col, $label) {
                                 <input type="text" name="name" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Email <span class="text-red-500">*</span></label>
-                                <input type="email" name="email" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Deskripsi <span class="text-red-500">*</span></label>
+                                <textarea
+                                    name="description"
+                                    required
+                                    rows="3"
+                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]"
+                                ></textarea>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Password <span class="text-red-500">*</span></label>
-                                <input type="password" name="password" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Estimasi  Menit Pengerjaan <span class="text-red-500">*</span></label>
+                                <input type="number" name="estimated_duration_minutes" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">No. HP</label>
-                                <input type="text" name="phone" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Role</label>
-                                <select name="role_baru" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                                    <option value="customer">Customer</option>
-                                    <option value="mechanic">Mechanic</option>
-                                    <option value="admin">Admin</option>
-                                </select>
+                                <label class="block text-sm text-gray-600 mb-1">Harga</label>
+                                <input type="number" name="base_price" required min="0" step="0.01" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Status</label>
@@ -193,55 +224,47 @@ function sort_link($col, $label) {
                         </div>
                         <div class="flex gap-3 mt-5">
                             <button type="submit" class="bg-[#8E1616] text-white px-6 py-2 rounded hover:bg-[#6f1111] transition text-sm">Simpan</button>
-                            <a href="users.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
+                            <a href="service_types.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
                         </div>
                     </form>
                 </div>
                 <?php endif; ?>
 
                 <!-- Form Edit User -->
-                <?php if ($show === 'edit' && $edit_user): ?>
+                <?php if ($show === 'edit' && $edit_service): ?>
                 <div class="bg-white rounded-lg border border-blue-200 p-6 mb-6 shadow-sm">
-                    <h2 class="text-lg font-semibold mb-4">Edit User: <?= htmlspecialchars($edit_user['name']) ?></h2>
-                    <form method="POST" action="proses_users.php">
+                    <h2 class="text-lg font-semibold mb-4">Edit Tipe Service: <?= htmlspecialchars($edit_service['name']) ?></h2>
+                    <form method="POST" action="proses_service_types.php">
                         <input type="hidden" name="action" value="edit">
-                        <input type="hidden" name="id" value="<?= $edit_user['id'] ?>">
+                        <input type="hidden" name="id" value="<?= $edit_service['id'] ?>">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Nama <span class="text-red-500">*</span></label>
-                                <input type="text" name="name" value="<?= htmlspecialchars($edit_user['name']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <input type="text" name="name" value="<?= htmlspecialchars($edit_service['name']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Email <span class="text-red-500">*</span></label>
-                                <input type="email" name="email" value="<?= htmlspecialchars($edit_user['email']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Deskripsi <span class="text-red-500">*</span></label>
+                                <input type="text" name="description" value="<?= htmlspecialchars($edit_service['description']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Password Baru <span class="text-gray-400">(kosongkan jika tidak diubah)</span></label>
-                                <input type="password" name="password" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Estimasi  Menit Pengerjaan <span class="text-red-500">*</span></label>
+                                <input type="number" name="estimated_duration_minutes" value="<?= htmlspecialchars($edit_service['estimated_duration_minutes']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">No. HP</label>
-                                <input type="text" name="phone" value="<?= htmlspecialchars($edit_user['phone'] ?? '') ?>" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                            </div>
-                            <div>
-                                <label class="block text-sm text-gray-600 mb-1">Role</label>
-                                <select name="role_baru" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                                    <option value="customer" <?= $edit_user['role'] === 'customer' ? 'selected' : '' ?>>Customer</option>
-                                    <option value="mechanic" <?= $edit_user['role'] === 'mechanic' ? 'selected' : '' ?>>Mechanic</option>
-                                    <option value="admin"    <?= $edit_user['role'] === 'admin'    ? 'selected' : '' ?>>Admin</option>
-                                </select>
+                                <label class="block text-sm text-gray-600 mb-1">Harga</label>
+                                <input type="number" name="base_price" value="<?= htmlspecialchars($edit_service['base_price'] ?? '') ?>" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Status</label>
                                 <select name="status" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                                    <option value="active"   <?= $edit_user['status'] === 'active'   ? 'selected' : '' ?>>Active</option>
-                                    <option value="inactive" <?= $edit_user['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                                    <option value="active"   <?= $edit_service['status'] === 'active'   ? 'selected' : '' ?>>Active</option>
+                                    <option value="inactive" <?= $edit_service['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
                                 </select>
                             </div>
                         </div>
                         <div class="flex gap-3 mt-5">
                             <button type="submit" class="bg-[#8E1616] text-white px-6 py-2 rounded hover:bg-[#6f1111] transition text-sm">Update</button>
-                            <a href="users.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
+                            <a href="service_types.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
                         </div>
                     </form>
                 </div>
@@ -249,16 +272,7 @@ function sort_link($col, $label) {
 
                 <!-- Filter Bar -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 shadow-sm">
-                    <form method="GET" action="users.php" class="flex gap-4 items-end flex-wrap">
-                        <div>
-                            <label class="block text-xs text-gray-500 mb-1">Filter Role</label>
-                            <select name="role" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                                <option value="">Semua Role</option>
-                                <option value="admin"    <?= $filter_role === 'admin'    ? 'selected' : '' ?>>Admin</option>
-                                <option value="mechanic" <?= $filter_role === 'mechanic' ? 'selected' : '' ?>>Mechanic</option>
-                                <option value="customer" <?= $filter_role === 'customer' ? 'selected' : '' ?>>Customer</option>
-                            </select>
-                        </div>
+                    <form method="GET" action="service_types.php" class="flex gap-4 items-end flex-wrap">
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Filter Status</label>
                             <select name="status" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
@@ -268,19 +282,19 @@ function sort_link($col, $label) {
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Cari Nama / Email</label>
+                            <label class="block text-xs text-gray-500 mb-1">Cari Nama Service</label>
                             <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
                                    placeholder="Cari..."
                                    class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                         </div>
                         <button type="submit" class="bg-[#8E1616] text-white px-4 py-2 rounded text-sm hover:bg-[#6f1111] transition">Filter</button>
-                        <?php if ($filter_role || $filter_status || $search): ?>
-                            <a href="users.php" class="text-sm text-gray-500 hover:text-gray-700 py-2">Reset</a>
+                        <?php if ($filter_status || $search): ?>
+                            <a href="service_types.php" class="text-sm text-gray-500 hover:text-gray-700 py-2">Reset</a>
                         <?php endif; ?>
                     </form>
                 </div>
 
-                <!-- Tabel Users -->
+                <!-- Tabel Tipe Service -->
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-[1200px] w-full text-sm">
@@ -291,59 +305,45 @@ function sort_link($col, $label) {
                                 ?>
                                 <tr>
                                     <th class="<?= $th('id') ?>"><?= sort_link('id', 'ID') ?></th>
-                                    <th class="<?= $th('name') ?>"><?= sort_link('name', 'Nama') ?></th>
-                                    <th class="<?= $th('email') ?>"><?= sort_link('email', 'Email') ?></th>
-                                    <th class="<?= $th('role') ?>"><?= sort_link('role', 'Role') ?></th>
-                                    <th class="text-left px-4 py-3 font-medium text-gray-500">No. HP</th>
+                                    <th class="<?= $th('name') ?>"><?= sort_link('name', 'Nama Layanan') ?></th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">
+                                        Deskripsi
+                                    </th>
+                                    <th class="<?= $th('estimated_duration_minutes') ?>"><?= sort_link('estimated_duration_minutes', 'Durasi') ?></th>
+                                    <th class="<?= $th('base_price') ?>"><?= sort_link('base_price', 'Harga') ?></th>
                                     <th class="<?= $th('status') ?>"><?= sort_link('status', 'Status') ?></th>
-                                    <th class="<?= $th('created_at') ?>"><?= sort_link('created_at', 'Terdaftar') ?></th>
+                                    <th class="<?= $th('created_at') ?>"><?= sort_link('created_at', 'Dibuat') ?></th>
                                     <th class="text-left px-4 py-3 font-medium text-gray-500">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <?php if (empty($users)): ?>
+                                <?php if (empty($service_types)): ?>
                                     <tr>
-                                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">Tidak ada user ditemukan</td>
+                                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">Tidak ada tipe service ditemukan</td>
                                     </tr>
                                 <?php else: ?>
-                                    <?php foreach ($users as $u): ?>
-                                    <?php
-                                    $role_class = match($u['role']) {
-                                        'admin'    => 'bg-purple-100 text-purple-700',
-                                        'mechanic' => 'bg-blue-100 text-blue-700',
-                                        'customer' => 'bg-green-100 text-green-700',
-                                        default    => 'bg-gray-100 text-gray-700',
-                                    };
-                                    ?>
+                                    <?php foreach ($service_types as $service): ?>
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-gray-400">#<?= $u['id'] ?></td>
-                                        <td class="px-4 py-3 font-medium"><?= htmlspecialchars($u['name']) ?></td>
-                                        <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['email']) ?></td>
+                                        <td class="px-4 py-3 text-gray-400">#<?= $service['id'] ?></td>
+                                        <td class="px-4 py-3 font-medium"><?= htmlspecialchars($service['name']) ?></td>
+                                        <td class="px-4 py-3 text-gray-600 max-w-xs truncate"><?= htmlspecialchars($service['description'] ?? '-') ?></td>
+                                        <td class="px-4 py-3"><?= $service['estimated_duration_minutes'] ?> menit</td>
+                                        <td class="px-4 py-3">Rp<?= number_format($service['base_price'], 0, ',', '.') ?></td>
                                         <td class="px-4 py-3">
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $role_class ?>">
-                                                <?= htmlspecialchars($u['role']) ?>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $service['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                                <?= htmlspecialchars($service['status']) ?>
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['phone'] ?? '-') ?></td>
-                                        <td class="px-4 py-3">
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $u['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                                <?= htmlspecialchars($u['status']) ?>
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-500"><?= date('d M Y', strtotime($u['created_at'])) ?></td>
+                                        <td class="px-4 py-3 text-gray-500"><?= date('d M Y', strtotime($service['created_at'])) ?></td>
                                         <td class="px-4 py-3">
                                             <div class="flex gap-2 items-center">
-                                                <a href="users.php<?= filter_query(['show' => 'edit', 'id' => $u['id']]) ?>"
+                                                <a href="service_types.php<?= filter_query(['show' => 'edit', 'id' => $service['id']]) ?>"
                                                    class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
-                                                <?php if ($u['id'] !== (int)$user_id): ?>
-                                                <form method="POST" action="proses_users.php" onsubmit="return confirm('Yakin hapus user <?= htmlspecialchars(addslashes($u['name']), ENT_QUOTES) ?>?')">
+                                                <form method="POST" action="proses_service_types.php" onsubmit="return confirm('Yakin hapus service <?= htmlspecialchars(addslashes($service['name']), ENT_QUOTES) ?>?')">
                                                     <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="id" value="<?= $u['id'] ?>">
+                                                    <input type="hidden" name="id" value="<?= $service['id'] ?>">
                                                     <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition">Hapus</button>
                                                 </form>
-                                                <?php else: ?>
-                                                    <span class="text-xs text-gray-400">(Anda)</span>
-                                                <?php endif; ?>
                                             </div>
                                         </td>
                                     </tr>
@@ -358,18 +358,18 @@ function sort_link($col, $label) {
                 <?php if ($total_pages > 1): ?>
                 <div class="flex items-center justify-between mt-4">
                     <p class="text-sm text-gray-500">
-                        Menampilkan <?= count($users) ?> dari <?= $total_rows ?> user
+                        Menampilkan <?= count($service_types) ?> dari <?= $total_rows ?> service type
                     </p>
                     <div class="flex gap-2 items-center">
                         <?php if ($page > 1): ?>
-                            <a href="users.php<?= filter_query(['page' => $page - 1]) ?>"
+                            <a href="service_types.php<?= filter_query(['page' => $page - 1]) ?>"
                                class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">&larr; Sebelumnya</a>
                         <?php endif; ?>
 
                         <span class="px-3 py-2 text-sm text-gray-600">Hal. <?= $page ?> / <?= $total_pages ?></span>
 
                         <?php if ($page < $total_pages): ?>
-                            <a href="users.php<?= filter_query(['page' => $page + 1]) ?>"
+                            <a href="service_types.php<?= filter_query(['page' => $page + 1]) ?>"
                                class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">Selanjutnya &rarr;</a>
                         <?php endif; ?>
                     </div>
