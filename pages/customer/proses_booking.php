@@ -65,6 +65,16 @@ if (
     exit;
 }
 
+// pastikan motor milik customer yang login
+$stmt = $conn->prepare("SELECT id FROM motors WHERE id = ? AND customer_id = ?");
+$stmt->bind_param("ii", $motorId, $customerId);
+$stmt->execute();
+if ($stmt->get_result()->num_rows === 0) {
+    $_SESSION['error'] = 'Motor tidak valid';
+    header('Location: tambah_booking.php');
+    exit;
+}
+
 /*
 |--------------------------------------------------------------------------
 | Ambil harga service
@@ -88,6 +98,27 @@ if (!$service) {
 }
 
 $servicePrice = $service['base_price'];
+
+// cek kapasitas slot sebelum insert
+$stmt = $conn->prepare("
+    SELECT ts.capacity,
+           COUNT(b.id) AS booked
+    FROM time_slots ts
+    LEFT JOIN bookings b ON b.time_slot_id = ts.id
+        AND b.booking_date = ?
+        AND b.status NOT IN ('cancelled')
+    WHERE ts.id = ?
+    GROUP BY ts.id
+");
+$stmt->bind_param("si", $bookingDate, $timeSlotId);
+$stmt->execute();
+$slotData = $stmt->get_result()->fetch_assoc();
+
+if (!$slotData || $slotData['booked'] >= $slotData['capacity']) {
+    $_SESSION['error'] = 'Slot sudah penuh untuk tanggal tersebut';
+    header('Location: tambah_booking.php');
+    exit;
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -138,6 +169,16 @@ $stmt->bind_param(
 );
 
 if ($stmt->execute()) {
+    $bookingId = $conn->insert_id;
+
+    // catat status awal ke service_logs
+    $logStmt = $conn->prepare("
+        INSERT INTO service_logs (booking_id, changed_by, previous_status, new_status, note)
+        VALUES (?, ?, '', 'queued', 'Booking baru dibuat oleh customer')
+    ");
+    $logStmt->bind_param("ii", $bookingId, $userId);
+    $logStmt->execute();
+
     $_SESSION['success'] = 'Booking berhasil dibuat';
     header('Location: booking.php');
     exit;
