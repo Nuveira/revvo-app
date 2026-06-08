@@ -2,7 +2,7 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-$pageTitle = 'Service Types | REVVO Admin';
+$pageTitle = 'Time Slots | REVVO Admin';
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 checkRole(['admin']);
@@ -24,7 +24,6 @@ if ($user_id) {
 // GET params
 $filter_status = $_GET['status'] ?? '';
 $search        = $_GET['search'] ?? '';
-$search_like   = $search !== '' ? "%{$search}%" : '';
 $show          = $_GET['show'] ?? '';
 $edit_id       = (int)($_GET['id'] ?? 0);
 $page          = max(1, (int)($_GET['page'] ?? 1));
@@ -32,45 +31,40 @@ $per_page      = 10;
 $offset        = ($page - 1) * $per_page;
 
 // Sort — whitelist wajib karena nama kolom tidak bisa di-parameterize
-$allowed_sort  = ['id','name','estimated_duration_minutes','base_price','status','created_at'];
+$allowed_sort  = ['id','day','start_time','end_time','capacity','status'];
 $sort          = in_array($_GET['sort'] ?? '', $allowed_sort) ? $_GET['sort'] : 'id';
 $order         = ($_GET['order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
 
-// Ambil data service types yang akan di-edit
-$edit_service = null;
+// Ambil data time slots yang akan di-edit
+$edit_slot = null;
 if ($show === 'edit' && $edit_id > 0) {
-    $stmt = $conn->prepare("SELECT id, name, description, estimated_duration_minutes, base_price, status FROM service_types WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, day, start_time, end_time, capacity, status FROM time_slots WHERE id = ?");
     $stmt->bind_param("i", $edit_id);
     $stmt->execute();
-    $edit_service = $stmt->get_result()->fetch_assoc();
+    $edit_slot = $stmt->get_result()->fetch_assoc();
     $stmt->close();
 }
 
 // Hitung total untuk pagination
-$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM service_types WHERE (? = '' OR status = ?) AND (? = '' OR name LIKE ?)");
-$stmt->bind_param("ssss", $filter_status, $filter_status, $search, $search_like
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM time_slots WHERE (? = '' OR status = ?) AND (? = '' OR day = ?)");
+$stmt->bind_param("ssss", $filter_status, $filter_status, $search, $search
 );
 $stmt->execute();
 $total_rows = $stmt->get_result()->fetch_assoc()['total'];
 $stmt->close();
 $total_pages = (int)ceil($total_rows / $per_page);
 
-// Ambil list service types
-$stmt = $conn->prepare("
-    SELECT id, name, description, estimated_duration_minutes, base_price, status, created_at FROM service_types
-    WHERE (? = '' OR status = ?) AND (? = '' OR name LIKE ?)
-    ORDER BY {$sort} {$order}
-    LIMIT ? OFFSET ?
-");
+// Ambil list time slots
+$stmt = $conn->prepare("SELECT id, day, start_time, end_time, capacity, status FROM time_slots WHERE (? = '' OR status = ?) AND (? = '' OR day = ?) ORDER BY {$sort} {$order} LIMIT ? OFFSET ?");
 $stmt->bind_param("ssssii",
     $filter_status,
     $filter_status,
     $search,
-    $search_like,
+    $search,
     $per_page,
     $offset);
 $stmt->execute();
-$service_types = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$time_slots = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Helper untuk build query string — gabungkan filter + sort + pagination
@@ -102,7 +96,7 @@ function sort_link($col, $label) {
         $icon_html = '<span class="text-gray-300 text-xs">⇅</span>';
     }
 
-    return '<a href="service_types.php' . $url . '" class="' . $class . '">'
+    return '<a href="time_slots.php' . $url . '" class="' . $class . '">'
          . htmlspecialchars($label) . $icon_html . '</a>';
 }
 ?>
@@ -127,15 +121,15 @@ function sort_link($col, $label) {
             <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex justify-between items-center w-full p-5">
                 <div class="mx-2">
                     <p class="text-[#8E1616] text-sm tracking-widest">ADMIN PANEL</p>
-                    <p class="text-3xl text-white py-1">Manajemen Tipe Service</p>
+                    <p class="text-3xl text-white py-1">Manajemen Slot Waktu</p>
                     <p class="text-white/70 text-sm">
-                    Total <?= $total_rows ?> service type<?= $filter_status ? ' (difilter)' : '' ?>
+                    Total <?= $total_rows ?> slot waktu<?= $filter_status ? ' (difilter)' : '' ?>
                     </p>
                 </div>
                 <div class="px-3">
-                    <a href="service_types.php<?= filter_query(['show' => 'create']) ?>"
+                    <a href="time_slots.php<?= filter_query(['show' => 'create']) ?>"
                        class="bg-[#FF0000] px-4 py-3 rounded text-white whitespace-nowrap hover:bg-[#6e1111] transition flex items-center gap-2 shadow-red-500/40">
-                        + Tambah Tipe Service
+                        + Tambah Slot Waktu
                     </a>
                 </div>
             </div>
@@ -145,19 +139,31 @@ function sort_link($col, $label) {
                 <?php
                 $msg_map = [
                         'created' => [
-                            'text' => 'Service type berhasil ditambahkan.',
+                            'text' => 'Slot waktu berhasil ditambahkan.',
                             'class' => 'bg-green-100 text-green-800 border-green-300'
                         ],
                         'updated' => [
-                            'text' => 'Service type berhasil diperbarui.',
+                            'text' => 'Slot waktu berhasil diperbarui.',
                             'class' => 'bg-blue-100 text-blue-800 border-blue-300'
                         ],
                         'deleted' => [
-                            'text' => 'Service type berhasil dihapus.',
+                            'text' => 'Slot waktu berhasil dihapus.',
                             'class' => 'bg-yellow-100 text-yellow-800 border-yellow-300'
                         ],
+                        'slot_exists' => [
+                            'text' => 'Slot waktu dengan jadwal tersebut sudah tersedia.',
+                            'class' => 'bg-orange-100 text-orange-800 border-orange-300'
+                        ],
+                        'slot_overlap' => [
+                            'text' => 'Slot waktu bertabrakan dengan jadwal yang sudah ada.',
+                            'class' => 'bg-orange-100 text-orange-800 border-orange-300'
+                        ],
+                        'invalid_time' => [
+                            'text' => 'Jam selesai harus lebih besar dari jam mulai.',
+                            'class' => 'bg-orange-100 text-orange-800 border-orange-300'
+                        ],
                         'in_use' => [
-                            'text' => 'Service type tidak dapat dihapus karena sedang digunakan pada booking.',
+                            'text' => 'Slot waktu tidak dapat dihapus karena sedang digunakan pada booking.',
                             'class' => 'bg-orange-100 text-orange-800 border-orange-300'
                         ],
                         'error' => [
@@ -189,30 +195,34 @@ function sort_link($col, $label) {
                 <!-- Form Tambah Service Types -->
                 <?php if ($show === 'create'): ?>
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
-                    <h2 class="text-lg font-semibold mb-4">Tambah Tipe Service Baru</h2>
-                    <form method="POST" action="proses_service_types.php">
+                    <h2 class="text-lg font-semibold mb-4">Tambah Slot Waktu Baru</h2>
+                    <form method="POST" action="proses_time_slots.php">
                         <input type="hidden" name="action" value="create">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Nama <span class="text-red-500">*</span></label>
-                                <input type="text" name="name" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Hari <span class="text-red-500">*</span></label>
+                                <select name="day" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                    <option value="">Pilih Hari</option>
+                                    <option value="monday">Senin</option>
+                                    <option value="tuesday">Selasa</option>
+                                    <option value="wednesday">Rabu</option>
+                                    <option value="thursday">Kamis</option>
+                                    <option value="friday">Jumat</option>
+                                    <option value="saturday">Sabtu</option>
+                                    <option value="sunday">Minggu</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Deskripsi <span class="text-red-500">*</span></label>
-                                <textarea
-                                    name="description"
-                                    required
-                                    rows="3"
-                                    class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]"
-                                ></textarea>
+                                <label class="block text-sm text-gray-600 mb-1">Kapasitas <span class="text-red-500">*</span></label>
+                                <input type="number" name="capacity" min="1" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Estimasi  Menit Pengerjaan <span class="text-red-500">*</span></label>
-                                <input type="number" name="estimated_duration_minutes" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Jam Mulai <span class="text-red-500">*</span></label>
+                                <input type="time" name="start_time" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Harga</label>
-                                <input type="number" name="base_price" required min="0" step="0.01" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Jam Selesai <span class="text-red-500">*</span></label>
+                                <input type="time" name="end_time" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Status</label>
@@ -224,47 +234,57 @@ function sort_link($col, $label) {
                         </div>
                         <div class="flex gap-3 mt-5">
                             <button type="submit" class="bg-[#8E1616] text-white px-6 py-2 rounded hover:bg-[#6f1111] transition text-sm">Simpan</button>
-                            <a href="service_types.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
+                            <a href="time_slots.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
                         </div>
                     </form>
                 </div>
                 <?php endif; ?>
 
                 <!-- Form Edit User -->
-                <?php if ($show === 'edit' && $edit_service): ?>
+                <?php if ($show === 'edit' && $edit_slot): ?>
                 <div class="bg-white rounded-lg border border-blue-200 p-6 mb-6 shadow-sm">
-                    <h2 class="text-lg font-semibold mb-4">Edit Tipe Service: <?= htmlspecialchars($edit_service['name']) ?></h2>
-                    <form method="POST" action="proses_service_types.php">
+                    <h2 class="text-lg font-semibold mb-4">Edit Slot Waktu:</h2>
+                    <form method="POST" action="proses_time_slots.php">
                         <input type="hidden" name="action" value="edit">
-                        <input type="hidden" name="id" value="<?= $edit_service['id'] ?>">
+                        <input type="hidden" name="id" value="<?= $edit_slot['id'] ?>">
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Nama <span class="text-red-500">*</span></label>
-                                <input type="text" name="name" value="<?= htmlspecialchars($edit_service['name']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">
+                                    Hari <span class="text-red-500">*</span>
+                                </label>
+                                <select name="day" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                    <option value="monday" <?= $edit_slot['day'] === 'monday' ? 'selected' : '' ?>>Senin</option>
+                                    <option value="tuesday" <?= $edit_slot['day'] === 'tuesday' ? 'selected' : '' ?>>Selasa</option>
+                                    <option value="wednesday" <?= $edit_slot['day'] === 'wednesday' ? 'selected' : '' ?>>Rabu</option>
+                                    <option value="thursday" <?= $edit_slot['day'] === 'thursday' ? 'selected' : '' ?>>Kamis</option>
+                                    <option value="friday" <?= $edit_slot['day'] === 'friday' ? 'selected' : '' ?>>Jumat</option>
+                                    <option value="saturday" <?= $edit_slot['day'] === 'saturday' ? 'selected' : '' ?>>Sabtu</option>
+                                    <option value="sunday" <?= $edit_slot['day'] === 'sunday' ? 'selected' : '' ?>>Minggu</option>
+                                </select>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Deskripsi <span class="text-red-500">*</span></label>
-                                <input type="text" name="description" value="<?= htmlspecialchars($edit_service['description']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Kapasitas <span class="text-red-500">*</span></label>
+                                <input type="number" name="capacity" min="1" required value="<?= htmlspecialchars($edit_slot['capacity']) ?>" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Estimasi  Menit Pengerjaan <span class="text-red-500">*</span></label>
-                                <input type="number" name="estimated_duration_minutes" value="<?= htmlspecialchars($edit_service['estimated_duration_minutes']) ?>" required class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Jam Mulai <span class="text-red-500">*</span></label>
+                                <input type="time" name="start_time" required value="<?= date('H:i', strtotime($edit_slot['start_time'])) ?>" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-600 mb-1">Harga</label>
-                                <input type="number" name="base_price" value="<?= htmlspecialchars($edit_service['base_price'] ?? '') ?>" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <label class="block text-sm text-gray-600 mb-1">Jam Selesai <span class="text-red-500">*</span></label>
+                                <input type="time" name="end_time" required value="<?= date('H:i', strtotime($edit_slot['end_time'])) ?>" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
                             </div>
                             <div>
                                 <label class="block text-sm text-gray-600 mb-1">Status</label>
                                 <select name="status" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
-                                    <option value="active"   <?= $edit_service['status'] === 'active'   ? 'selected' : '' ?>>Active</option>
-                                    <option value="inactive" <?= $edit_service['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
+                                    <option value="active"   <?= $edit_slot['status'] === 'active'   ? 'selected' : '' ?>>Active</option>
+                                    <option value="inactive" <?= $edit_slot['status'] === 'inactive' ? 'selected' : '' ?>>Inactive</option>
                                 </select>
                             </div>
                         </div>
                         <div class="flex gap-3 mt-5">
                             <button type="submit" class="bg-[#8E1616] text-white px-6 py-2 rounded hover:bg-[#6f1111] transition text-sm">Update</button>
-                            <a href="service_types.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
+                            <a href="time_slots.php<?= filter_query() ?>" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 transition text-sm">Batal</a>
                         </div>
                     </form>
                 </div>
@@ -272,7 +292,7 @@ function sort_link($col, $label) {
 
                 <!-- Filter Bar -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4 mb-4 shadow-sm">
-                    <form method="GET" action="service_types.php" class="flex gap-4 items-end flex-wrap">
+                    <form method="GET" action="time_slots.php" class="flex gap-4 items-end flex-wrap">
                         <div>
                             <label class="block text-xs text-gray-500 mb-1">Filter Status</label>
                             <select name="status" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
@@ -282,14 +302,22 @@ function sort_link($col, $label) {
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs text-gray-500 mb-1">Cari Nama Service</label>
-                            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>"
-                                   placeholder="Cari..."
-                                   class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                            <label class="block text-xs text-gray-500 mb-1">Filter Hari</label>
+
+                            <select name="search" class="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-[#8E1616]">
+                                <option value="">Semua Hari</option>
+                                <option value="monday" <?= $search === 'monday' ? 'selected' : '' ?>>Senin</option>
+                                <option value="tuesday" <?= $search === 'tuesday' ? 'selected' : '' ?>>Selasa</option>
+                                <option value="wednesday" <?= $search === 'wednesday' ? 'selected' : '' ?>>Rabu</option>
+                                <option value="thursday" <?= $search === 'thursday' ? 'selected' : '' ?>>Kamis</option>
+                                <option value="friday" <?= $search === 'friday' ? 'selected' : '' ?>>Jumat</option>
+                                <option value="saturday" <?= $search === 'saturday' ? 'selected' : '' ?>>Sabtu</option>
+                                <option value="sunday" <?= $search === 'sunday' ? 'selected' : '' ?>>Minggu</option>
+                            </select>
                         </div>
                         <button type="submit" class="bg-[#8E1616] text-white px-4 py-2 rounded text-sm hover:bg-[#6f1111] transition">Filter</button>
                         <?php if ($filter_status || $search): ?>
-                            <a href="service_types.php" class="text-sm text-gray-500 hover:text-gray-700 py-2">Reset</a>
+                            <a href="time_slots.php" class="text-sm text-gray-500 hover:text-gray-700 py-2">Reset</a>
                         <?php endif; ?>
                     </form>
                 </div>
@@ -297,7 +325,7 @@ function sort_link($col, $label) {
                 <!-- Tabel Tipe Service -->
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
-                        <table class="min-w-[1200px] w-full text-sm">
+                        <table class="min-w-[900px] w-full text-sm">
                             <thead class="bg-gray-50 border-b border-gray-200">
                                 <?php
                                 // Fungsi kecil untuk class <th> — highlight kolom aktif
@@ -305,43 +333,50 @@ function sort_link($col, $label) {
                                 ?>
                                 <tr>
                                     <th class="<?= $th('id') ?>"><?= sort_link('id', 'ID') ?></th>
-                                    <th class="<?= $th('name') ?>"><?= sort_link('name', 'Nama Layanan') ?></th>
-                                    <th class="text-left px-4 py-3 font-medium text-gray-500">
-                                        Deskripsi
-                                    </th>
-                                    <th class="<?= $th('estimated_duration_minutes') ?>"><?= sort_link('estimated_duration_minutes', 'Durasi') ?></th>
-                                    <th class="<?= $th('base_price') ?>"><?= sort_link('base_price', 'Harga') ?></th>
+                                    <th class="<?= $th('day') ?>"><?= sort_link('day', 'Hari') ?></th>
+                                    <th class="<?= $th('start_time') ?>"><?= sort_link('start_time', 'Jam Mulai') ?></th>
+                                    <th class="<?= $th('end_time') ?>"><?= sort_link('end_time', 'Jam Selesai') ?></th>
+                                    <th class="<?= $th('capacity') ?>"><?= sort_link('capacity', 'Kapasitas') ?></th>
                                     <th class="<?= $th('status') ?>"><?= sort_link('status', 'Status') ?></th>
-                                    <th class="<?= $th('created_at') ?>"><?= sort_link('created_at', 'Dibuat') ?></th>
                                     <th class="text-left px-4 py-3 font-medium text-gray-500">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
-                                <?php if (empty($service_types)): ?>
+                                <?php if (empty($time_slots)): ?>
                                     <tr>
-                                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">Tidak ada tipe service ditemukan</td>
+                                        <td colspan="7" class="px-4 py-8 text-center text-gray-400">Tidak ada slot waktu ditemukan</td>
                                     </tr>
                                 <?php else: ?>
-                                    <?php foreach ($service_types as $service): ?>
+                                    <?php foreach ($time_slots as $slot): ?>
+                                    <?php
+                                        $hari = ['monday'=>'Senin','tuesday'=>'Selasa','wednesday'=>'Rabu','thursday'=>'Kamis','friday'=>'Jumat','saturday'=>'Sabtu', 'sunday'=>'Minggu'];
+                                    ?>
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-gray-400">#<?= $service['id'] ?></td>
-                                        <td class="px-4 py-3 font-medium"><?= htmlspecialchars($service['name']) ?></td>
-                                        <td class="px-4 py-3 text-gray-600 max-w-xs truncate"><?= htmlspecialchars($service['description'] ?? '-') ?></td>
-                                        <td class="px-4 py-3"><?= $service['estimated_duration_minutes'] ?> menit</td>
-                                        <td class="px-4 py-3">Rp<?= number_format($service['base_price'], 0, ',', '.') ?></td>
+                                        <td class="px-4 py-3 text-gray-400">#<?= $slot['id'] ?></td>
+                                        <td class="px-4 py-3 font-medium">
+                                            <?= $hari[$slot['day']] ?? ucfirst($slot['day']) ?>
+                                        </td>
                                         <td class="px-4 py-3">
-                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $service['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                                <?= htmlspecialchars($service['status']) ?>
+                                            <?= date('H:i', strtotime($slot['start_time'])) ?>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <?= date('H:i', strtotime($slot['end_time'])) ?>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <?= $slot['capacity'] ?>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $slot['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                                <?= htmlspecialchars($slot['status']) ?>
                                             </span>
                                         </td>
-                                        <td class="px-4 py-3 text-gray-500"><?= date('d M Y', strtotime($service['created_at'])) ?></td>
                                         <td class="px-4 py-3">
                                             <div class="flex gap-2 items-center">
-                                                <a href="service_types.php<?= filter_query(['show' => 'edit', 'id' => $service['id']]) ?>"
-                                                   class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
-                                                <form method="POST" action="proses_service_types.php" onsubmit="return confirm('Yakin hapus service <?= htmlspecialchars(addslashes($service['name']), ENT_QUOTES) ?>?')">
+                                                <a href="time_slots.php<?= filter_query(['show' => 'edit', 'id' => $slot['id']]) ?>"
+                                                    class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
+                                                <form method="POST" action="proses_time_slots.php" onsubmit="return confirm('Yakin hapus slot waktu ini?')">
                                                     <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="id" value="<?= $service['id'] ?>">
+                                                    <input type="hidden" name="id" value="<?= $slot['id'] ?>">
                                                     <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition">Hapus</button>
                                                 </form>
                                             </div>
@@ -358,18 +393,18 @@ function sort_link($col, $label) {
                 <?php if ($total_pages > 1): ?>
                 <div class="flex items-center justify-between mt-4">
                     <p class="text-sm text-gray-500">
-                        Menampilkan <?= count($service_types) ?> dari <?= $total_rows ?> service type
+                        Menampilkan <?= count($time_slots) ?> dari <?= $total_rows ?> slot waktu
                     </p>
                     <div class="flex gap-2 items-center">
                         <?php if ($page > 1): ?>
-                            <a href="service_types.php<?= filter_query(['page' => $page - 1]) ?>"
+                            <a href="time_slots.php<?= filter_query(['page' => $page - 1]) ?>"
                                class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">&larr; Sebelumnya</a>
                         <?php endif; ?>
 
                         <span class="px-3 py-2 text-sm text-gray-600">Hal. <?= $page ?> / <?= $total_pages ?></span>
 
                         <?php if ($page < $total_pages): ?>
-                            <a href="service_types.php<?= filter_query(['page' => $page + 1]) ?>"
+                            <a href="time_slots.php<?= filter_query(['page' => $page + 1]) ?>"
                                class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">Selanjutnya &rarr;</a>
                         <?php endif; ?>
                     </div>

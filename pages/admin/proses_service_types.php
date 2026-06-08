@@ -71,18 +71,6 @@ function edit_service_type($conn, $post) {
         exit;
     }
 
-    // cek email sudah dipakai user lain
-    $stmt = $conn->prepare("SELECT id FROM service_types WHERE LOWER(name) = LOWER(?) AND id != ?");
-    $stmt->bind_param("si", $name, $id);
-    $stmt->execute();
-    $stmt->store_result();
-    if ($stmt->num_rows > 0) {
-        $stmt->close();
-        header('Location: service_types.php?show=edit&id=' . $id . '&msg=email_exists');
-        exit;
-    }
-    $stmt->close();
-
     $stmt = $conn->prepare("UPDATE service_types SET name=?, description=?, estimated_duration_minutes=?, base_price=?, status=? WHERE id=?");
     $stmt->bind_param("ssidsi", $name, $description, $duration, $price, $status, $id);
     $stmt->execute();
