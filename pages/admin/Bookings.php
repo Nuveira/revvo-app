@@ -235,21 +235,19 @@ if (
 
 /*
 |--------------------------------------------------------------------------
-| Cancel Booking (Soft Delete)
+| Hapus Booking
 |--------------------------------------------------------------------------
 */
-
 if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
-    && isset($_POST['cancel_booking'])
+    && isset($_POST['delete_booking'])
 ) {
 
     $bookingId =
         (int) $_POST['booking_id'];
 
     $stmt = $conn->prepare("
-        UPDATE bookings
-        SET status = 'cancelled'
+        DELETE FROM bookings
         WHERE id = ?
     ");
 
@@ -260,35 +258,8 @@ if (
 
     $stmt->execute();
 
-    $stmt = $conn->prepare("
-        INSERT INTO service_logs
-        (
-            booking_id,
-            changed_by,
-            previous_status,
-            new_status,
-            note
-        )
-        VALUES
-        (
-            ?,
-            ?,
-            '',
-            'cancelled',
-            'Booking dibatalkan admin'
-        )
-    ");
-
-    $stmt->bind_param(
-        "ii",
-        $bookingId,
-        $userId
-    );
-
-    $stmt->execute();
-
     $_SESSION['success'] =
-        'Booking berhasil dibatalkan';
+        'Booking berhasil dihapus';
 
     header(
         'Location: bookings.php'
@@ -729,7 +700,7 @@ function paymentBadge($status)
                                 <tr>
 
                                     <th class="p-4 text-left">
-                                        ID
+                                        No
                                     </th>
 
                                     <th class="p-4 text-left">
@@ -770,13 +741,15 @@ function paymentBadge($status)
 
                             <tbody>
 
+                            <?php $no = 1; ?>
+
                                 <?php while ($row = $bookings->fetch_assoc()): ?>
 
                                     <tr class="border-t border-[#f1f1f1] hover:bg-gray-50">
 
                                         <td class="p-4 font-medium">
 
-                                            #<?= $row['id']; ?>
+                                            #<?= $no++; ?>
 
                                             <div class="text-xs text-gray-400 mt-1">
 
@@ -915,82 +888,112 @@ function paymentBadge($status)
 
                                                 <a
                                                     href="booking_detail.php?id=<?= $row['id']; ?>"
-                                                    class="bg-[#8E1616] text-white px-3 py-2 rounded-lg hover:bg-[#6f1111]">
+                                                    class="bg-[#8E1616] text-white px-3 py-2 rounded-lg hover:bg-[#6f1111]"
+                                                >
                                                     Detail
                                                 </a>
 
-                                                <!-- Assign -->
+                                                <!-- Assign hanya queued -->
 
-                                                <?php if (!$row['mechanic_name']): ?>
+                                                <?php if($row['status'] === 'queued'): ?>
 
                                                     <button
                                                         type="button"
                                                         onclick="openAssignModal(
-                                            <?= $row['id']; ?>
-                                        )"
-                                                        class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700">
+                                                            <?= $row['id']; ?>
+                                                        )"
+                                                        class="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
+                                                    >
                                                         Assign
                                                     </button>
 
                                                 <?php endif; ?>
 
-                                                <!-- Status -->
+                                                <!-- Status hanya queued dan in_progress -->
 
-                                                <?php if (
-                                                    $row['status']
-                                                    != 'cancelled'
+                                                <?php if(
+                                                    in_array(
+                                                        $row['status'],
+                                                        [
+                                                            'queued',
+                                                            'in_progress'
+                                                        ]
+                                                    )
                                                 ): ?>
 
                                                     <button
                                                         type="button"
                                                         onclick="openStatusModal(
-                                            <?= $row['id']; ?>
-                                        )"
-                                                        class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600">
+                                                            <?= $row['id']; ?>
+                                                        )"
+                                                        class="bg-yellow-500 text-white px-3 py-2 rounded-lg hover:bg-yellow-600"
+                                                    >
                                                         Status
                                                     </button>
 
                                                 <?php endif; ?>
 
-                                                <!-- Payment -->
+                                                <!-- Payment sesuai matrix -->
 
-                                                <a
-                                                    href="payments.php?booking_id=<?= $row['id']; ?>"
-                                                    class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700">
-                                                    Payment
-                                                </a>
+                                                <?php
 
-                                                <!-- Cancel -->
+                                                $showPayment = false;
 
-                                                <?php if (
-                                                    !in_array(
-                                                        $row['status'],
-                                                        [
-                                                            'cancelled',
-                                                            'completed'
-                                                        ]
+                                                if(
+
+                                                    $row['status'] !== 'cancelled'
+
+                                                    &&
+
+                                                    (
+                                                        empty($row['payment_status'])
+
+                                                        ||
+
+                                                        $row['payment_status'] === 'pending'
                                                     )
-                                                ): ?>
 
-                                                    <form
-                                                        method="POST"
-                                                        onsubmit="return confirm('Batalkan booking ini?')">
+                                                ){
+                                                    $showPayment = true;
+                                                }
 
-                                                        <input
-                                                            type="hidden"
-                                                            name="booking_id"
-                                                            value="<?= $row['id']; ?>">
+                                                ?>
 
-                                                        <button
-                                                            type="submit"
-                                                            name="cancel_booking"
-                                                            class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700">
-                                                            Cancel
-                                                        </button>
+                                                <?php if($showPayment): ?>
 
-                                                    </form>
+                                                    <a
+                                                        href="payments.php?booking_id=<?= $row['id']; ?>"
+                                                        class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700"
+                                                    >
+                                                        Payment
+                                                    </a>
 
                                                 <?php endif; ?>
+
+                                                <!-- Hapus -->
+
+                                                <form
+                                                    method="POST"
+                                                    onsubmit="return confirm(
+                                                        'Yakin ingin menghapus booking ini?'
+                                                    )"
+                                                >
+
+                                                    <input
+                                                        type="hidden"
+                                                        name="booking_id"
+                                                        value="<?= $row['id']; ?>"
+                                                    >
+
+                                                    <button
+                                                        type="submit"
+                                                        name="delete_booking"
+                                                        class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700"
+                                                    >
+                                                        Hapus
+                                                    </button>
+
+                                                </form>
 
                                             </div>
 
