@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-06T00:00:00.000Z" agent="REVVO" version="24.0.0" type="device">
+  <diagram id="act-abooking" name="Activity — Kelola Booking &amp; Servis">
+    <mxGraphModel dx="960" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="960" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Activity Diagram — UC9: Kelola Booking &amp; Servis" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="200" y="10" width="500" height="30" as="geometry"/></mxCell>
+        <mxCell id="lane1" value="👤 Admin Bengkel" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;fontStyle=1;fontSize=12;opacity=30;" vertex="1" parent="1"><mxGeometry x="50" y="60" width="400" height="1090" as="geometry"/></mxCell>
+        <mxCell id="lane2" value="⚙️ Sistem" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;fontStyle=1;fontSize=12;opacity=30;" vertex="1" parent="1"><mxGeometry x="480" y="60" width="420" height="1090" as="geometry"/></mxCell>
+        <mxCell id="start" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="435" y="50" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="K1" value="Buka Menu Kelola Booking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="120" y="110" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K2" value="Tampilkan Semua Booking&#xa;(filter by status)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="190" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K3" value="Pilih Booking" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="120" y="270" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="D1" value="Pilih Aksi?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="165" y="350" width="170" height="80" as="geometry"/></mxCell>
+        <!-- Assign path -->
+        <mxCell id="K4" value="Pilih Mekanik dari Daftar&#xa;≪include: UC9a≫" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="120" y="480" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K5" value="Update mechanic_id&#xa;+ Status mekanik = busy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="480" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K6" value="Insert Service Log" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="560" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K7" value="Tampilkan Pesan Sukses" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="560" y="640" width="260" height="40" as="geometry"/></mxCell>
+        <!-- Update Status path -->
+        <mxCell id="K8" value="Pilih Status Baru" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="120" y="720" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="D2" value="Transisi&#xa;Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="605" y="710" width="170" height="80" as="geometry"/></mxCell>
+        <mxCell id="K9" value="Error: Transisi tidak valid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="120" y="830" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K10" value="Update Status &amp; Insert Log" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="830" width="260" height="40" as="geometry"/></mxCell>
+        <!-- Payment path -->
+        <mxCell id="K11" value="Input Metode Pembayaran&#xa;≪extend: UC9b≫" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="120" y="920" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="K12" value="Update payments:&#xa;status=paid, paid_at=now,&#xa;verified_by=admin_id" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="920" width="260" height="50" as="geometry"/></mxCell>
+        <mxCell id="end_o" value="" style="ellipse;html=1;aspect=fixed;fillColor=none;strokeColor=#000000;strokeWidth=3;" vertex="1" parent="1"><mxGeometry x="435" y="1100" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="end_i" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="442" y="1107" width="16" height="16" as="geometry"/></mxCell>
+        <mxCell id="e1" style="endArrow=block;html=1;" edge="1" parent="1" source="start" target="K1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="endArrow=block;html=1;" edge="1" parent="1" source="K1" target="K2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="endArrow=block;html=1;" edge="1" parent="1" source="K2" target="K3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="endArrow=block;html=1;" edge="1" parent="1" source="K3" target="D1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" value="Assign" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="K4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="endArrow=block;html=1;" edge="1" parent="1" source="K4" target="K5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="endArrow=block;html=1;" edge="1" parent="1" source="K5" target="K6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" style="endArrow=block;html=1;" edge="1" parent="1" source="K6" target="K7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="endArrow=block;html=1;curved=1;" edge="1" parent="1" source="K7" target="K2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" value="Update Status" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="K8"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" style="endArrow=block;html=1;" edge="1" parent="1" source="K8" target="D2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" value="Tidak" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D2" target="K9"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" style="endArrow=block;html=1;curved=1;" edge="1" parent="1" source="K9" target="K2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" value="Ya" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D2" target="K10"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" style="endArrow=block;html=1;" edge="1" parent="1" source="K10" target="K7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" value="Pembayaran" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="K11"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e17" style="endArrow=block;html=1;" edge="1" parent="1" source="K11" target="K12"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e18" style="endArrow=block;html=1;" edge="1" parent="1" source="K12" target="K7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e19" value="Selesai" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="end_o"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

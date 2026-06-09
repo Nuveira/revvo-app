@@ -176,6 +176,17 @@ $status_label = match($booking['status']) {
                 </div>
                 <?php endif; ?>
 
+                <!-- Tombol Download Invoice (hanya setelah selesai) -->
+                <?php if (in_array($booking['status'], ['completed', 'ready_for_pickup'])): ?>
+                <div class="mt-5 border-t border-gray-100 pt-4">
+                    <a href="invoice.php?id=<?= $booking['id'] ?>"
+                        class="inline-flex items-center gap-2 rounded bg-[#8E1616] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
+                        <span class="material-symbols-outlined text-[18px]">download</span>
+                        Download Invoice PDF
+                    </a>
+                </div>
+                <?php endif; ?>
+
                 <!-- Tombol Cancel (hanya kalau masih queued) -->
                 <?php if ($booking['status'] === 'queued'): ?>
                 <div class="mt-5 border-t border-gray-100 pt-4 flex gap-3">

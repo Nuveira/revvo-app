@@ -59,7 +59,7 @@ $mechanicId = $mechanic['id'];
 |--------------------------------------------------------------------------
 */
 $stmt = $conn->prepare("
-    SELECT id
+    SELECT id, status
     FROM bookings
     WHERE id = ?
     AND mechanic_id = ?
@@ -84,27 +84,24 @@ if (!$booking) {
     exit;
 }
 
+$currentStatus = $booking['status'];
+
 /*
 |--------------------------------------------------------------------------
-| Validasi status
+| Validasi transisi status (state machine)
 |--------------------------------------------------------------------------
 */
-$allowedStatus = [
-    'queued',
-    'in_progress',
-    'completed'
+$validTransitions = [
+    'queued'      => ['in_progress'],
+    'in_progress' => ['completed'],
 ];
 
-if (!in_array($status, $allowedStatus)) {
-
-    $_SESSION['error'] =
-        'Status tidak valid';
-
-    header(
-        'Location: task_detail.php?id='
-        .$bookingId
-    );
-
+if (
+    !isset($validTransitions[$currentStatus])
+    || !in_array($status, $validTransitions[$currentStatus])
+) {
+    $_SESSION['error'] = 'Transisi status tidak valid';
+    header('Location: task_detail.php?id=' . $bookingId);
     exit;
 }
 
@@ -129,6 +126,14 @@ $stmt->bind_param(
 );
 
 if ($stmt->execute()) {
+
+    // catat perubahan status ke log
+    $log = $conn->prepare("
+        INSERT INTO service_logs (booking_id, changed_by, previous_status, new_status, note)
+        VALUES (?, ?, ?, ?, 'Status diperbarui oleh mekanik')
+    ");
+    $log->bind_param("iiss", $bookingId, $userId, $currentStatus, $status);
+    $log->execute();
 
     $_SESSION['success'] =
         'Task berhasil diperbarui';
