@@ -93,6 +93,7 @@ function getStatusBadgeClass($status) {
     return 'bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded-full';
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
