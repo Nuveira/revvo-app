@@ -7,12 +7,12 @@ require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
 checkRole(['admin']);
 
-$mser_id = $_SESSION['user_id'] ?? null;
+$user_id = $_SESSION['user_id'] ?? null;
 $nama    = $_SESSION['name'] ?? 'Admin';
 $role    = $_SESSION['role'] ?? '';
 $profile_photo = null;
 
-if ($mser_id) {
+if ($user_id) {
     $stmt = $conn->prepare("SELECT profile_photo FROM users WHERE id = ?");
     $stmt->bind_param("i", $mser_id);
     $stmt->execute();
