@@ -230,7 +230,7 @@ function sort_link($col, $label) {
                 </div>
                 <?php endif; ?>
 
-                <!-- Form Edit User -->
+                <!-- Form Edit Service Types -->
                 <?php if ($show === 'edit' && $edit_service): ?>
                 <div class="bg-white rounded-lg border border-blue-200 p-6 mb-6 shadow-sm">
                     <h2 class="text-lg font-semibold mb-4">Edit Tipe Service: <?= htmlspecialchars($edit_service['name']) ?></h2>
@@ -339,11 +339,7 @@ function sort_link($col, $label) {
                                             <div class="flex gap-2 items-center">
                                                 <a href="service_types.php<?= filter_query(['show' => 'edit', 'id' => $service['id']]) ?>"
                                                    class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
-                                                <form method="POST" action="proses_service_types.php" onsubmit="return confirm('Yakin hapus service <?= htmlspecialchars(addslashes($service['name']), ENT_QUOTES) ?>?')">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="id" value="<?= $service['id'] ?>">
-                                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition">Hapus</button>
-                                                </form>
+                                                <button type="button" onclick="openDeleteModal(<?= $service['id'] ?>, '<?= htmlspecialchars(addslashes($service['name']), ENT_QUOTES) ?>')" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition cursor-pointer">Hapus</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -356,21 +352,51 @@ function sort_link($col, $label) {
 
                 <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
-                <div class="flex items-center justify-between mt-4">
+                <div class="flex flex-col gap-3 border-t border-gray-200 pt-4 mt-4 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-sm text-gray-500">
-                        Menampilkan <?= count($service_types) ?> dari <?= $total_rows ?> service type
+                        Menampilkan
+                        <span class="font-semibold text-gray-800"><?= count($service_types) ?></span>
+                        dari
+                        <span class="font-semibold text-gray-800"><?= $total_rows ?></span>
+                        tipe service
                     </p>
-                    <div class="flex gap-2 items-center">
+
+                    <div class="flex items-center gap-2">
                         <?php if ($page > 1): ?>
                             <a href="service_types.php<?= filter_query(['page' => $page - 1]) ?>"
-                               class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">&larr; Sebelumnya</a>
+                            class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </span>
                         <?php endif; ?>
 
-                        <span class="px-3 py-2 text-sm text-gray-600">Hal. <?= $page ?> / <?= $total_pages ?></span>
+                        <?php
+                        $pg_start = max(1, $page - 2);
+                        $pg_end   = min($total_pages, $page + 2);
+
+                        for ($pg = $pg_start; $pg <= $pg_end; $pg++):
+                        ?>
+                            <a href="service_types.php<?= filter_query(['page' => $pg]) ?>"
+                            class="inline-flex h-9 min-w-9 items-center justify-center rounded px-3 text-sm font-semibold transition
+                            <?= $pg === $page
+                                    ? 'bg-[#8E1616] text-white'
+                                    : 'border border-gray-200 text-gray-600 hover:bg-gray-50' ?>">
+                                <?= $pg ?>
+                            </a>
+                        <?php endfor; ?>
 
                         <?php if ($page < $total_pages): ?>
                             <a href="service_types.php<?= filter_query(['page' => $page + 1]) ?>"
-                               class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">Selanjutnya &rarr;</a>
+                            class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -378,5 +404,100 @@ function sort_link($col, $label) {
             </div>
         </div>
     </div>
+
+    <!-- Fungsi: Modal Konfirmasi Hapus — custom modal dark theme pengganti confirm() -->
+    <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Overlay -->
+        <div id="delete-modal-overlay"
+            onclick="closeDeleteModal()"
+            class="absolute inset-0 bg-black/50 transition-opacity duration-200 opacity-0 pointer-events-none">
+        </div>
+        <!-- Card -->
+        <div id="delete-modal-card"
+            class="relative bg-stone-800 border border-white/10 rounded-xl p-6 w-full max-w-sm mx-4 transition-all duration-200 opacity-0 scale-95">
+            <div class="flex flex-col items-center text-center">
+                <div class="mb-4 text-yellow-400">
+                    <i data-lucide="triangle-alert" class="w-12 h-12"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-white mb-1">
+                    Hapus Tipe Service?
+                </h3>
+                <p id="delete-modal-name"
+                class="text-sm text-stone-300 mb-2">
+                </p>
+                <p class="text-xs text-stone-400 mb-6">
+                    Tindakan ini tidak dapat dibatalkan.
+                </p>
+                <form method="POST" action="proses_service_types.php" class="w-full">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" id="delete-modal-id">
+                    <div class="flex gap-3 justify-center">
+                        <button type="button"
+                                onclick="closeDeleteModal()"
+                                class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-stone-700 hover:bg-stone-600 transition cursor-pointer">
+                            Batal
+                        </button>
+                        <button type="submit"
+                                class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition cursor-pointer">
+                            Hapus
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fungsi: JavaScript — toggle form, modal hapus, dan auto-dismiss alert -->
+    <script>
+        // Fungsi: openDeleteModal — tampilkan modal konfirmasi hapus dengan data dinamis
+        function openDeleteModal(id, nama) {
+            var modal = document.getElementById('delete-modal');
+            var overlay = document.getElementById('delete-modal-overlay');
+            var card = document.getElementById('delete-modal-card');
+            var nameEl = document.getElementById('delete-modal-name');
+            var idInput = document.getElementById('delete-modal-id');
+
+            // Set data dinamis
+            nameEl.textContent = nama;
+            idInput.value = id;
+
+            // Tampilkan modal
+            modal.classList.remove('hidden');
+
+            // Trigger transition setelah frame berikutnya
+            requestAnimationFrame(function() {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+                card.classList.remove('opacity-0', 'scale-95');
+                card.classList.add('opacity-100', 'scale-100');
+            });
+
+            // Render icon Lucide di dalam modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Fungsi: closeDeleteModal — sembunyikan modal konfirmasi hapus
+        function closeDeleteModal() {
+            var modal = document.getElementById('delete-modal');
+            var overlay = document.getElementById('delete-modal-overlay');
+            var card = document.getElementById('delete-modal-card');
+
+            // Animasi keluar
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('opacity-100', 'scale-100');
+            card.classList.add('opacity-0', 'scale-95');
+
+            // Sembunyikan setelah transisi selesai
+            setTimeout(function() {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+    </script>
+    <!-- Fungsi: Load Lucide icons — render semua icon termasuk yang di modal -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

@@ -176,7 +176,6 @@ function sort_link($col, $label) {
                 ?>
                 <div id="alert-message"
                     class="mb-4 px-4 py-3 rounded border <?= $msg_map[$msg_key]['class'] ?>">
-                    
                     <div class="flex items-center justify-between">
                         <span>
                             <?= htmlspecialchars($msg_map[$msg_key]['text']) ?>
@@ -188,11 +187,10 @@ function sort_link($col, $label) {
                             &times;
                         </button>
                     </div>
-
                 </div>
                 <?php endif; ?>
 
-                <!-- Form Tambah Service Types -->
+                <!-- Form Tambah Time Slot -->
                 <?php if ($show === 'create'): ?>
                 <div class="bg-white rounded-lg border border-gray-200 p-6 mb-6 shadow-sm">
                     <h2 class="text-lg font-semibold mb-4">Tambah Slot Waktu Baru</h2>
@@ -240,7 +238,7 @@ function sort_link($col, $label) {
                 </div>
                 <?php endif; ?>
 
-                <!-- Form Edit User -->
+                <!-- Form Edit Time Slot -->
                 <?php if ($show === 'edit' && $edit_slot): ?>
                 <div class="bg-white rounded-lg border border-blue-200 p-6 mb-6 shadow-sm">
                     <h2 class="text-lg font-semibold mb-4">Edit Slot Waktu:</h2>
@@ -322,7 +320,7 @@ function sort_link($col, $label) {
                     </form>
                 </div>
 
-                <!-- Tabel Tipe Service -->
+                <!-- Tabel Time Slot -->
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="min-w-[900px] w-full text-sm">
@@ -374,11 +372,16 @@ function sort_link($col, $label) {
                                             <div class="flex gap-2 items-center">
                                                 <a href="time_slots.php<?= filter_query(['show' => 'edit', 'id' => $slot['id']]) ?>"
                                                     class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
-                                                <form method="POST" action="proses_time_slots.php" onsubmit="return confirm('Yakin hapus slot waktu ini?')">
-                                                    <input type="hidden" name="action" value="delete">
-                                                    <input type="hidden" name="id" value="<?= $slot['id'] ?>">
-                                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition">Hapus</button>
-                                                </form>
+                                                <button type="button" onclick="openDeleteModal(
+                                                        <?= $slot['id'] ?>,
+                                                        '<?= $hari[$slot['day']] ?? ucfirst($slot['day']) ?>',
+                                                        '<?= date('H:i', strtotime($slot['start_time'])) ?>',
+                                                        '<?= date('H:i', strtotime($slot['end_time'])) ?>'
+                                                    )"
+                                                    class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition"
+                                                >
+                                                    Hapus
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -391,21 +394,51 @@ function sort_link($col, $label) {
 
                 <!-- Pagination -->
                 <?php if ($total_pages > 1): ?>
-                <div class="flex items-center justify-between mt-4">
+                <div class="flex flex-col gap-3 border-t border-gray-200 pt-4 mt-4 sm:flex-row sm:items-center sm:justify-between">
                     <p class="text-sm text-gray-500">
-                        Menampilkan <?= count($time_slots) ?> dari <?= $total_rows ?> slot waktu
+                        Menampilkan
+                        <span class="font-semibold text-gray-800"><?= count($time_slots) ?></span>
+                        dari
+                        <span class="font-semibold text-gray-800"><?= $total_rows ?></span>
+                        slot waktu
                     </p>
-                    <div class="flex gap-2 items-center">
+
+                    <div class="flex items-center gap-2">
                         <?php if ($page > 1): ?>
                             <a href="time_slots.php<?= filter_query(['page' => $page - 1]) ?>"
-                               class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">&larr; Sebelumnya</a>
+                            class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </span>
                         <?php endif; ?>
 
-                        <span class="px-3 py-2 text-sm text-gray-600">Hal. <?= $page ?> / <?= $total_pages ?></span>
+                        <?php
+                        $pg_start = max(1, $page - 2);
+                        $pg_end   = min($total_pages, $page + 2);
+
+                        for ($pg = $pg_start; $pg <= $pg_end; $pg++):
+                        ?>
+                            <a href="time_slots.php<?= filter_query(['page' => $pg]) ?>"
+                            class="inline-flex h-9 min-w-9 items-center justify-center rounded px-3 text-sm font-semibold transition
+                            <?= $pg === $page
+                                    ? 'bg-[#8E1616] text-white'
+                                    : 'border border-gray-200 text-gray-600 hover:bg-gray-50' ?>">
+                                <?= $pg ?>
+                            </a>
+                        <?php endfor; ?>
 
                         <?php if ($page < $total_pages): ?>
                             <a href="time_slots.php<?= filter_query(['page' => $page + 1]) ?>"
-                               class="px-3 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50 transition">Selanjutnya &rarr;</a>
+                            class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </span>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -413,5 +446,91 @@ function sort_link($col, $label) {
             </div>
         </div>
     </div>
+
+    <!-- Fungsi: Modal Konfirmasi Hapus — custom modal dark theme pengganti confirm() -->
+    <div id="delete-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center">
+        <!-- Overlay -->
+        <div id="delete-modal-overlay" onclick="closeDeleteModal()" class="absolute inset-0 bg-black/50 transition-opacity duration-200 opacity-0 pointer-events-none"></div>
+        <!-- Card Modal -->
+        <div id="delete-modal-card" class="relative bg-stone-800 border border-white/10 rounded-xl p-6 w-full max-w-sm mx-4 transition-all duration-200 opacity-0 scale-95">
+            <div class="flex flex-col items-center text-center">
+                <!-- Icon Warning -->
+                <div class="mb-4 text-yellow-400">
+                    <i data-lucide="triangle-alert" class="w-12 h-12"></i>
+                </div>
+                <!-- Judul -->
+                <h3 class="text-lg font-semibold text-white mb-1">Hapus Slot Waktu?</h3>
+                <!-- Nama mekanik dinamis -->
+                <div id="delete-slot-info" class="text-sm text-stone-300 mb-2"></div>
+                <!-- Peringatan -->
+                <p class="text-xs text-stone-400 mb-6">Tindakan ini tidak dapat dibatalkan.</p>
+                <!-- Form POST hapus -->
+                <form id="delete-modal-form" method="POST" action="proses_time_slots.php" class="w-full">
+                    <input type="hidden" name="action" value="delete">
+                    <input type="hidden" name="id" id="delete-modal-id" value="">
+                    <div class="flex gap-3 justify-center">
+                        <button type="button" onclick="closeDeleteModal()" class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-stone-700 hover:bg-stone-600 transition cursor-pointer">Batal</button>
+                        <button type="submit" class="px-5 py-2 rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 transition cursor-pointer">Hapus</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fungsi: JavaScript — toggle form, modal hapus, dan auto-dismiss alert -->
+    <script>
+        // Fungsi: openDeleteModal — tampilkan modal konfirmasi hapus dengan data dinamis
+        function openDeleteModal(id, day, startTime, endTime) {
+            var modal = document.getElementById('delete-modal');
+            var overlay = document.getElementById('delete-modal-overlay');
+            var card = document.getElementById('delete-modal-card');
+            var infoEl = document.getElementById('delete-slot-info');
+            var idInput = document.getElementById('delete-modal-id');
+
+            // Set data dinamis
+            infoEl.innerHTML = `
+                <div class="font-semibold text-gray-300">${day}</div>
+                <div class="text-sm text-gray-400 mt-1">${startTime} - ${endTime}</div>
+            `;
+            idInput.value = id;
+
+            // Tampilkan modal
+            modal.classList.remove('hidden');
+
+            // Trigger transition setelah frame berikutnya
+            requestAnimationFrame(function() {
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+                card.classList.remove('opacity-0', 'scale-95');
+                card.classList.add('opacity-100', 'scale-100');
+            });
+
+            // Render icon Lucide di dalam modal
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // Fungsi: closeDeleteModal — sembunyikan modal konfirmasi hapus
+        function closeDeleteModal() {
+            var modal = document.getElementById('delete-modal');
+            var overlay = document.getElementById('delete-modal-overlay');
+            var card = document.getElementById('delete-modal-card');
+
+            // Animasi keluar
+            overlay.classList.remove('opacity-100');
+            overlay.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('opacity-100', 'scale-100');
+            card.classList.add('opacity-0', 'scale-95');
+
+            // Sembunyikan setelah transisi selesai
+            setTimeout(function() {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+    </script>
+    <!-- Fungsi: Load Lucide icons — render semua icon termasuk yang di modal -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
