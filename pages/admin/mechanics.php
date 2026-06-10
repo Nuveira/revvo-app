@@ -14,7 +14,7 @@ $profile_photo = null;
 
 if ($user_id) {
     $stmt = $conn->prepare("SELECT profile_photo FROM users WHERE id = ?");
-    $stmt->bind_param("i", $mser_id);
+    $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $row = $stmt->get_result()->fetch_assoc();
     $profile_photo = $row['profile_photo'] ?? null;
@@ -129,7 +129,7 @@ function filter_query($extra = []) {
 function sort_link($col, $label) {
     global $sort, $order;
     $next_order = ($sort === $col && $order === 'ASC') ? 'DESC' : 'ASC';
-    $mrl        = filter_query(['sort' => $col, 'order' => $next_order, 'page' => 1]);
+    $url        = filter_query(['sort' => $col, 'order' => $next_order, 'page' => 1]);
 
     if ($sort === $col) {
         $icon  = $order === 'ASC' ? '↑' : '↓';
@@ -140,7 +140,7 @@ function sort_link($col, $label) {
         $icon_html = '<span class="text-gray-300 text-xs">⇅</span>';
     }
 
-    return '<a href="mechanics.php' . $mrl . '" class="' . $class . '">'
+    return '<a href="mechanics.php' . $url . '" class="' . $class . '">'
         . htmlspecialchars($label) . $icon_html . '</a>';
 }
 
@@ -259,10 +259,10 @@ $stmt->close();
                                         <option value="">
                                             Pilih User Mekanik
                                         </option>
-                                        <?php foreach ($available_users as $mser): ?>
-                                            <option value="<?= $mser['id'] ?>">
-                                                <?= htmlspecialchars($mser['name']) ?>
-                                                (<?= htmlspecialchars($mser['email']) ?>)
+                                        <?php foreach ($available_users as $user): ?>
+                                            <option value="<?= $user['id'] ?>">
+                                                <?= htmlspecialchars($user['name']) ?>
+                                                (<?= htmlspecialchars($user['email']) ?>)
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
