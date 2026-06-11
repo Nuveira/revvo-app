@@ -13,7 +13,7 @@ if (!$booking_id) {
     exit;
 }
 
-// Ambil detail booking — pastikan milik customer ini
+// Ambil detail booking dan pastikan milik customer ini
 $stmt = $conn->prepare("
     SELECT b.id, b.booking_date, b.total_price, b.status,
            b.customer_complaint, b.mechanic_note, b.created_at,
@@ -78,8 +78,10 @@ $status_label = match($booking['status']) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
@@ -151,6 +153,16 @@ $status_label = match($booking['status']) {
                 <div class="mt-3">
                     <p class="text-xs uppercase tracking-[0.15em] text-gray-400">Catatan Mekanik</p>
                     <p class="mt-1 text-sm text-gray-700"><?= htmlspecialchars($booking['mechanic_note']) ?></p>
+                </div>
+                <?php endif; ?>
+
+                <?php if (in_array($booking['status'], ['completed', 'ready_for_pickup'])): ?>
+                <div class="mt-5 border-t border-gray-100 pt-4">
+                    <a href="invoice.php?id=<?= $booking['id'] ?>"
+                        class="inline-flex items-center gap-2 rounded bg-[#8E1616] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#6f1111]">
+                        <span class="material-symbols-outlined text-[18px]">download</span>
+                        Download Invoice PDF
+                    </a>
                 </div>
                 <?php endif; ?>
             </div>

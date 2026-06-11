@@ -51,69 +51,60 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['add_part'])
 ) {
+    // verifikasi booking milik mekanik ini
+    $ownCheck = $conn->prepare("SELECT id FROM bookings WHERE id = ? AND mechanic_id = ?");
+    $ownCheck->bind_param("ii", $bookingId, $mechanicId);
+    $ownCheck->execute();
+    if ($ownCheck->get_result()->num_rows === 0) {
+        $_SESSION['error'] = 'Akses ditolak';
+        header("Location: task_detail.php?id=" . $bookingId);
+        exit;
+    }
 
     $partId = (int) $_POST['spare_part_id'];
     $qty = (int) $_POST['qty'];
 
-    $stmt = $conn->prepare("
-        SELECT *
-        FROM spare_parts
-        WHERE id = ?
-    ");
-
+    $stmt = $conn->prepare("SELECT * FROM spare_parts WHERE id = ?");
     $stmt->bind_param("i", $partId);
     $stmt->execute();
-
     $part = $stmt->get_result()->fetch_assoc();
 
     if ($part && $qty > 0) {
+        // cek stok cukup sebelum insert
+        if ($part['stock'] < $qty) {
+            $_SESSION['error'] = 'Stok tidak cukup';
+            header("Location: task_detail.php?id=" . $bookingId);
+            exit;
+        }
 
         $price = $part['price'];
         $subtotal = $price * $qty;
 
-        $stmt = $conn->prepare("
-            INSERT INTO booking_parts
-            (
-                booking_id,
-                spare_part_id,
-                qty,
-                price_at_time,
-                subtotal
-            )
+        $ins = $conn->prepare("
+            INSERT INTO booking_parts (booking_id, spare_part_id, qty, price_at_time, subtotal)
             VALUES (?, ?, ?, ?, ?)
         ");
+        $ins->bind_param("iiidd", $bookingId, $partId, $qty, $price, $subtotal);
+        $ins->execute();
 
-        $stmt->bind_param(
-            "iiidd",
-            $bookingId,
-            $partId,
-            $qty,
-            $price,
-            $subtotal
-        );
+        // kurangi stok dengan pengaman
+        $stockStmt = $conn->prepare("UPDATE spare_parts SET stock = stock - ? WHERE id = ? AND stock >= ?");
+        $stockStmt->bind_param("iii", $qty, $partId, $qty);
+        $stockStmt->execute();
 
-        $stmt->execute();
-
-        $stmt = $conn->prepare("
-            UPDATE spare_parts
-            SET stock = stock - ?
+        // recalculate total_price booking
+        $recalc = $conn->prepare("
+            UPDATE bookings
+            SET total_price = service_price + (
+                SELECT COALESCE(SUM(subtotal), 0) FROM booking_parts WHERE booking_id = ?
+            )
             WHERE id = ?
         ");
+        $recalc->bind_param("ii", $bookingId, $bookingId);
+        $recalc->execute();
 
-        $stmt->bind_param(
-            "ii",
-            $qty,
-            $partId
-        );
-
-        $stmt->execute();
-
-        $_SESSION['success'] =
-            'Sparepart berhasil ditambahkan';
-
-        header(
-            "Location: task_detail.php?id=".$bookingId
-        );
+        $_SESSION['success'] = 'Sparepart berhasil ditambahkan';
+        header("Location: task_detail.php?id=" . $bookingId);
         exit;
     }
 }
@@ -162,26 +153,29 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['start_job'])
 ) {
+    // validasi status harus queued sebelum mulai
+    $check = $conn->prepare("SELECT status FROM bookings WHERE id = ? AND mechanic_id = ?");
+    $check->bind_param("ii", $bookingId, $mechanicId);
+    $check->execute();
+    $cur = $check->get_result()->fetch_assoc();
 
-    $stmt = $conn->prepare("
-        UPDATE bookings
-        SET status='in_progress'
-        WHERE id=?
-    ");
+    if (!$cur || $cur['status'] !== 'queued') {
+        $_SESSION['error'] = 'Tidak bisa memulai dari status ini';
+        header("Location: task_detail.php?id=" . $bookingId);
+        exit;
+    }
 
-    $stmt->bind_param(
-        "i",
-        $bookingId
-    );
-
+    $stmt = $conn->prepare("UPDATE bookings SET status='in_progress' WHERE id=?");
+    $stmt->bind_param("i", $bookingId);
     $stmt->execute();
 
-    $_SESSION['success'] =
-        'Status diubah menjadi In Progress';
+    // catat perubahan status ke log
+    $log = $conn->prepare("INSERT INTO service_logs (booking_id, changed_by, previous_status, new_status, note) VALUES (?, ?, 'queued', 'in_progress', 'Mekanik mulai mengerjakan')");
+    $log->bind_param("ii", $bookingId, $userId);
+    $log->execute();
 
-    header(
-        "Location: task_detail.php?id=".$bookingId
-    );
+    $_SESSION['success'] = 'Status diubah menjadi In Progress';
+    header("Location: task_detail.php?id=" . $bookingId);
     exit;
 }
 
@@ -194,26 +188,29 @@ if (
     $_SERVER['REQUEST_METHOD'] === 'POST'
     && isset($_POST['finish_job'])
 ) {
+    // validasi status harus in_progress sebelum selesai
+    $check = $conn->prepare("SELECT status FROM bookings WHERE id = ? AND mechanic_id = ?");
+    $check->bind_param("ii", $bookingId, $mechanicId);
+    $check->execute();
+    $cur = $check->get_result()->fetch_assoc();
 
-    $stmt = $conn->prepare("
-        UPDATE bookings
-        SET status='completed'
-        WHERE id=?
-    ");
+    if (!$cur || $cur['status'] !== 'in_progress') {
+        $_SESSION['error'] = 'Tidak bisa menyelesaikan dari status ini';
+        header("Location: task_detail.php?id=" . $bookingId);
+        exit;
+    }
 
-    $stmt->bind_param(
-        "i",
-        $bookingId
-    );
-
+    $stmt = $conn->prepare("UPDATE bookings SET status='completed' WHERE id=?");
+    $stmt->bind_param("i", $bookingId);
     $stmt->execute();
 
-    $_SESSION['success'] =
-        'Pekerjaan berhasil diselesaikan';
+    // catat perubahan status ke log
+    $log = $conn->prepare("INSERT INTO service_logs (booking_id, changed_by, previous_status, new_status, note) VALUES (?, ?, 'in_progress', 'completed', 'Mekanik menyelesaikan pekerjaan')");
+    $log->bind_param("ii", $bookingId, $userId);
+    $log->execute();
 
-    header(
-        "Location: task_detail.php?id=".$bookingId
-    );
+    $_SESSION['success'] = 'Pekerjaan berhasil diselesaikan';
+    header("Location: task_detail.php?id=" . $bookingId);
     exit;
 }
 /*

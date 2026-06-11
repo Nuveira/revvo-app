@@ -12,8 +12,16 @@ require_once __DIR__ . '/../../includes/header.php';
 ?>
 
 <!-- login form -->
-<div class="min-h-screen flex items-center justify-center px-4" style="background-color: #1D1616;">
-    <div class="w-full max-w-md">
+<div
+    class="min-h-screen relative flex items-center justify-center px-4 py-10 bg-cover bg-center bg-no-repeat"
+    style="background-image: url('<?= asset('assets/images/background_login.png') ?>'); background-color: #1D1616;"
+>
+    <div
+        class="absolute inset-0"
+        style="background: rgba(104, 10, 10, 0.68);"
+    ></div>
+
+    <div class="relative z-10 w-full max-w-md">
         <!-- logo -->
         <div class="text-center mb-8">
             <a href="<?= url('index.php') ?>" class="inline-flex items-center gap-2 mb-6">
@@ -25,7 +33,10 @@ require_once __DIR__ . '/../../includes/header.php';
         </div>
 
         <!-- card form -->
-        <div class="rounded-2xl p-8 border" style="background-color: #2a1f1f; border-color: rgba(238,238,238,0.1);">
+        <div
+            class="rounded-2xl p-8 border shadow-xl"
+            style="background-color: rgba(29,22,22,0.88); border-color: rgba(238,238,238,0.14); backdrop-filter: blur(4px);"
+        >
             <?php if ($error): ?>
                 <div class="px-4 py-3 rounded-xl mb-6 text-sm" style="background-color: rgba(216,64,64,0.1); border: 1px solid rgba(216,64,64,0.3); color: #D84040;">
                     <?= htmlspecialchars($error) ?>

@@ -189,12 +189,41 @@ if ($show === 'edit' && $edit_id > 0) {
     $stmt->close();
 }
 
-// Fungsi: Ambil semua spare parts — untuk ditampilkan di tabel
-$stmt = $conn->prepare("SELECT * FROM spare_parts ORDER BY created_at DESC");
+// Fungsi: Pagination — konstanta dan helper
+const SPARE_PARTS_PER_PAGE = 10;
+
+function spare_parts_total_pages($totalRows) {
+    return max(1, (int)ceil(max(0, (int)$totalRows) / SPARE_PARTS_PER_PAGE));
+}
+
+function spare_parts_page_link($page) {
+    $params = ['page' => $page];
+    // Pertahankan parameter show & id jika ada
+    if (isset($_GET['show'])) $params['show'] = $_GET['show'];
+    if (isset($_GET['id']))   $params['id']   = $_GET['id'];
+    return 'spare_parts.php?' . http_build_query($params);
+}
+
+$page_num = is_numeric($_GET['page'] ?? null) && (int)($_GET['page']) > 0 ? (int)$_GET['page'] : 1;
+
+// Fungsi: Hitung total rows untuk pagination
+$stmt = $conn->prepare("SELECT COUNT(*) AS total FROM spare_parts");
+$stmt->execute();
+$total_rows = (int)$stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
+
+$total_pages = spare_parts_total_pages($total_rows);
+if ($page_num > $total_pages) $page_num = $total_pages;
+
+$limit  = SPARE_PARTS_PER_PAGE;
+$offset = ($page_num - 1) * SPARE_PARTS_PER_PAGE;
+
+// Fungsi: Ambil spare parts halaman saat ini
+$stmt = $conn->prepare("SELECT * FROM spare_parts ORDER BY created_at DESC LIMIT ? OFFSET ?");
+$stmt->bind_param("ii", $limit, $offset);
 $stmt->execute();
 $spare_parts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
-$total_rows = count($spare_parts);
 ?>
 
 <!DOCTYPE html>
@@ -204,7 +233,7 @@ $total_rows = count($spare_parts);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=exit_to_app" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
@@ -354,7 +383,7 @@ $total_rows = count($spare_parts);
                                 <?php else: ?>
                                     <?php foreach ($spare_parts as $index => $part): ?>
                                     <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-gray-400"><?= $index + 1 ?></td>
+                                        <td class="px-4 py-3 text-gray-400"><?= $offset + $index + 1 ?></td>
                                         <td class="px-4 py-3 font-mono text-xs text-gray-700"><?= htmlspecialchars($part['sku']) ?></td>
                                         <td class="px-4 py-3 font-medium"><?= htmlspecialchars($part['name']) ?></td>
                                         <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($part['unit']) ?></td>
@@ -394,6 +423,47 @@ $total_rows = count($spare_parts);
                 <!-- Fungsi: Info total — menampilkan jumlah data -->
                 <div class="mt-4">
                     <p class="text-sm text-gray-500">Menampilkan <?= $total_rows ?> spare part</p>
+                </div>
+
+                <!-- Fungsi: Pagination -->
+                <div class="flex flex-col gap-3 border-t border-gray-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between bg-white rounded-b-lg">
+                    <p class="text-sm text-gray-500">
+                        Halaman <span class="font-semibold text-gray-800"><?= $page_num ?></span> dari <span class="font-semibold text-gray-800"><?= $total_pages ?></span>
+                        &nbsp;·&nbsp; Total <span class="font-semibold text-gray-800"><?= $total_rows ?></span> spare part
+                    </p>
+
+                    <div class="flex items-center gap-2">
+                        <?php if ($page_num > 1): ?>
+                            <a href="<?= htmlspecialchars(spare_parts_page_link($page_num - 1)) ?>" class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">chevron_left</span>
+                            </span>
+                        <?php endif; ?>
+
+                        <?php
+                        $pg_start = max(1, $page_num - 2);
+                        $pg_end   = min($total_pages, $page_num + 2);
+                        for ($pg = $pg_start; $pg <= $pg_end; $pg++):
+                        ?>
+                            <a href="<?= htmlspecialchars(spare_parts_page_link($pg)) ?>"
+                               class="inline-flex h-9 min-w-9 items-center justify-center rounded px-3 text-sm font-semibold transition <?= $pg === $page_num ? 'bg-[#8E1616] text-white' : 'border border-gray-200 text-gray-600 hover:bg-gray-50' ?>">
+                                <?= $pg ?>
+                            </a>
+                        <?php endfor; ?>
+
+                        <?php if ($page_num < $total_pages): ?>
+                            <a href="<?= htmlspecialchars(spare_parts_page_link($page_num + 1)) ?>" class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-200 px-3 text-sm font-semibold text-gray-600 transition hover:bg-gray-50">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </a>
+                        <?php else: ?>
+                            <span class="inline-flex h-9 min-w-9 items-center justify-center rounded border border-gray-100 px-3 text-sm font-semibold text-gray-300 cursor-not-allowed">
+                                <span class="material-symbols-outlined text-lg">chevron_right</span>
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>

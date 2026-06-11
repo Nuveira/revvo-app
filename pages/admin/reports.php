@@ -4,6 +4,8 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Style\Font;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 // Fungsi: Inisialisasi — memulai session, koneksi DB, dan cek role admin
 if (session_status() === PHP_SESSION_NONE) {
@@ -128,6 +130,111 @@ if (!empty($bookings)) {
     }
 }
 
+// Export PDF — generate laporan PDF menggunakan dompdf
+if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
+    require_once '../../vendor/autoload.php';
+
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $options->set('isRemoteEnabled', false);
+    $dompdf = new Dompdf($options);
+
+    $nama_bulan = getNamaBulan($bulan);
+    $revenue_fmt = 'Rp ' . number_format((float)$total_revenue, 0, ',', '.');
+
+    // Susun baris tabel booking untuk HTML PDF
+    $rows_html = '';
+    if (empty($bookings)) {
+        $rows_html = '<tr><td colspan="9" style="text-align:center;padding:20px;color:#999;">Tidak ada transaksi untuk periode ini</td></tr>';
+    } else {
+        foreach ($bookings as $index => $booking) {
+            $parts_list = $booking_parts_map[$booking['booking_id']] ?? [];
+            $parts_str  = !empty($parts_list) ? htmlspecialchars(implode(', ', $parts_list)) : '-';
+            $total_fmt  = 'Rp ' . number_format((float)$booking['total_price'], 0, ',', '.');
+            $pay_status = htmlspecialchars($booking['payment_status'] ?? 'pending');
+            $bk_status  = htmlspecialchars($booking['booking_status']);
+            $bg         = $index % 2 === 0 ? '#ffffff' : '#f9fafb';
+            $rows_html .= "
+            <tr style=\"background:{$bg};\">
+                <td style=\"text-align:center;\">" . ($index + 1) . "</td>
+                <td>" . date('d/m/Y', strtotime($booking['booking_date'])) . "</td>
+                <td>" . htmlspecialchars($booking['customer_name']) . "</td>
+                <td>" . htmlspecialchars($booking['motor_name']) . "</td>
+                <td>" . htmlspecialchars($booking['service_name']) . "</td>
+                <td style=\"font-size:9px;\">{$parts_str}</td>
+                <td style=\"text-align:right;\">{$total_fmt}</td>
+                <td style=\"text-align:center;\">{$pay_status}</td>
+                <td style=\"text-align:center;\">{$bk_status}</td>
+            </tr>";
+        }
+    }
+
+    // HTML dokumen PDF — layout polos tanpa dekorasi
+    $html = "<!DOCTYPE html>
+    <html lang='id'>
+    <head>
+        <meta charset='UTF-8'>
+        <style>
+            body          { font-family: DejaVu Sans, sans-serif; font-size: 10px; color: #000; margin: 20px; }
+            h2            { margin: 0 0 2px 0; font-size: 14px; }
+            p             { margin: 0 0 3px 0; }
+            .summary      { margin: 10px 0 14px 0; font-size: 10px; }
+            .summary p    { margin: 2px 0; }
+            table         { width: 100%; border-collapse: collapse; font-size: 9px; margin-top: 4px; }
+            th            { background: #e5e5e5; border: 1px solid #999; padding: 5px 4px; text-align: left; font-weight: bold; }
+            td            { border: 1px solid #999; padding: 4px; vertical-align: top; }
+            .right        { text-align: right; }
+            .center       { text-align: center; }
+            tfoot td      { font-weight: bold; background: #f0f0f0; }
+        </style>
+    </head>
+    <body>
+        <h2>REVVO Bengkel Motor</h2>
+        <p>Laporan Operasional &mdash; {$nama_bulan} {$tahun}</p>
+        <p>Digenerate pada: " . date('d M Y H:i') . "</p>
+
+        <div class='summary'>
+            <p>Total Booking &nbsp;&nbsp;&nbsp;: {$total_booking}</p>
+            <p>Total Revenue &nbsp;&nbsp;: {$revenue_fmt}</p>
+            <p>Booking Selesai &nbsp;: {$total_selesai}</p>
+            <p>Booking Dibatalkan: {$total_batal}</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th style='width:4%' class='center'>No</th>
+                    <th style='width:8%'>Tanggal</th>
+                    <th style='width:13%'>Customer</th>
+                    <th style='width:11%'>Motor</th>
+                    <th style='width:11%'>Layanan</th>
+                    <th style='width:18%'>Spare Parts</th>
+                    <th style='width:12%' class='right'>Total Harga</th>
+                    <th style='width:11%' class='center'>Status Bayar</th>
+                    <th style='width:12%' class='center'>Status Booking</th>
+                </tr>
+            </thead>
+            <tbody>{$rows_html}</tbody>
+            <tfoot>
+                <tr>
+                    <td colspan='6' class='right'>Total Revenue</td>
+                    <td class='right'>{$revenue_fmt}</td>
+                    <td colspan='2'></td>
+                </tr>
+            </tfoot>
+        </table>
+    </body>
+    </html>";
+
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'landscape');
+    $dompdf->render();
+
+    $filename = 'laporan-revvo-' . $bulan . '-' . $tahun . '.pdf';
+    $dompdf->stream($filename, ['Attachment' => true]);
+    exit;
+}
+
 // ============================================================
 // EXPORT EXCEL — harus sebelum output HTML apapun
 // ============================================================
@@ -231,7 +338,7 @@ function getPaymentBadgeClass($status) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=exit_to_app" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
@@ -247,7 +354,12 @@ function getPaymentBadgeClass($status) {
                     <p class="text-3xl text-white py-1">Laporan Operasional</p>
                     <p class="text-white/70 text-sm">Periode: <?= getNamaBulan($bulan) ?> <?= $tahun ?></p>
                 </div>
-                <div class="px-3">
+                <div class="px-3 flex items-center gap-3">
+                    <a href="reports.php?export=pdf&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>"
+                       class="bg-[#8E1616] hover:bg-[#6f1111] text-white rounded-lg px-4 py-2 flex items-center gap-2 font-semibold text-sm transition">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        Export PDF
+                    </a>
                     <a href="reports.php?export=excel&bulan=<?= $bulan ?>&tahun=<?= $tahun ?>"
                        class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg px-4 py-2 flex items-center gap-2 font-semibold text-sm transition">
                         <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>

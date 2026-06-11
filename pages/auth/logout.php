@@ -13,8 +13,16 @@ $pageTitle = 'Logout | REVVO';
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
-<div class="min-h-screen flex items-center justify-center px-4" style="background-color: #1D1616;">
-    <div class="w-full max-w-md">
+<div
+    class="min-h-screen relative flex items-center justify-center px-4 py-10 bg-cover bg-center bg-no-repeat"
+    style="background-image: url('<?= asset('assets/images/background_login.png') ?>'); background-color: #1D1616;"
+>
+    <div
+        class="absolute inset-0"
+        style="background: rgba(104, 10, 10, 0.68);"
+    ></div>
+
+    <div class="relative z-10 w-full max-w-md">
         <!-- logo -->
         <div class="text-center mb-8">
             <a href="<?= url('index.php') ?>" class="inline-flex items-center gap-2 mb-6">
@@ -56,5 +64,3 @@ require_once __DIR__ . '/../../includes/header.php';
         </div>
     </div>
 </div>
-
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>

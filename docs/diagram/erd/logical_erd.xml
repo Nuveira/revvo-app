@@ -1,0 +1,392 @@
+<mxfile host="app.diagrams.net" agent="REVVO-LOGICAL">
+  <diagram id="logical-erd-revvo-v1" name="Logical ERD — REVVO">
+    <mxGraphModel dx="1414" dy="701" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1750" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontStyle=1;" value="LOGICAL ENTITY RELATIONSHIP DIAGRAM — REVVO&#xa;11 Entitas | 14 Relasi | Tipe Data Lengkap" vertex="1">
+          <mxGeometry height="50" width="1100" x="580" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="t_users" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=13;" value="users" vertex="1">
+          <mxGeometry height="250" width="340" x="820" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="u0" parent="t_users" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="u1" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    name : VARCHAR(100) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="u2" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    email : VARCHAR(100) UNIQUE NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="u3" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    password_hash : VARCHAR(255) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="u4" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    role : ENUM(&#39;admin&#39;,&#39;mechanic&#39;,&#39;customer&#39;) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="u5" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    phone : VARCHAR(20) NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="u6" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    profile_photo : VARCHAR(255) NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="u7" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;" value="    status : ENUM(&#39;active&#39;,&#39;inactive&#39;) DEFAULT &#39;active&#39;" vertex="1">
+          <mxGeometry height="22" width="340" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="u8" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP DEFAULT NOW()" vertex="1">
+          <mxGeometry height="22" width="340" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="u9" parent="t_users" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="340" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="t_customers" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="customers" vertex="1">
+          <mxGeometry height="206" width="330" x="260" y="102" as="geometry" />
+        </mxCell>
+        <mxCell id="c0" parent="t_customers" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="330" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="c1" parent="t_customers" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 user_id : INT [FK→users.id, UNIQUE, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="330" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="c2" parent="t_customers" style="text;align=left;spacingLeft=10;fontSize=11;" value="    address : TEXT NULL" vertex="1">
+          <mxGeometry height="22" width="330" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="c3" parent="t_customers" style="text;align=left;spacingLeft=10;fontSize=11;" value="    gender : ENUM(&#39;male&#39;,&#39;female&#39;) NULL" vertex="1">
+          <mxGeometry height="22" width="330" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="c4" parent="t_customers" style="text;align=left;spacingLeft=10;fontSize=11;" value="    birth_date : DATE NULL" vertex="1">
+          <mxGeometry height="22" width="330" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="c5" parent="t_customers" style="text;align=left;spacingLeft=10;fontSize=11;" value="    no_ktp : VARCHAR(20) NULL" vertex="1">
+          <mxGeometry height="22" width="330" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="c6" parent="t_customers" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="330" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="c7" parent="t_customers" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="330" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="t_mechanics" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" value="mechanics" vertex="1">
+          <mxGeometry height="184" width="340" x="1200" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="me0" parent="t_mechanics" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="me1" parent="t_mechanics" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 user_id : INT [FK→users.id, UNIQUE, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="me2" parent="t_mechanics" style="text;align=left;spacingLeft=10;fontSize=11;" value="    specialization : VARCHAR(100) NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="me3" parent="t_mechanics" style="text;align=left;spacingLeft=10;fontSize=11;" value="    availability_status : ENUM(&#39;available&#39;,&#39;busy&#39;,&#39;inactive&#39;)" vertex="1">
+          <mxGeometry height="22" width="340" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="me4" parent="t_mechanics" style="text;align=left;spacingLeft=10;fontSize=11;" value="    notes : TEXT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="me5" parent="t_mechanics" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="me6" parent="t_mechanics" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="340" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="t_motors" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="motors" vertex="1">
+          <mxGeometry height="250" width="300" x="40" y="636" as="geometry" />
+        </mxCell>
+        <mxCell id="mo0" parent="t_motors" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="300" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="mo1" parent="t_motors" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 customer_id : INT [FK→customers.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="300" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="mo2" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;" value="    brand : VARCHAR(50) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="mo3" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;" value="    model : VARCHAR(50) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="mo4" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;" value="    plate_number : VARCHAR(15) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="mo5" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;" value="    production_year : YEAR NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="mo6" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;" value="    color : VARCHAR(30) NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="mo7" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;" value="    image_path : VARCHAR(255) NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="mo8" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="300" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="mo9" parent="t_motors" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="300" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="t_service_types" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" value="service_types" vertex="1">
+          <mxGeometry height="206" width="340" x="470" y="414" as="geometry" />
+        </mxCell>
+        <mxCell id="st0" parent="t_service_types" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="st1" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;" value="    name : VARCHAR(100) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="st2" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;" value="    description : TEXT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="st3" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;" value="    estimated_duration_minutes : INT NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="st4" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;" value="    base_price : DECIMAL(12,2) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="st5" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;" value="    status : ENUM(&#39;active&#39;,&#39;inactive&#39;) DEFAULT &#39;active&#39;" vertex="1">
+          <mxGeometry height="22" width="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="st6" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="340" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="st7" parent="t_service_types" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="340" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="t_time_slots" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=13;" value="time_slots" vertex="1">
+          <mxGeometry height="162" width="320" x="1200" y="620" as="geometry" />
+        </mxCell>
+        <mxCell id="ts0" parent="t_time_slots" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="320" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ts1" parent="t_time_slots" style="text;align=left;spacingLeft=10;fontSize=11;" value="    day : ENUM(&#39;monday&#39;..&#39;sunday&#39;) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="320" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ts2" parent="t_time_slots" style="text;align=left;spacingLeft=10;fontSize=11;" value="    start_time : TIME NOT NULL" vertex="1">
+          <mxGeometry height="22" width="320" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="ts3" parent="t_time_slots" style="text;align=left;spacingLeft=10;fontSize=11;" value="    end_time : TIME NOT NULL" vertex="1">
+          <mxGeometry height="22" width="320" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="ts4" parent="t_time_slots" style="text;align=left;spacingLeft=10;fontSize=11;" value="    capacity : INT DEFAULT 1" vertex="1">
+          <mxGeometry height="22" width="320" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="ts5" parent="t_time_slots" style="text;align=left;spacingLeft=10;fontSize=11;" value="    status : ENUM(&#39;active&#39;,&#39;inactive&#39;) DEFAULT &#39;active&#39;" vertex="1">
+          <mxGeometry height="22" width="320" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="t_spare_parts" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=13;" value="spare_parts" vertex="1">
+          <mxGeometry height="250" width="300" x="40" y="950" as="geometry" />
+        </mxCell>
+        <mxCell id="sp0" parent="t_spare_parts" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="300" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sp1" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    sku : VARCHAR(50) UNIQUE NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="sp2" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    name : VARCHAR(100) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="sp3" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    unit : VARCHAR(20) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="sp4" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    stock : INT NOT NULL DEFAULT 0" vertex="1">
+          <mxGeometry height="22" width="300" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="sp5" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    minimum_stock : INT DEFAULT 5" vertex="1">
+          <mxGeometry height="22" width="300" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="sp6" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    price : DECIMAL(12,2) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="300" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="sp7" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    status : ENUM(&#39;active&#39;,&#39;inactive&#39;) DEFAULT &#39;active&#39;" vertex="1">
+          <mxGeometry height="22" width="300" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="sp8" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="300" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="sp9" parent="t_spare_parts" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="300" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="t_bookings" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#f8cecc;strokeColor=#b85450;fontSize=13;" value="bookings" vertex="1">
+          <mxGeometry height="360" width="370" x="700" y="920" as="geometry" />
+        </mxCell>
+        <mxCell id="b0" parent="t_bookings" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="370" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" parent="t_bookings" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 customer_id : INT [FK→customers.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="370" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" parent="t_bookings" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 motor_id : INT [FK→motors.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="370" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" parent="t_bookings" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 service_type_id : INT [FK→service_types.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="370" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" parent="t_bookings" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 mechanic_id : INT [FK→mechanics.id, NULL]" vertex="1">
+          <mxGeometry height="22" width="370" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" parent="t_bookings" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 time_slot_id : INT [FK→time_slots.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="370" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    booking_date : DATE NOT NULL" vertex="1">
+          <mxGeometry height="22" width="370" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    service_price : DECIMAL(12,2) NOT NULL  ← snapshot" vertex="1">
+          <mxGeometry height="22" width="370" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    total_price : DECIMAL(12,2) DEFAULT 0" vertex="1">
+          <mxGeometry height="22" width="370" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    status : ENUM(&#39;queued&#39;,&#39;in_progress&#39;,&#39;completed&#39;,..." vertex="1">
+          <mxGeometry height="22" width="370" y="228" as="geometry" />
+        </mxCell>
+        <mxCell id="b9b" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=10;fontStyle=2;" value="              &#39;ready_for_pickup&#39;,&#39;cancelled&#39;) DEFAULT &#39;queued&#39;" vertex="1">
+          <mxGeometry height="14" width="370" y="248" as="geometry" />
+        </mxCell>
+        <mxCell id="b10" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    customer_complaint : TEXT NULL" vertex="1">
+          <mxGeometry height="22" width="370" y="262" as="geometry" />
+        </mxCell>
+        <mxCell id="b11" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    condition_photo : VARCHAR(255) NULL" vertex="1">
+          <mxGeometry height="22" width="370" y="284" as="geometry" />
+        </mxCell>
+        <mxCell id="b12" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;" value="    mechanic_note : TEXT NULL" vertex="1">
+          <mxGeometry height="22" width="370" y="306" as="geometry" />
+        </mxCell>
+        <mxCell id="b13" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="370" y="328" as="geometry" />
+        </mxCell>
+        <mxCell id="b14" parent="t_bookings" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="370" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="t_booking_parts" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=13;" value="booking_parts" vertex="1">
+          <mxGeometry height="184" width="310" x="360" y="1060" as="geometry" />
+        </mxCell>
+        <mxCell id="bp0" parent="t_booking_parts" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="310" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bp1" parent="t_booking_parts" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 booking_id : INT [FK→bookings.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="310" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="bp2" parent="t_booking_parts" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 spare_part_id : INT [FK→spare_parts.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="310" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="bp3" parent="t_booking_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    qty : INT NOT NULL" vertex="1">
+          <mxGeometry height="22" width="310" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="bp4" parent="t_booking_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    price_at_time : DECIMAL(12,2) NOT NULL  ← snapshot" vertex="1">
+          <mxGeometry height="22" width="310" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="bp5" parent="t_booking_parts" style="text;align=left;spacingLeft=10;fontSize=11;" value="    subtotal : DECIMAL(12,2) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="310" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="bp6" parent="t_booking_parts" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="310" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="t_payments" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=13;" value="payments" vertex="1">
+          <mxGeometry height="228" width="340" x="1110" y="1140" as="geometry" />
+        </mxCell>
+        <mxCell id="py0" parent="t_payments" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="py1" parent="t_payments" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 booking_id : INT [FK→bookings.id, UNIQUE, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="py2" parent="t_payments" style="text;align=left;spacingLeft=10;fontSize=11;" value="    payment_method : ENUM(&#39;cash&#39;,&#39;transfer&#39;,&#39;ewallet&#39;) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="py3" parent="t_payments" style="text;align=left;spacingLeft=10;fontSize=11;" value="    amount : DECIMAL(12,2) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="py4" parent="t_payments" style="text;align=left;spacingLeft=10;fontSize=11;" value="    status : ENUM(&#39;pending&#39;,&#39;paid&#39;,&#39;cancelled&#39;) DEFAULT &#39;pending&#39;" vertex="1">
+          <mxGeometry height="22" width="340" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="py5" parent="t_payments" style="text;align=left;spacingLeft=10;fontSize=11;" value="    paid_at : TIMESTAMP NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="py6" parent="t_payments" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 verified_by : INT [FK→users.id, NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="py7" parent="t_payments" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="340" y="184" as="geometry" />
+        </mxCell>
+        <mxCell id="py8" parent="t_payments" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    updated_at : TIMESTAMP [auto-update]" vertex="1">
+          <mxGeometry height="22" width="340" y="206" as="geometry" />
+        </mxCell>
+        <mxCell id="t_service_logs" parent="1" style="swimlane;fontStyle=1;align=center;startSize=30;collapsible=0;fillColor=#f5f5f5;strokeColor=#666666;fontSize=13;" value="service_logs (audit trail)" vertex="1">
+          <mxGeometry height="184" width="340" x="1110" y="1420" as="geometry" />
+        </mxCell>
+        <mxCell id="sl0" parent="t_service_logs" style="text;fillColor=#fff4e6;align=left;spacingLeft=10;fontStyle=4;fontSize=11;" value="🔑 id : INT [PK, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sl1" parent="t_service_logs" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 booking_id : INT [FK→bookings.id, NOT NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="sl2" parent="t_service_logs" style="text;fillColor=#e3f2fd;align=left;spacingLeft=10;fontSize=11;" value="🔗 changed_by : INT [FK→users.id, NULL]" vertex="1">
+          <mxGeometry height="22" width="340" y="74" as="geometry" />
+        </mxCell>
+        <mxCell id="sl3" parent="t_service_logs" style="text;align=left;spacingLeft=10;fontSize=11;" value="    previous_status : VARCHAR(20) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="sl4" parent="t_service_logs" style="text;align=left;spacingLeft=10;fontSize=11;" value="    new_status : VARCHAR(20) NOT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="118" as="geometry" />
+        </mxCell>
+        <mxCell id="sl5" parent="t_service_logs" style="text;align=left;spacingLeft=10;fontSize=11;" value="    note : TEXT NULL" vertex="1">
+          <mxGeometry height="22" width="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="sl6" parent="t_service_logs" style="text;align=left;spacingLeft=10;fontSize=11;fontStyle=2;" value="    created_at : TIMESTAMP" vertex="1">
+          <mxGeometry height="22" width="340" y="162" as="geometry" />
+        </mxCell>
+        <mxCell id="r1" edge="1" parent="1" source="t_users" style="endArrow=ERzeroToOne;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_customers" value="1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r2" edge="1" parent="1" source="t_users" style="endArrow=ERzeroToOne;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_mechanics" value="1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r3" edge="1" parent="1" source="t_customers" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_motors" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r4" edge="1" parent="1" source="t_customers" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_bookings" value="1 : N">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="885" y="250" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="r5" edge="1" parent="1" source="t_motors" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_bookings" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r6" edge="1" parent="1" source="t_service_types" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_bookings" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r7" edge="1" parent="1" source="t_mechanics" style="endArrow=ERmany;startArrow=ERzeroToOne;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;dashed=1;" target="t_bookings" value="0..1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r8" edge="1" parent="1" source="t_time_slots" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_bookings" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r9" edge="1" parent="1" source="t_bookings" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_booking_parts" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r10" edge="1" parent="1" source="t_spare_parts" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_booking_parts" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r11" edge="1" parent="1" source="t_bookings" style="endArrow=ERzeroToOne;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_payments" value="1 : 0..1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r12" edge="1" parent="1" source="t_bookings" style="endArrow=ERmany;startArrow=ERone;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;" target="t_service_logs" value="1 : N">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r13" edge="1" parent="1" source="t_users" style="endArrow=ERmany;startArrow=ERzeroToOne;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;dashed=1;" target="t_service_logs" value="1 : N&#xa;(changed_by)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="r14" edge="1" parent="1" source="t_users" style="endArrow=ERmany;startArrow=ERzeroToOne;html=1;fontSize=10;edgeStyle=orthogonalEdgeStyle;dashed=1;" target="t_payments" value="1 : N&#xa;(verified_by)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" parent="1" style="text;html=1;strokeColor=#666;fillColor=#fff;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;spacing=8;" value="LEGEND&#xa;━━━━━━━━━━━━━━━━━━━━━━━━━&#xa;🔑  PK = Primary Key (underlined)&#xa;🔗  FK = Foreign Key (blue bg)&#xa;Italic = Auto-generated timestamp&#xa;&#xa;TIPE DATA&#xa;INT         → bilangan bulat&#xa;VARCHAR(n)  → string maks n karakter&#xa;TEXT        → string panjang tak terbatas&#xa;DECIMAL(p,s)→ desimal p digit, s desimal&#xa;DATE        → tanggal (YYYY-MM-DD)&#xa;TIME        → waktu (HH:MM:SS)&#xa;TIMESTAMP   → tanggal + waktu&#xa;YEAR        → tahun 4 digit&#xa;ENUM(...)   → domain nilai terbatas&#xa;&#xa;RELASI (Crow&#39;s Foot)&#xa;── ERone ─── ERmany ──   1 : N&#xa;── ERone ─── ERzero ──   1 : 0..1&#xa;── ERzero ── ERmany ──   0..1 : N&#xa;Dashed = relasi opsional (NULL FK)" vertex="1">
+          <mxGeometry height="360" width="290" x="40" y="1270" as="geometry" />
+        </mxCell>
+        <mxCell id="bizrules" parent="1" style="text;html=1;strokeColor=#b85450;fillColor=#fff0f0;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=11;spacing=8;" value="BUSINESS RULES&#xa;━━━━━━━━━━━━━━━━━━━━━━━━━&#xa;① Booking status machine:&#xa;   queued → in_progress → completed&#xa;               → ready_for_pickup&#xa;   queued/in_progress → cancelled&#xa;&#xa;② service_price = snapshot dari&#xa;   service_types.base_price saat booking&#xa;&#xa;③ price_at_time = snapshot dari&#xa;   spare_parts.price saat part ditambah&#xa;&#xa;④ total_price = service_price +&#xa;   SUM(booking_parts.subtotal)&#xa;&#xa;⑤ Double-booking dicegah via check&#xa;   COUNT(time_slot_id + booking_date)&#xa;   vs time_slots.capacity" vertex="1">
+          <mxGeometry height="320" width="300" x="360" y="1280" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
