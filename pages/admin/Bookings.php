@@ -178,6 +178,24 @@ if (
         $oldStatus =
             $booking['status'];
 
+        // validasi transisi status sesuai state machine
+        $validTransitions = [
+            'queued'           => ['in_progress', 'cancelled'],
+            'in_progress'      => ['completed', 'cancelled'],
+            'completed'        => ['ready_for_pickup'],
+            'ready_for_pickup' => [],
+            'cancelled'        => [],
+        ];
+
+        if (
+            !isset($validTransitions[$oldStatus])
+            || !in_array($newStatus, $validTransitions[$oldStatus])
+        ) {
+            $_SESSION['error'] = 'Transisi status tidak valid';
+            header('Location: bookings.php');
+            exit;
+        }
+
         $stmt = $conn->prepare("
             UPDATE bookings
             SET status = ?
@@ -245,6 +263,13 @@ if (
 
     $bookingId =
         (int) $_POST['booking_id'];
+
+    // ambil status saat ini sebelum diubah
+    $prevStmt = $conn->prepare("SELECT status FROM bookings WHERE id = ?");
+    $prevStmt->bind_param("i", $bookingId);
+    $prevStmt->execute();
+    $prevData = $prevStmt->get_result()->fetch_assoc();
+    $previousStatus = $prevData['status'] ?? '';
 
     $stmt = $conn->prepare("
         DELETE FROM bookings
