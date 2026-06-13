@@ -47,23 +47,6 @@ $serviceTypes = $conn->query("
 
 /*
 |--------------------------------------------------------------------------
-| Mechanics
-|--------------------------------------------------------------------------
-*/
-
-$mechanics = $conn->query("
-    SELECT
-        m.id,
-        u.name
-    FROM mechanics m
-    JOIN users u
-        ON m.user_id = u.id
-    WHERE m.availability_status != 'inactive'
-    ORDER BY u.name ASC
-");
-
-/*
-|--------------------------------------------------------------------------
 | Time Slots
 |--------------------------------------------------------------------------
 */
@@ -111,10 +94,8 @@ if (
     $serviceTypeId =
         (int) $_POST['service_type_id'];
 
-    $mechanicId =
-        !empty($_POST['mechanic_id'])
-        ? (int) $_POST['mechanic_id']
-        : null;
+    $paymentMethod =
+    $_POST['payment_method'];
 
     $timeSlotId =
         (int) $_POST['time_slot_id'];
@@ -224,7 +205,6 @@ if (
             customer_id,
             motor_id,
             service_type_id,
-            mechanic_id,
             time_slot_id,
             booking_date,
             service_price,
@@ -234,17 +214,16 @@ if (
         )
         VALUES
         (
-            ?, ?, ?, ?, ?, ?,
+            ?, ?, ?, ?, ?,
             ?, ?, 'queued', ?
         )
     ");
 
-    $stmt->bind_param(
-        "iiiiisdds",
+        $stmt->bind_param(
+        "iiiisdds",
         $customerId,
         $motorId,
         $serviceTypeId,
-        $mechanicId,
         $timeSlotId,
         $bookingDate,
         $servicePrice,
@@ -257,6 +236,28 @@ if (
     $bookingId =
         $conn->insert_id;
 
+            $stmt = $conn->prepare("
+            INSERT INTO payments
+            (
+                booking_id,
+                payment_method,
+                amount,
+                status
+            )
+            VALUES
+            (
+                ?, ?, ?, 'pending'
+            )
+        ");
+
+        $stmt->bind_param(
+            "isd",
+            $bookingId,
+            $paymentMethod,
+            $totalPrice
+        );
+
+$stmt->execute();
     /*
     |--------------------------------------------------------------------------
     | Service Log
@@ -369,13 +370,6 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
                     </p>
 
                 </div>
-
-                <a
-                    href="bookings.php"
-                    class="bg-[#FF0000] text-white px-5 py-3 rounded-lg"
-                >
-                    Kembali
-                </a>
 
             </div>
 
@@ -513,38 +507,39 @@ href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 
                         </div>
 
-                        <!-- MEKANIK -->
+                        <!-- PAYMENT METHOD -->
 
-                        <div>
+                            <div>
 
-                            <label class="block text-sm mb-2">
-                                Mekanik
-                            </label>
+                                <label class="block text-sm mb-2">
+                                    Metode Pembayaran
+                                </label>
 
-                            <select
-                                name="mechanic_id"
-                                class="w-full border rounded-lg p-3"
-                            >
+                                <select
+                                    name="payment_method"
+                                    required
+                                    class="w-full border rounded-lg p-3"
+                                >
 
-                                <option value="">
-                                    Belum Ditentukan
-                                </option>
+                                    <option value="">
+                                        Pilih Metode Pembayaran
+                                    </option>
 
-                                <?php while($mechanic = $mechanics->fetch_assoc()): ?>
+                                    <option value="cash">
+                                        Cash
+                                    </option>
 
-                                <option value="<?= $mechanic['id'] ?>">
+                                    <option value="transfer">
+                                        Transfer Bank
+                                    </option>
 
-                                    <?= htmlspecialchars(
-                                        $mechanic['name']
-                                    ) ?>
+                                    <option value="ewallet">
+                                        E-Wallet
+                                    </option>
 
-                                </option>
+                                </select>
 
-                                <?php endwhile; ?>
-
-                            </select>
-
-                        </div>
+                            </div>
 
                         <!-- TANGGAL -->
 

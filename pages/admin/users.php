@@ -57,7 +57,7 @@ $total_pages = (int)ceil($total_rows / $per_page);
 
 // Ambil list users
 $stmt = $conn->prepare("
-    SELECT id, name, email, role, phone, status, created_at
+    SELECT id, name, email, role, phone, profile_photo, status, created_at
     FROM users
     WHERE (? = '' OR role = ?) AND (? = '' OR status = ?) AND (? = '' OR name LIKE ? OR email LIKE ?)
     ORDER BY {$sort} {$order}
@@ -317,7 +317,18 @@ function sort_link($col, $label) {
                                     ?>
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-3 text-gray-400">#<?= $u['id'] ?></td>
-                                        <td class="px-4 py-3 font-medium"><?= htmlspecialchars($u['name']) ?></td>
+                                        <td class="px-4 py-3 font-medium">
+                                            <div class="flex items-center gap-3">
+                                                <?php if (!empty($u['profile_photo'])): ?>
+                                                    <img src="../../uploads/profile/<?= htmlspecialchars($u['profile_photo']) ?>" alt="Profile" class="w-10 h-10 rounded-full object-cover border border-gray-500">
+                                                <?php else: ?>
+                                                    <div class="w-10 h-10 rounded-full bg-[#8E1616]/20 flex items-center justify-center text-sm font-bold text-[#8E1616]">
+                                                        <?= strtoupper(substr($u['name'], 0, 1)) ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <p class="font-medium"><?= htmlspecialchars($u['name']) ?></p>
+                                            </div>
+                                        </td>
                                         <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['email']) ?></td>
                                         <td class="px-4 py-3">
                                             <span class="px-2 py-1 rounded-full text-xs font-medium <?= $role_class ?>">
