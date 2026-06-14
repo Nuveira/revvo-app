@@ -57,7 +57,7 @@ $total_pages = (int)ceil($total_rows / $per_page);
 
 // Ambil list users
 $stmt = $conn->prepare("
-    SELECT id, name, email, role, phone, status, created_at
+    SELECT id, name, email, role, phone, profile_photo, status, created_at
     FROM users
     WHERE (? = '' OR role = ?) AND (? = '' OR status = ?) AND (? = '' OR name LIKE ? OR email LIKE ?)
     ORDER BY {$sort} {$order}
@@ -110,7 +110,7 @@ function sort_link($col, $label) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=exit_to_app" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
@@ -282,74 +282,87 @@ function sort_link($col, $label) {
 
                 <!-- Tabel Users -->
                 <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                    <table class="w-full text-sm">
-                        <thead class="bg-gray-50 border-b border-gray-200">
-                            <?php
-                            // Fungsi kecil untuk class <th> — highlight kolom aktif
-                            $th = fn($col) => 'text-left px-4 py-3 font-medium ' . ($sort === $col ? 'bg-[#8E1616]/5' : '');
-                            ?>
-                            <tr>
-                                <th class="<?= $th('id') ?>"><?= sort_link('id', 'ID') ?></th>
-                                <th class="<?= $th('name') ?>"><?= sort_link('name', 'Nama') ?></th>
-                                <th class="<?= $th('email') ?>"><?= sort_link('email', 'Email') ?></th>
-                                <th class="<?= $th('role') ?>"><?= sort_link('role', 'Role') ?></th>
-                                <th class="text-left px-4 py-3 font-medium text-gray-500">No. HP</th>
-                                <th class="<?= $th('status') ?>"><?= sort_link('status', 'Status') ?></th>
-                                <th class="<?= $th('created_at') ?>"><?= sort_link('created_at', 'Terdaftar') ?></th>
-                                <th class="text-left px-4 py-3 font-medium text-gray-500">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <?php if (empty($users)): ?>
-                                <tr>
-                                    <td colspan="8" class="px-4 py-8 text-center text-gray-400">Tidak ada user ditemukan</td>
-                                </tr>
-                            <?php else: ?>
-                                <?php foreach ($users as $u): ?>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-[1200px] w-full text-sm">
+                            <thead class="bg-gray-50 border-b border-gray-200">
                                 <?php
-                                $role_class = match($u['role']) {
-                                    'admin'    => 'bg-purple-100 text-purple-700',
-                                    'mechanic' => 'bg-blue-100 text-blue-700',
-                                    'customer' => 'bg-green-100 text-green-700',
-                                    default    => 'bg-gray-100 text-gray-700',
-                                };
+                                // Fungsi kecil untuk class <th> — highlight kolom aktif
+                                $th = fn($col) => 'text-left px-4 py-3 font-medium ' . ($sort === $col ? 'bg-[#8E1616]/5' : '');
                                 ?>
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-4 py-3 text-gray-400">#<?= $u['id'] ?></td>
-                                    <td class="px-4 py-3 font-medium"><?= htmlspecialchars($u['name']) ?></td>
-                                    <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['email']) ?></td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium <?= $role_class ?>">
-                                            <?= htmlspecialchars($u['role']) ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['phone'] ?? '-') ?></td>
-                                    <td class="px-4 py-3">
-                                        <span class="px-2 py-1 rounded-full text-xs font-medium <?= $u['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
-                                            <?= htmlspecialchars($u['status']) ?>
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3 text-gray-500"><?= date('d M Y', strtotime($u['created_at'])) ?></td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex gap-2 items-center">
-                                            <a href="users.php<?= filter_query(['show' => 'edit', 'id' => $u['id']]) ?>"
-                                               class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
-                                            <?php if ($u['id'] !== (int)$user_id): ?>
-                                            <form method="POST" action="proses_users.php" onsubmit="return confirm('Yakin hapus user <?= htmlspecialchars(addslashes($u['name']), ENT_QUOTES) ?>?')">
-                                                <input type="hidden" name="action" value="delete">
-                                                <input type="hidden" name="id" value="<?= $u['id'] ?>">
-                                                <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition">Hapus</button>
-                                            </form>
-                                            <?php else: ?>
-                                                <span class="text-xs text-gray-400">(Anda)</span>
-                                            <?php endif; ?>
-                                        </div>
-                                    </td>
+                                <tr>
+                                    <th class="<?= $th('id') ?>"><?= sort_link('id', 'ID') ?></th>
+                                    <th class="<?= $th('name') ?>"><?= sort_link('name', 'Nama') ?></th>
+                                    <th class="<?= $th('email') ?>"><?= sort_link('email', 'Email') ?></th>
+                                    <th class="<?= $th('role') ?>"><?= sort_link('role', 'Role') ?></th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">No. HP</th>
+                                    <th class="<?= $th('status') ?>"><?= sort_link('status', 'Status') ?></th>
+                                    <th class="<?= $th('created_at') ?>"><?= sort_link('created_at', 'Terdaftar') ?></th>
+                                    <th class="text-left px-4 py-3 font-medium text-gray-500">Aksi</th>
                                 </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <?php if (empty($users)): ?>
+                                    <tr>
+                                        <td colspan="8" class="px-4 py-8 text-center text-gray-400">Tidak ada user ditemukan</td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($users as $u): ?>
+                                    <?php
+                                    $role_class = match($u['role']) {
+                                        'admin'    => 'bg-purple-100 text-purple-700',
+                                        'mechanic' => 'bg-blue-100 text-blue-700',
+                                        'customer' => 'bg-green-100 text-green-700',
+                                        default    => 'bg-gray-100 text-gray-700',
+                                    };
+                                    ?>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 text-gray-400">#<?= $u['id'] ?></td>
+                                        <td class="px-4 py-3 font-medium">
+                                            <div class="flex items-center gap-3">
+                                                <?php if (!empty($u['profile_photo'])): ?>
+                                                    <img src="../../uploads/profile/<?= htmlspecialchars($u['profile_photo']) ?>" alt="Profile" class="w-10 h-10 rounded-full object-cover border border-gray-500">
+                                                <?php else: ?>
+                                                    <div class="w-10 h-10 rounded-full bg-[#8E1616]/20 flex items-center justify-center text-sm font-bold text-[#8E1616]">
+                                                        <?= strtoupper(substr($u['name'], 0, 1)) ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                                <p class="font-medium"><?= htmlspecialchars($u['name']) ?></p>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['email']) ?></td>
+                                        <td class="px-4 py-3">
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $role_class ?>">
+                                                <?= htmlspecialchars($u['role']) ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars($u['phone'] ?? '-') ?></td>
+                                        <td class="px-4 py-3">
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium <?= $u['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
+                                                <?= htmlspecialchars($u['status']) ?>
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-500"><?= date('d M Y', strtotime($u['created_at'])) ?></td>
+                                        <td class="px-4 py-3">
+                                            <div class="flex gap-2 items-center">
+                                                <a href="users.php<?= filter_query(['show' => 'edit', 'id' => $u['id']]) ?>"
+                                                   class="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 transition">Edit</a>
+                                                <?php if ($u['id'] !== (int)$user_id): ?>
+                                                <form method="POST" action="proses_users.php" onsubmit="return confirm('Yakin hapus user <?= htmlspecialchars(addslashes($u['name']), ENT_QUOTES) ?>?')">
+                                                    <input type="hidden" name="action" value="delete">
+                                                    <input type="hidden" name="id" value="<?= $u['id'] ?>">
+                                                    <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition">Hapus</button>
+                                                </form>
+                                                <?php else: ?>
+                                                    <span class="text-xs text-gray-400">(Anda)</span>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- Pagination -->

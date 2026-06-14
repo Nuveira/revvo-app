@@ -5,26 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $pageTitle = 'Dashboard | REVVO';
 require_once '../../config/koneksi.php';
 require_once '../../includes/auth.php';
-checkRole(['customer']);
-
-// Ambil data user dari session
-$user_id = $_SESSION['user_id'] ?? null;
-$nama = 'Guest';
-$role = '';
-$profile_photo = null;
-
-if ($user_id) {
-    $stmt = $conn->prepare("SELECT name, role, profile_photo FROM users WHERE id = ?");
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $nama = $row['name'];
-        $role = $row['role'];
-        $profile_photo = $row['profile_photo'];
-    }
-    $stmt->close();
-}
+require_once '../../includes/customer_role.php';
 
 // Hitung booking aktif
 $jumlah_booking = 0;
@@ -60,7 +41,7 @@ if ($user_id) {
         JOIN customers c ON m.customer_id = c.id
         WHERE c.user_id = ?
         ORDER BY m.id DESC
-        LIMIT 3
+        LIMIT 1
     ");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
@@ -73,7 +54,7 @@ $histori = [];
 $booking = null;
 if ($user_id) {
     $stmt = $conn->prepare("
-        SELECT b.status, b.customer_complaint, b.booking_date,
+        SELECT b.id, b.status, b.customer_complaint, b.booking_date,
                m.brand, m.model, m.plate_number,
                st.name AS service_name,
                ts.start_time, ts.end_time
@@ -129,21 +110,21 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
-<body class="font-['Plus_Jakarta_Sans']">
-    <div class="flex h-screen">
+<body class="font-['Plus_Jakarta_Sans'] overflow-hidden">
+    <div class="flex h-screen overflow-hidden">
         <?php include 'nav.php'; ?>
 
-        <div class="flex-1 bg-gray-100 overflow-y-auto overflow-x-hidden">
+        <div class="flex-1 flex-col min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
             <!-- Header -->
-            <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex justify-between items-center w-full p-5">
-                <div class="mx-2">
-                    <p class="text-[#8E1616]">SELAMAT DATANG KEMBALI</p>
-                    <p class="text-4xl text-white py-2">Halo, <?= htmlspecialchars($nama) ?></p>
+            <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
+                <div class="min-w-0">
+                    <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">SELAMAT DATANG KEMBALI</p>
+                    <p class="mt-2 text-2xl sm:text-4xl text-white font-semibold break-words">Halo, <?= htmlspecialchars($nama) ?></p>
                     <p class="text-white">Kamu punya <span class="text-[#FF0000]"><?= $jumlah_booking ?> booking aktif</span> dan <span class="text-[#FF0000]"><?= $jumlah_motor ?> motor</span> terdaftar</p>
 
                 </div>
-                <div class="ml-3 px-3 py-3 rounded inline-block items-center">
-                    <a href="tambah_booking.php" class="bg-[#FF0000] ml-3 px-4 py-3 rounded text-white whitespace-nowrap hover:bg-[#6e1111] transition flex items-center gap-2 shadow-[0_0_15px_rgba(142,22,22,0.3)] shadow-red-500/40">
+                <div class="py-3 rounded inline-block items-center md:ml-3 md:px-3">
+                    <a href="tambah_booking.php" class="bg-[#FF0000] px-4 py-3 rounded text-white whitespace-nowrap hover:bg-[#6e1111] transition inline-flex items-center gap-2 shadow-[0_0_15px_rgba(142,22,22,0.3)] shadow-red-500/40">
                         <span class="material-symbols-outlined">
                             add_circle
                         </span>
@@ -153,46 +134,46 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
             </div>
 
             <!-- Main Dashboard -->
-            <div class="flex gap-4 my-2 mx-4">
+            <div class="flex flex-col gap-4 p-4 md:p-6 lg:flex-row">
                 <div class="flex-[2] bg-white rounded-lg border border-[#eadede] p-6 w-full shadow-sm min-w-0">
-                    <div class="flex items-start justify-between">
-                        <div>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="min-w-0">
                             <p class="text-[11px] tracking-[0.2em] text-gray-400 uppercase">Booking Aktif</p>
-                            <h3 class="mt-2 text-[32px] leading-none font-medium text-[#8E1616]">
+                            <h3 class="mt-2 text-2xl sm:text-[32px] leading-none font-medium text-[#8E1616] break-words">
                                 <?= $booking ? htmlspecialchars($booking['service_name']) : 'Tidak ada booking' ?>
                             </h3>
                         </div>
 
-                        <span class="rounded-full bg-[#f8eeee] px-4 py-1 text-sm font-medium text-[#8E1616]">
+                        <span class="w-fit rounded-full bg-[#f8eeee] px-4 py-1 text-sm font-medium text-[#8E1616]">
                             <?= $booking ? htmlspecialchars(ucfirst($booking['status'])) : '-' ?>
                         </span>
                     </div>
                     
-                    <div class="mt-8 grid grid-cols-3 gap-6">
-                        <div>
+                    <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+                        <div class="min-w-0">
                             <p class="text-sm text-gray-400">Motor</p>
-                            <?= $booking ? htmlspecialchars($booking['model']) : '-' ?>
+                            <p class="break-words"><?= $booking ? htmlspecialchars($booking['model']) : '-' ?></p>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm text-gray-400">Tanggal</p>
-                            <?= $booking ? htmlspecialchars($booking['booking_date']) : '-' ?>
+                            <p><?= $booking ? htmlspecialchars($booking['booking_date']) : '-' ?></p>
                         </div>
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm text-gray-400">Waktu</p>
                             <p><?= $booking ? date('H:i', strtotime($booking['start_time'])) . ' - ' . date('H:i', strtotime($booking['end_time'])) : '-' ?></p>
                         </div>
                     </div>
 
-                    <div class="mt-8 flex gap-4">
+                    <div class="mt-8 flex flex-col gap-4 sm:flex-row">
                         <a 
-                            href="booking.php"
+                            href="booking_detail.php?id=<?= $booking ? $booking['id'] : '' ?>"
                             class="flex-[2] bg-[#2f2f2f] px-6 py-4 rounded-lg text-center text-base font-semibold text-white transition hover:bg-black"
                         >
                             lihat detail
                         </a>
                     
                         <a 
-                            href="booking_edit.php"
+                            href="edit_booking.php?id=<?= $booking ? $booking['id'] : '' ?>"
                             class="flex-1 bg-[#8E1616] px-6 py-4 rounded-lg text-center text-base font-semibold text-white transition hover:bg-[#6f1111]"
                         >
                             ubah jadwal
@@ -201,16 +182,16 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
                 </div>
 
 
-            <div class="flex-1 bg-[#8E1616] rounded-lg border border-[#eadede] p-6 w-full shadow-sm">
+            <div class="flex-1 bg-[#8E1616] rounded-lg border border-[#eadede] p-6 w-full shadow-sm min-w-0">
                 <p class="items-start text-[11px] tracking-[0.2em] text-gray-400 uppercase">
-                    Motor terdaftar
+                    Motor terdaftar | <?= $jumlah_motor ?> motor tersedia
                 </p>
                 
                 <div class="mt-6 space-y-2">
                     <?php if (!empty($motors)): ?>
                     <?php foreach ($motors as $m): ?>
-                    <div class="bg-[#a32828]/40 px-4 py-4">
-                        <p class="text-lg font-semibold text-white"><?= htmlspecialchars($m['brand'] . ' ' . $m['model']) ?></p>
+                    <div class="bg-[#a32828]/100 px-4 py-4">
+                        <p class="text-lg font-semibold text-white break-words"><?= htmlspecialchars($m['brand'] . ' ' . $m['model']) ?></p>
                         <p class="text-sm text-[#f1caca]"><?= htmlspecialchars($m['plate_number']) ?></p>
                     </div>
                     <?php endforeach; ?>
@@ -223,7 +204,7 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
                 href="motor.php"
                 class="mt-8 block w-full bg-white py-4 rounded-lg text-center text-base font-medium text-[#8E1616] transition hover:bg-gray-300"
                 >
-                Kelola Motor
+                Lihat Selengkapnya →
             </a>
         </div> 
     </div>
@@ -231,11 +212,12 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
     <!--- Track Progress --->
     <?php if ($booking): ?>
     <div class="mt-4">
-    <span class="rounded-full bg-[#FF0000] mx-12 px-4 py-1 text-sm font-medium text-white shadow-[0_0_20px_rgba(255,0,0,0.6)]">
+    <span class="rounded-full bg-[#FF0000] mx-4 md:mx-12 px-4 py-1 text-sm font-medium text-white shadow-[0_0_20px_rgba(255,0,0,0.6)]">
         Track Progress
     </span>
     </div>
-    <div class="flex items-center w-full mt-6 px-16">
+    <div class="w-full mt-6 overflow-x-auto px-4 md:px-16">
+    <div class="flex min-w-[520px] items-center pb-2">
         <?php foreach ($steps as $key => $label): 
             $index = array_search($key, $step_keys);
             $is_done = $index <= $current_step;
@@ -257,21 +239,23 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
         <?php endif; ?>
         <?php endforeach; ?>
     </div>
+    </div>
     <?php else: ?>
         <p class="text-gray-400 text-sm px-12 mt-4">Tidak ada booking aktif</p>
     <?php endif; ?>
     
     <!--- History booking --->
-    <div class="bg-white rounded-lg border border-[#eadede] p-6 mx-4 mt-4 shadow-sm">
-        <div class="flex justify-between items-center mb-4">    
+    <div class="bg-white rounded-lg border border-[#eadede] p-6 mx-4 md:mx-6 mb-4 shadow-sm">
+        <div class="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-4">
             <h3 class="font-semibold text-lg">
                 History Booking
             </h3>
-            <a href='history.php' class="bg-[#8E1616] px-4 py-2 rounded-sm text-center text-base font-semibold text-white transition hover:bg-[#6f1111]">
+            <a href='history.php' class="bg-[#8E1616] px-4 py-2 rounded-sm text-center text-[12px] font-semibold text-white transition hover:bg-[#6f1111]">
                 Lihat Selengkapnya →
             </a>
         </div>
-        <table class="w-full text-sm">
+        <div class="overflow-x-auto">
+        <table class="w-full min-w-[720px] text-sm">
             <thead>
                 <tr class="text-[11px] tracking-[0.15em] text-gray-400 uppercase border-b border-gray-100">
                     <th class="text-left py-3">ID BOOKING</th>
@@ -284,7 +268,7 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
             <tbody>
                 <?php foreach ($histori as $h): ?>
                 <tr class="border-b border-gray-50">
-                    <td class="py-3 text-gray-500">#BK-<?= str_pad($h['id'], 4, '0', STR_PAD_LEFT) ?></td>
+                    <td class="py-3 text-gray-500">BK-<?= str_pad($h['id'], 4, '0', STR_PAD_LEFT) ?></td>
                     <td class="py-3"><?= date('d M Y', strtotime($h['booking_date'])) ?></td>
                     <td class="py-3"><?= htmlspecialchars($h['service_name']) ?></td>
                     <td class="py-3 font-semibold">Rp<?= number_format($h['total_price'], 0, ',', '.') ?></td>
@@ -313,18 +297,16 @@ $current_step = $booking ? array_search($booking['status'], $step_keys) : -1;
                     <?php endforeach; ?>
                     <?php if (empty($histori)): ?>
                     <tr>
-                        <td colspan="6" class="py-6 text-center text-gray-400">
+                        <td colspan="5" class="py-6 text-center text-gray-400">
                             Belum ada histori booking
                         </td>
                     </tr>
                     <?php endif; ?>
             </tbody>
         </table>
+        </div>
     </div>
-
-
-
-
+    
     <?php include 'footer.php';?>
     </div>
 </body>

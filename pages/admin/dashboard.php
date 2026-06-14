@@ -50,6 +50,18 @@ $stmt->execute();
 $mekanik_aktif = $stmt->get_result()->fetch_assoc()['total'];
 $stmt->close();
 
+// Total revenue dari pembayaran lunas
+$stmt = $conn->prepare("SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'paid'");
+$stmt->execute();
+$total_revenue = $stmt->get_result()->fetch_assoc()['total'];
+$stmt->close();
+
+// Spare parts dengan stok rendah (stok <= minimum_stock)
+$stmt = $conn->prepare("SELECT name, stock, minimum_stock FROM spare_parts WHERE stock <= minimum_stock AND status = 'active' ORDER BY stock ASC");
+$stmt->execute();
+$low_stock_parts = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->close();
+
 // 5 booking terbaru
 $stmt = $conn->prepare("
     SELECT b.id, b.status, b.booking_date,
@@ -76,7 +88,7 @@ $stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=exit_to_app" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <link rel="icon" type="image/png" href="<?= asset('assets/images/logo.png') ?>">
 </head>
@@ -95,8 +107,25 @@ $stmt->close();
             </div>
 
             <div class="p-6">
+                <!-- Alert stok rendah -->
+                <?php if (!empty($low_stock_parts)): ?>
+                <?php
+                $low_count = count($low_stock_parts);
+                $display_names = array_slice(array_column($low_stock_parts, 'name'), 0, 3);
+                $names_str = implode(', ', $display_names);
+                if ($low_count > 3) {
+                    $names_str .= ' + ' . ($low_count - 3) . ' lainnya';
+                }
+                ?>
+                <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mb-6 flex items-start gap-3">
+                    <p class="text-sm text-amber-800">
+                        <span class="font-semibold"><?= $low_count ?> spare part</span> memiliki stok di bawah minimum:
+                        <span class="text-amber-700"><?= htmlspecialchars($names_str) ?></span>
+                    </p>
+                </div>
+                <?php endif; ?>
                 <!-- 4 Stats Cards -->
-                <div class="grid grid-cols-4 gap-4 mb-6">
+                <div class="grid grid-cols-4 gap-4 mb-4">
                     <div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
                         <p class="text-xs tracking-widest text-gray-400 uppercase">Total Users</p>
                         <p class="text-4xl font-semibold text-[#8E1616] mt-2"><?= $total_users ?></p>
@@ -124,6 +153,18 @@ $stmt->close();
                         <p class="text-4xl font-semibold text-[#8E1616] mt-2"><?= $mekanik_aktif ?></p>
                         <p class="text-xs text-gray-400 mt-2">dari <?= $role_counts['mechanic'] ?> mekanik terdaftar</p>
                     </div>
+                </div>
+
+                <!-- Card Total Revenue — baris sendiri -->
+                <div class="bg-gradient-to-r from-[#8E1616] to-[#D32F2F] rounded-xl p-6 shadow-md mb-6 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs tracking-widest text-red-200 uppercase">Total Revenue</p>
+                        <p class="text-4xl font-bold text-white mt-2">Rp <?= number_format((float)$total_revenue, 0, ',', '.') ?></p>
+                        <p class="text-sm text-red-200 mt-1">dari seluruh pembayaran lunas</p>
+                    </div>
+                    <a href="reports.php" class="bg-white/20 hover:bg-white/30 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition whitespace-nowrap">
+                        Lihat Laporan Lengkap &rarr;
+                    </a>
                 </div>
 
                 <!-- Tabel Booking Terbaru -->
@@ -178,5 +219,7 @@ $stmt->close();
             </div>
         </div>
     </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>

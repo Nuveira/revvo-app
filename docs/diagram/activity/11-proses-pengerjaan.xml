@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2026-06-06T00:00:00.000Z" agent="REVVO" version="24.0.0" type="device">
+  <diagram id="act-proses" name="Activity — Proses Pengerjaan">
+    <mxGraphModel dx="960" dy="1300" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="960" pageHeight="1300" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Activity Diagram — UC12: Proses Pengerjaan (include/extend)" style="text;html=1;strokeColor=none;fillColor=none;align=center;fontSize=14;fontStyle=1;" vertex="1" parent="1"><mxGeometry x="170" y="10" width="560" height="30" as="geometry"/></mxCell>
+        <mxCell id="lane1" value="🔧 Mekanik" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontStyle=1;fontSize=12;opacity=30;" vertex="1" parent="1"><mxGeometry x="50" y="60" width="400" height="1190" as="geometry"/></mxCell>
+        <mxCell id="lane2" value="⚙️ Sistem" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;verticalAlign=top;fontStyle=1;fontSize=12;opacity=30;" vertex="1" parent="1"><mxGeometry x="480" y="60" width="420" height="1190" as="geometry"/></mxCell>
+        <mxCell id="start" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="435" y="50" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="S1" value="Buka Detail Tugas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="120" y="110" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="S2" value="Tampilkan Detail Tugas&#xa;dengan Opsi Aksi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="180" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="D1" value="Pilih Aksi?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="165" y="260" width="170" height="80" as="geometry"/></mxCell>
+        <!-- Update Status path -->
+        <mxCell id="S3" value="Pilih Status Baru&#xa;≪include: UC12a≫" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="120" y="390" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="D2" value="Transisi&#xa;Valid?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="605" y="380" width="170" height="80" as="geometry"/></mxCell>
+        <mxCell id="S4" value="Error: Transisi tidak valid" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="560" y="500" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="S5" value="Update Status Booking&#xa;+ Insert Service Log" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="580" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="S6" value="Tampilkan Pesan Sukses" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1"><mxGeometry x="560" y="660" width="260" height="40" as="geometry"/></mxCell>
+        <!-- Input Sparepart path -->
+        <mxCell id="S7" value="Pilih Spare Part &amp; Input Qty&#xa;≪extend: UC12b≫" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="120" y="750" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="D3" value="Stok&#xa;Cukup?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" vertex="1" parent="1"><mxGeometry x="605" y="740" width="170" height="80" as="geometry"/></mxCell>
+        <mxCell id="S8" value="Error: Stok tidak mencukupi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="1"><mxGeometry x="120" y="870" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="S9" value="Snapshot harga → price_at_time&#xa;Hitung subtotal&#xa;Simpan booking_parts&#xa;Kurangi spare_parts.stock" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="860" width="260" height="60" as="geometry"/></mxCell>
+        <mxCell id="S10" value="Recalculate total_price =&#xa;service_price + SUM(subtotal)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="960" width="260" height="40" as="geometry"/></mxCell>
+        <!-- Catatan path -->
+        <mxCell id="S11" value="Tulis Catatan Pengerjaan&#xa;≪extend: UC12c≫" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=2;" vertex="1" parent="1"><mxGeometry x="120" y="1050" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="S12" value="Update mechanic_note&#xa;di Tabel bookings" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1"><mxGeometry x="560" y="1050" width="260" height="40" as="geometry"/></mxCell>
+        <mxCell id="end_o" value="" style="ellipse;html=1;aspect=fixed;fillColor=none;strokeColor=#000000;strokeWidth=3;" vertex="1" parent="1"><mxGeometry x="435" y="1200" width="30" height="30" as="geometry"/></mxCell>
+        <mxCell id="end_i" value="" style="ellipse;html=1;aspect=fixed;fillColor=#000000;strokeColor=none;" vertex="1" parent="1"><mxGeometry x="442" y="1207" width="16" height="16" as="geometry"/></mxCell>
+        <mxCell id="e1" style="endArrow=block;html=1;" edge="1" parent="1" source="start" target="S1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="endArrow=block;html=1;" edge="1" parent="1" source="S1" target="S2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="endArrow=block;html=1;" edge="1" parent="1" source="S2" target="D1"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" value="Update Status" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="S3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" style="endArrow=block;html=1;" edge="1" parent="1" source="S3" target="D2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" value="Tidak" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D2" target="S4"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e7" style="endArrow=block;html=1;curved=1;" edge="1" parent="1" source="S4" target="S2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e8" value="Ya" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D2" target="S5"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="endArrow=block;html=1;" edge="1" parent="1" source="S5" target="S6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" style="endArrow=block;html=1;curved=1;" edge="1" parent="1" source="S6" target="S2"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e11" value="Input Sparepart" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="S7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e12" style="endArrow=block;html=1;" edge="1" parent="1" source="S7" target="D3"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e13" value="Tidak" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D3" target="S8"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e14" style="endArrow=block;html=1;curved=1;" edge="1" parent="1" source="S8" target="S7"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e15" value="Ya" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D3" target="S9"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e16" style="endArrow=block;html=1;" edge="1" parent="1" source="S9" target="S10"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e17" style="endArrow=block;html=1;" edge="1" parent="1" source="S10" target="S6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e18" value="Tulis Catatan" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="S11"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e19" style="endArrow=block;html=1;" edge="1" parent="1" source="S11" target="S12"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e20" style="endArrow=block;html=1;" edge="1" parent="1" source="S12" target="S6"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e21" value="Selesai" style="endArrow=block;html=1;fontSize=10;" edge="1" parent="1" source="D1" target="end_o"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
