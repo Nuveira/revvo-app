@@ -287,9 +287,10 @@ if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     }
 
     // Fungsi: Excel baris terakhir — total revenue
+    $last_data_row = $row_num - 1;
     $row_num++;
     $sheet->setCellValue('F' . $row_num, 'TOTAL REVENUE');
-    $sheet->setCellValue('G' . $row_num, (float)$total_revenue);
+    $sheet->setCellValue('G' . $row_num, '=SUM(G5:G' . $last_data_row . ')');
     $sheet->getStyle('F' . $row_num . ':G' . $row_num)->getFont()->setBold(true);
 
     // Fungsi: Excel auto-size — atur lebar kolom otomatis
