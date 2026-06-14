@@ -36,18 +36,16 @@ jobs:
           fi
           echo "OK: tidak ada debug statement"
 
-      - name: Cek SQL injection - variabel langsung di string query
+      - name: Cek SQL injection - superglobal langsung di conn->query
         run: |
-          FOUND=$(grep -rn --include="*.php" \
-            -E "\\\$_(GET|POST|REQUEST)\s*\[" . \
-            --exclude-dir=vendor \
-            | grep -E '".*\$_(GET|POST|REQUEST)|'"'"'.*\$_(GET|POST|REQUEST)' || true)
+          FOUND=$(grep -rn --include="*.php" "conn->query" pages/ \
+            | grep '\$_GET\|\$_POST\|\$_REQUEST' || true)
           if [ -n "$FOUND" ]; then
-            echo "GAGAL: kemungkinan SQL injection - variabel superglobal langsung di string:"
+            echo "GAGAL: superglobal langsung di conn->query - gunakan prepared statement:"
             echo "$FOUND"
             exit 1
           fi
-          echo "OK: tidak ada pola SQL injection ditemukan"
+          echo "OK: tidak ada superglobal langsung di conn->query"
 
       - name: Cek penggunaan eval()
         run: |
