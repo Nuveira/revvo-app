@@ -27,10 +27,7 @@ if ($user_id) {
 $msg_type = '';
 $msg_text = '';
 
-// ============================================================
-// HANDLER POST — Proses Tambah, Edit, Hapus
-// ============================================================
-
+// Handler POST — Proses Tambah, Edit, Hapus
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
 
@@ -172,9 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// ============================================================
-// QUERY LIST — Ambil semua spare parts untuk ditampilkan
-// ============================================================
+// Query list — Ambil semua spare parts untuk ditampilkan
 
 // Fungsi: Ambil data edit — jika ada parameter edit di GET
 $show    = $_GET['show'] ?? '';
