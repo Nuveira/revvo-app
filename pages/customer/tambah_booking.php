@@ -43,7 +43,7 @@ unset($_SESSION['success'], $_SESSION['error']);
     <div class="flex h-screen overflow-hidden">
         <?php include 'nav.php'; ?>
 
-        <main class="flex-1 min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
+        <main class="flex flex-col flex-1 min-w-0 bg-gray-100 overflow-y-auto overflow-x-hidden">
             <!-- Header -->
             <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
                 <div class="min-w-0">
@@ -56,7 +56,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 </a>
             </div>
 
-            <div class="p-4 w-full mx-auto">
+            <div class="p-4 w-full mx-auto flex-1 flex flex-col">
 
                 <?php if ($error): ?>
                     <div class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
@@ -65,7 +65,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                 <?php endif; ?>
 
                 <?php if (empty($motors)): ?>
-                    <div class="rounded-lg border border-[#eadede] bg-white p-8 shadow-sm text-center">
+                    <div class="flex-1 rounded-lg border border-[#eadede] bg-white p-8 shadow-sm flex flex-col items-center justify-center text-center">
                         <span class="material-symbols-outlined text-4xl text-gray-300">sports_motorsports</span>
                         <p class="mt-3 font-semibold text-gray-700">Belum ada motor terdaftar</p>
                         <p class="mt-1 text-sm text-gray-400">Tambahkan motor terlebih dahulu sebelum membuat booking.</p>
@@ -114,21 +114,18 @@ unset($_SESSION['success'], $_SESSION['error']);
                         <div>
                             <label for="booking_date" class="text-sm font-medium text-gray-700">Tanggal Booking</label>
                             <input id="booking_date" name="booking_date" type="date" required
-                                min="<?= date('Y-m-d', strtotime('+1 day')) ?>"
+                                min="<?= date('Y-m-d') ?>"
                                 class="mt-2 w-full rounded border border-gray-200 px-3 py-3 text-sm outline-none transition focus:border-[#8E1616]">
                         </div>
 
-                        <!-- Time Slot -->
+                        <!-- Time Slot — difilter otomatis berdasarkan hari -->
                         <div>
                             <label for="time_slot_id" class="text-sm font-medium text-gray-700">Pilih Waktu</label>
                             <select id="time_slot_id" name="time_slot_id" required
                                 class="mt-2 w-full rounded border border-gray-200 px-3 py-3 text-sm outline-none transition focus:border-[#8E1616]">
-                                <?php foreach ($time_slots as $slot): ?>
-                                    <option value="<?= $slot['id'] ?>">
-                                        <?= ucfirst(htmlspecialchars($slot['day'])) ?> | <?= substr($slot['start_time'], 0, 5) ?> - <?= substr($slot['end_time'], 0, 5) ?>
-                                    </option>
-                                <?php endforeach; ?>
+                                <option value="">— Pilih tanggal terlebih dahulu —</option>
                             </select>
+                            <p id="slot-empty-msg" class="mt-1 text-xs text-red-500 hidden">Tidak ada slot waktu tersedia untuk hari ini.</p>
                         </div>
 
                         <!-- Keluhan -->
@@ -160,5 +157,76 @@ unset($_SESSION['success'], $_SESSION['error']);
             <?php include 'footer.php'; ?>
         </main>
     </div>
+<script>
+var allSlots = <?= json_encode($time_slots) ?>;
+
+var dayMap = {
+    0: 'sunday',
+    1: 'monday',
+    2: 'tuesday',
+    3: 'wednesday',
+    4: 'thursday',
+    5: 'friday',
+    6: 'saturday'
+};
+
+var dateInput  = document.getElementById('booking_date');
+var slotSelect = document.getElementById('time_slot_id');
+var emptyMsg   = document.getElementById('slot-empty-msg');
+
+function filterSlots() {
+    var dateVal = dateInput.value;
+    slotSelect.innerHTML = '';
+    emptyMsg.classList.add('hidden');
+
+    if (!dateVal) {
+        slotSelect.innerHTML = '<option value="">— Pilih tanggal terlebih dahulu —</option>';
+        return;
+    }
+
+    var parts   = dateVal.split('-');
+    var date    = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+    var dayName = dayMap[date.getDay()];
+
+    // Ambil jam sekarang (HH:MM) untuk filter slot yang sudah lewat hari ini
+    var now        = new Date();
+    var todayStr   = now.getFullYear() + '-' +
+                     String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                     String(now.getDate()).padStart(2, '0');
+    var isToday    = (dateVal === todayStr);
+    var nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    var filtered = allSlots.filter(function(slot) {
+        if (slot.day !== dayName) return false;
+
+        // Kalau hari ini, filter slot yang end_time-nya sudah lewat
+        if (isToday) {
+            var endParts   = slot.end_time.substring(0, 5).split(':');
+            var endMinutes = parseInt(endParts[0]) * 60 + parseInt(endParts[1]);
+            return endMinutes > nowMinutes;
+        }
+
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        slotSelect.innerHTML = '<option value="">— Tidak ada slot tersedia —</option>';
+        emptyMsg.classList.remove('hidden');
+        return;
+    }
+
+    filtered.forEach(function(slot) {
+        var start  = slot.start_time.substring(0, 5);
+        var end    = slot.end_time.substring(0, 5);
+        var day    = dayName.charAt(0).toUpperCase() + dayName.slice(1);
+        var option = document.createElement('option');
+        option.value       = slot.id;
+        option.textContent = day + ' | ' + start + ' - ' + end;
+        slotSelect.appendChild(option);
+    });
+}
+
+dateInput.addEventListener('change', filterSlots);
+</script>
 </body>
 </html>
