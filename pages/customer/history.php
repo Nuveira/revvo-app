@@ -194,7 +194,7 @@ if ($customer_id) {
 <body class="font-['Plus_Jakarta_Sans'] flex h-screen">
     <?php include 'nav.php'; ?>
 
-    <div class="flex-1 bg-gray-100 overflow-y-auto overflow-x-hidden">
+    <div class="flex-1 bg-gray-100 overflow-y-auto overflow-x-hidden flex flex-col">
         <div class="bg-gradient-to-r from-black via-black via-20% to-[#8E1616] flex flex-col gap-4 md:flex-row md:justify-between md:items-center w-full p-5">
             <div class="min-w-0">
                 <p class="text-[#FF0000] text-xs font-semibold tracking-[0.25em] uppercase">history booking</p>
@@ -202,7 +202,7 @@ if ($customer_id) {
             </div>
         </div>
 
-        <main class="p-4 md:p-6 space-y-4">
+        <main class="p-4 md:p-6 space-y-4 flex-1">
             <section class="bg-white rounded-lg border border-[#eadede] p-5 shadow-sm">
                 <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                     <div>

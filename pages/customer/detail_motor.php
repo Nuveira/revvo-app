@@ -30,7 +30,7 @@ if (!$motor) {
     exit;
 }
 
-// Ambil histori booking motor ini
+// Ambil histori booking motor ini — filter by customer_id juga untuk keamanan
 $bookings = [];
 $stmt = $conn->prepare("
     SELECT b.id, b.booking_date, b.status, b.total_price,
@@ -39,17 +39,18 @@ $stmt = $conn->prepare("
     FROM bookings b
     JOIN service_types st ON b.service_type_id = st.id
     JOIN time_slots ts ON b.time_slot_id = ts.id
-    WHERE b.motor_id = ?
+    WHERE b.motor_id = ? AND b.customer_id = ?
     ORDER BY b.booking_date DESC
 ");
-$stmt->bind_param("i", $motor_id);
+$stmt->bind_param("ii", $motor_id, $customer_id);
 $stmt->execute();
 $bookings = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
 $stmt->close();
 
 // Handle hapus motor
+$deleteError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
-    // Cek apakah motor masih punya booking aktif
+    // Cek apakah motor masih punya booking aktif (antri atau dikerjakan)
     $stmt = $conn->prepare("SELECT COUNT(*) AS total FROM bookings WHERE motor_id = ? AND status IN ('queued', 'in_progress')");
     $stmt->bind_param("i", $motor_id);
     $stmt->execute();
@@ -57,8 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $stmt->close();
 
     if ($activeBookings > 0) {
-        $deleteError = 'Motor tidak bisa dihapus karena masih ada booking aktif.';
+        $deleteError = 'Motor tidak bisa dihapus karena masih ada booking aktif (antri/dikerjakan).';
     } else {
+        // Set motor_id = NULL pada booking yang sudah selesai/dibatalkan
+        $stmt = $conn->prepare("UPDATE bookings SET motor_id = NULL WHERE motor_id = ?");
+        $stmt->bind_param("i", $motor_id);
+        $stmt->execute();
+        $stmt->close();
+
         // Hapus gambar jika ada
         if (!empty($motor['image_path'])) {
             $fullPath = ROOT_PATH . '/' . $motor['image_path'];
