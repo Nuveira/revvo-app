@@ -1,3 +1,15 @@
 # claude
 .claude/
+
+# generated docs
 docs/gap/gap-analysis.md
+
+# user uploads — keep folder structure via .gitkeep
+uploads/**/*
+!uploads/**/.gitkeep
+
+# dependencies
+vendor/
+
+# env
+.env

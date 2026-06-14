@@ -36,12 +36,202 @@ jobs:
           fi
           echo "OK: tidak ada debug statement"
 
-      - name: Cek file PHP tidak kosong
+      - name: Cek SQL injection - superglobal langsung di conn->query
         run: |
-          EMPTY=$(find . -type f -name "*.php" -not -path "./vendor/*" -empty)
-          if [ -n "$EMPTY" ]; then
-            echo "GAGAL: ada file PHP yang kosong:"
-            echo "$EMPTY"
+          FOUND=$(grep -rn --include="*.php" "conn->query" pages/ \
+            | grep '\$_GET\|\$_POST\|\$_REQUEST' || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: superglobal langsung di conn->query - gunakan prepared statement:"
+            echo "$FOUND"
             exit 1
           fi
-          echo "OK: semua file PHP tidak kosong"
+          echo "OK: tidak ada superglobal langsung di conn->query"
+
+      - name: Cek penggunaan eval()
+        run: |
+          FOUND=$(grep -rn --include="*.php" "\beval\s*(" . --exclude-dir=vendor || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: ditemukan penggunaan eval() - berbahaya:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada eval()"
+
+      - name: Cek file .env tidak ikut commit
+        run: |
+          if git ls-files | grep -q "^\.env$"; then
+            echo "GAGAL: file .env terdeteksi di repository - hapus dan tambah ke .gitignore"
+            exit 1
+          fi
+          echo "OK: file .env tidak ada di repository"
+
+      - name: Cek folder vendor tidak ikut commit
+        run: |
+          if git ls-files | grep -q "^vendor/"; then
+            echo "GAGAL: folder vendor/ terdeteksi di repository - hapus dan pastikan ada di .gitignore"
+            exit 1
+          fi
+          echo "OK: folder vendor/ tidak ada di repository"
+
+      - name: Cek query langsung tanpa prepared statement
+        run: |
+          FOUND=$(grep -rn --include="*.php" \
+            -E '\$conn->query\s*\(\s*"[^"]*\$' . \
+            --exclude-dir=vendor || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: ditemukan query langsung dengan variabel - gunakan prepared statement:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada query langsung dengan variabel"
+
+      - name: Cek auth guard halaman admin
+        run: |
+          FAIL=0
+          for f in $(find pages/admin -maxdepth 1 -name "*.php" ! -name "nav.php"); do
+            if ! grep -q "checkRole" "$f"; then
+              echo "GAGAL: $f tidak ada checkRole(['admin'])"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua halaman admin ada auth guard"
+
+      - name: Cek auth guard halaman customer
+        run: |
+          FAIL=0
+          for f in $(find pages/customer -maxdepth 1 -name "*.php" ! -name "nav.php" ! -name "footer.php"); do
+            if ! grep -qE "checkRole|customer_role\.php" "$f"; then
+              echo "GAGAL: $f tidak ada auth guard (checkRole atau customer_role.php)"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua halaman customer ada auth guard"
+
+      - name: Cek auth guard halaman mekanik
+        run: |
+          FAIL=0
+          for f in $(find pages/mekanik -maxdepth 1 -name "*.php" ! -name "nav.php" ! -name "footer.php"); do
+            if ! grep -q "checkRole" "$f"; then
+              echo "GAGAL: $f tidak ada checkRole(['mechanic'])"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua halaman mekanik ada auth guard"
+
+      - name: Cek validasi tipe file pada upload
+        run: |
+          FAIL=0
+          for f in $(grep -rl "move_uploaded_file" pages/ --include="*.php"); do
+            if ! grep -qE "mime_content_type|allowedTypes|allowedExt|PATHINFO_EXTENSION" "$f"; then
+              echo "GAGAL: $f punya move_uploaded_file tanpa validasi tipe file"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua upload ada validasi tipe file"
+
+      - name: Cek perubahan status booking selalu catat ke service_logs
+        run: |
+          FAIL=0
+          for f in $(grep -rl "UPDATE bookings" pages/ --include="*.php"); do
+            if grep -qE "SET status\s*=\s*'" "$f"; then
+              if ! grep -q "service_logs" "$f"; then
+                echo "GAGAL: $f ubah status booking tapi tidak ada INSERT ke service_logs"
+                FAIL=1
+              fi
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua perubahan status booking ada pencatatan service_logs"
+
+      - name: Cek tidak ada md5/sha1 untuk password
+        run: |
+          FOUND=$(grep -rn --include="*.php" -E "\bmd5\s*\(|\bsha1\s*\(" pages/ || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: ditemukan md5() atau sha1() - gunakan password_hash() untuk password:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada md5/sha1"
+
+      - name: Cek XSS - echo superglobal tanpa htmlspecialchars
+        run: |
+          FOUND=$(grep -rn --include="*.php" \
+            -E "echo\s+\$_(GET|POST|REQUEST)" pages/ || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: echo superglobal langsung tanpa htmlspecialchars - rentan XSS:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada echo superglobal tanpa htmlspecialchars"
+
+      - name: Cek PRG pattern - proses_*.php harus redirect setelah POST
+        run: |
+          FAIL=0
+          for f in $(find pages/ -name "proses_*.php"); do
+            if ! grep -q "Location:" "$f"; then
+              echo "GAGAL: $f tidak ada redirect (header Location) - rentan double submit"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua proses_*.php ada redirect"
+
+      - name: Cek INSERT bookings selalu diikuti INSERT payments
+        run: |
+          FAIL=0
+          for f in $(grep -rl "INSERT INTO bookings" pages/ --include="*.php"); do
+            if ! grep -q "INSERT INTO payments" "$f"; then
+              echo "GAGAL: $f insert booking tapi tidak insert payment record"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua INSERT bookings ada INSERT payments"
+
+      - name: Cek INSERT booking_parts ada stock decrement dan recalculate total_price
+        run: |
+          FAIL=0
+          for f in $(grep -rl "INSERT INTO booking_parts" pages/ --include="*.php"); do
+            if ! grep -q "spare_parts.*stock\|stock.*spare_parts" "$f"; then
+              echo "GAGAL: $f insert booking_parts tapi tidak update stock spare_parts"
+              FAIL=1
+            fi
+            if ! grep -q "total_price" "$f"; then
+              echo "GAGAL: $f insert booking_parts tapi tidak recalculate total_price"
+              FAIL=1
+            fi
+          done
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "OK: semua INSERT booking_parts ada stock decrement dan recalculate total_price"
+
+      - name: Cek folder uploads tidak ikut commit
+        run: |
+          FOUND=$(git ls-files | grep "^uploads/" | grep -v "\.gitkeep" || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: file uploads/ terdeteksi di repository (selain .gitkeep):"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada file upload user yang ter-commit"
+
+      - name: Cek tidak ada hardcoded koneksi database di luar config
+        run: |
+          FOUND=$(grep -rn --include="*.php" -E "new mysqli\s*\(|mysqli_connect\s*\(" pages/ includes/ || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: ditemukan koneksi database langsung di luar config/koneksi.php:"
+            echo "$FOUND"
+            exit 1
+          fi
+          echo "OK: tidak ada hardcoded koneksi database di luar config"
+
+      - name: Cek composer.lock ada di repository
+        run: |
+          if [ ! -f "composer.lock" ]; then
+            echo "GAGAL: composer.lock tidak ada - jalankan composer install lalu commit composer.lock"
+            exit 1
+          fi
+          echo "OK: composer.lock ada"
