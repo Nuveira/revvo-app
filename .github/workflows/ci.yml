@@ -212,11 +212,13 @@ jobs:
 
       - name: Cek folder uploads tidak ikut commit
         run: |
-          if git ls-files | grep -q "^uploads/"; then
-            echo "GAGAL: folder uploads/ terdeteksi di repository - foto user tidak boleh di-commit"
+          FOUND=$(git ls-files | grep "^uploads/" | grep -v "\.gitkeep" || true)
+          if [ -n "$FOUND" ]; then
+            echo "GAGAL: file uploads/ terdeteksi di repository (selain .gitkeep):"
+            echo "$FOUND"
             exit 1
           fi
-          echo "OK: folder uploads/ tidak ada di repository"
+          echo "OK: tidak ada file upload user yang ter-commit"
 
       - name: Cek tidak ada hardcoded koneksi database di luar config
         run: |
