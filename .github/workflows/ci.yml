@@ -138,10 +138,12 @@ jobs:
       - name: Cek perubahan status booking selalu catat ke service_logs
         run: |
           FAIL=0
-          for f in $(grep -rl "status.*=.*'in_progress'\|status.*=.*'completed'\|status.*=.*'cancelled'\|status.*=.*'ready_for_pickup'" pages/ --include="*.php"); do
-            if ! grep -q "service_logs" "$f"; then
-              echo "GAGAL: $f ubah status booking tapi tidak ada INSERT ke service_logs"
-              FAIL=1
+          for f in $(grep -rl "UPDATE bookings" pages/ --include="*.php"); do
+            if grep -qE "SET status\s*=\s*'" "$f"; then
+              if ! grep -q "service_logs" "$f"; then
+                echo "GAGAL: $f ubah status booking tapi tidak ada INSERT ke service_logs"
+                FAIL=1
+              fi
             fi
           done
           if [ $FAIL -eq 1 ]; then exit 1; fi

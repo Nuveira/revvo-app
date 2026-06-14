@@ -63,6 +63,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $stmt->bind_param("ii", $booking_id, $customer_id);
         $stmt->execute();
         $stmt->close();
+
+        $logStmt = $conn->prepare("
+            INSERT INTO service_logs (booking_id, changed_by, previous_status, new_status, note)
+            VALUES (?, ?, 'queued', 'cancelled', 'Dibatalkan oleh customer')
+        ");
+        $logStmt->bind_param("ii", $booking_id, $user_id);
+        $logStmt->execute();
+        $logStmt->close();
+
         header('Location: booking.php');
         exit;
     } else {
