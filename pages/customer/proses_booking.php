@@ -179,6 +179,14 @@ if ($stmt->execute()) {
     $logStmt->bind_param("ii", $bookingId, $userId);
     $logStmt->execute();
 
+    // buat record pembayaran
+    $payStmt = $conn->prepare("
+        INSERT INTO payments (booking_id, payment_method, amount, status)
+        VALUES (?, 'cash', ?, 'pending')
+    ");
+    $payStmt->bind_param("id", $bookingId, $servicePrice);
+    $payStmt->execute();
+
     $_SESSION['success'] = 'Booking berhasil dibuat';
     header('Location: booking.php');
     exit;
