@@ -235,9 +235,7 @@ if (isset($_GET['export']) && $_GET['export'] === 'pdf') {
     exit;
 }
 
-// ============================================================
-// EXPORT EXCEL — harus sebelum output HTML apapun
-// ============================================================
+// Export Excel — harus sebelum output HTML apapun
 if (isset($_GET['export']) && $_GET['export'] === 'excel') {
     // Fungsi: Export Excel — generate file xlsx menggunakan PhpSpreadsheet
     require_once '../../vendor/autoload.php';
