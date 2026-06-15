@@ -184,20 +184,20 @@ Domain:
 
 | Anggota | CRUD Module | Halaman Pendukung |
 |---------|------------|-------------------|
-| **Geral** | 🟧 **CRUD USERS** | Foundation, Auth, Booking Form Customer |
+| **Geral** | 🟧 **CRUD USERS** | Foundation, Auth, Invoice PDF Customer, Profile Customer |
 | **Raika** | 🟧 **CRUD SERVICE_TYPES**<br>🟧 **CRUD MECHANICS**<br>🟧 **CRUD TIME_SLOTS** | List customers (read-only) |
-| **Nugi** | 🟧 **CRUD MOTORS** | Customer dashboard, tracking, invoice, profile |
-| **Ahmad** | 🟧 **CRUD BOOKINGS** (admin-side) | Payment confirmation, mekanik flow |
+| **Nugi** | 🟧 **CRUD MOTORS** | Customer dashboard, tracking, histori booking |
+| **Ahmad** | 🟧 **CRUD BOOKINGS** (admin + customer-side) | Booking form customer, mekanik flow, payment |
 | **Dermawan** | 🟧 **CRUD SPARE_PARTS** | Dashboard admin, reports, audit log, bonus features |
 
 **Total: 7 modul CRUD penuh**
 
 ---
 
-### 1. Geral — Foundation + 🟧 CRUD USERS
+### 1. Geral — Foundation + 🟧 CRUD USERS + Invoice PDF + Profile Customer
 
 > **Modul CRUD Utama**: `users` (admin kelola akun staff)
-> **Plus**: Setup fondasi project + form booking customer
+> **Plus**: Setup fondasi project + invoice PDF customer + profile customer
 > Semua anggota bergantung pada modul Geral di awal, jadi dikerjakan duluan.
 
 #### 🟧 CRUD Module: USERS
@@ -216,14 +216,14 @@ Domain:
 | Setup project + `koneksi.php` + `.htaccess` | `config/koneksi.php` |
 | Layout komponen Tailwind | `includes/header.php`, `footer.php`, `navbar.php` |
 | Login, register, logout | `pages/auth/*.php` |
-| Middleware role protection | `includes/auth.php` |
+| Middleware role protection | `includes/auth.php`, `includes/customer_role.php` |
 | Helper functions: state machine, service_logs, validasi | `includes/functions.php` |
 | Halaman 403 forbidden | `pages/403.php` |
-| Form booking customer (multi-step) | `pages/customer/booking_new.php` |
-| Validasi double-booking + snapshot `service_price` | Logic di `booking_new.php` |
+| Generate invoice PDF per transaksi (DomPDF) | `pages/customer/invoice.php` |
+| Edit profil customer + upload foto profil | `pages/customer/profile.php`, `proses_profile.php` |
 
-**Estimasi effort**: Phase 0-2 (hari 1-8) + Phase 4 sebagian (hari 13-14)
-**Yang harus bisa dijelaskan saat presentasi**: Auth flow, session, role-based access, CRUD users end-to-end, validasi double-booking, snapshot `service_price`
+**Estimasi effort**: Phase 0-2 (hari 1-8) + Phase 4-5 (invoice + profile)
+**Yang harus bisa dijelaskan saat presentasi**: Auth flow, session, role-based access, CRUD users end-to-end, DomPDF invoice generation, database transaction pada profile update
 
 ---
 
@@ -301,22 +301,20 @@ Domain:
 | Checklist | Halaman/File |
 |-----------|-------------|
 | Customer dashboard (booking aktif + statistik) | `pages/customer/dashboard.php` |
-| Tracking status booking real-time | `pages/customer/booking_history.php` |
-| Histori booking + filter status | `pages/customer/booking_history.php` |
-| Detail booking (lihat parts, total) | `pages/customer/booking_detail.php` |
-| Generate invoice PDF per transaksi (DomPDF) | `pages/customer/invoice.php` |
-| Edit profil customer (alamat, no HP) | `pages/customer/profile.php` |
+| Tracking status booking real-time | `pages/customer/booking.php` |
+| Histori booking + filter status | `pages/customer/history.php`, `detail_history.php` |
+| Layout customer (nav, footer) | `pages/customer/nav.php`, `footer.php` |
 
 **Estimasi effort**: Phase 3 sebagian (hari 10-12) + Phase 4 (hari 15-17)
-**Yang harus bisa dijelaskan saat presentasi**: CRUD motors + upload file handling, query tracking status, DomPDF invoice generation, customer flow end-to-end
+**Yang harus bisa dijelaskan saat presentasi**: CRUD motors + upload file handling, query tracking status, customer flow end-to-end
 
 ---
 
-### 4. Ahmad — 🟧 CRUD BOOKINGS (Admin) + Mekanik Flow
+### 4. Ahmad — 🟧 CRUD BOOKINGS (Admin + Customer) + Mekanik Flow
 
 > **Modul CRUD Utama**: `bookings` dari sisi admin (kelola booking + state machine)
-> **Plus**: Semua halaman mekanik + payment confirmation
-> Bisa mulai setelah Geral selesai booking creation + helper (hari ke-15).
+> **Plus**: Form booking customer + semua halaman mekanik + payment confirmation
+> Bisa mulai setelah Geral selesai layout + auth (hari ke-6).
 
 #### 🟧 CRUD Module: BOOKINGS (Admin-side)
 
@@ -330,20 +328,22 @@ Domain:
 **File**: `pages/admin/bookings.php`
 **Fitur khusus**: State machine validation, auto-insert `service_logs`, integrasi dengan `mechanics` & `payments`
 
-#### Pendukung (Operations)
+#### Pendukung (Customer Booking + Operations)
 
 | Checklist | Halaman/File |
 |-----------|-------------|
+| Form booking customer (pilih motor, layanan, slot) | `pages/customer/tambah_booking.php`, `proses_booking.php` |
+| Detail booking + cancel customer | `pages/customer/booking_detail.php` |
+| Edit booking customer | `pages/customer/edit_booking.php`, `update_booking.php` |
 | Admin: form pembayaran + konfirmasi | `pages/admin/payments.php` |
 | Admin: verifikasi selesai → "Ready for Pickup" | Logic di `bookings.php` |
 | Mekanik: dashboard (tugas hari ini) | `pages/mekanik/dashboard.php` |
 | Mekanik: list tugas yang di-assign | `pages/mekanik/my_tasks.php` |
-| Mekanik: update status (pakai helper Geral) | `pages/mekanik/my_tasks.php` |
-| Mekanik: input sparepart (booking_parts logic) | `pages/mekanik/my_tasks.php` |
+| Mekanik: update status + input sparepart | `pages/mekanik/task_detail.php`, `proses_task.php` |
 | Mekanik: histori pengerjaan personal | `pages/mekanik/history.php` |
 
-**Estimasi effort**: Phase 4 (hari 15-17) + Phase 5 sebagian (hari 18)
-**Yang harus bisa dijelaskan saat presentasi**: CRUD bookings + state machine end-to-end, booking_parts logic + auto-kurang stock, payment confirmation flow
+**Estimasi effort**: Phase 3-4 (hari 9-17) + Phase 5 sebagian (hari 18)
+**Yang harus bisa dijelaskan saat presentasi**: CRUD bookings + state machine end-to-end, double-booking prevention, price snapshot, booking_parts logic + auto-kurang stock, payment confirmation flow
 
 ---
 
