@@ -337,9 +337,9 @@ include 'includes/navbar.php';
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- booking -->
             <div class="animate-on-scroll delay-100 glass-card bg-stone-900/5 p-2 rounded-[2.5rem] flex flex-col group hover:shadow-3xl hover:-translate-y-2 transition-all duration-500 border border-stone-200">
-                <div class="aspect-[4/3] bg-stone-900 rounded-[2rem] mb-8 overflow-hidden relative shadow-inner">
-                    <img alt="Booking Dashboard" class="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida/ADBb0ujHlInSL1d_UIXgC_s-At3DdGWD40BOhlyXuuxzDm06ln87CAn4pT8EKI1Zs4jRL9kT8Qx7rPF_z3whkfG8RXYSG8oCYGxKnDtE0dwkEbg4D1V7G7p4FXVW9SHsx53EvqNDaunDvWR-llr8piHSS7A6LNQEckuU9x3ySqag_F7R5fM5uPyISUQ4346GXB2wqmPNSH1fSo5eIdsrWsLxnd2ijqzTQ-vw58uJM7BIlnJNcj0f91xN57yuIEc" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent"></div>
+                <div class="bg-stone-900 rounded-[2rem] mb-8 overflow-hidden relative shadow-inner">
+                    <img alt="Booking Dashboard" class="w-full h-auto object-contain opacity-90 group-hover:scale-105 transition-transform duration-700 block cursor-zoom-in" data-lightbox src="<?= url('assets/images/manajemen_booking.png') ?>" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-stone-900/30 to-transparent pointer-events-none"></div>
                 </div>
                 <div class="px-8 pb-10 flex-grow flex flex-col">
                     <h3 class="font-headline text-2xl font-bold mb-3">Manajemen Booking</h3>
@@ -352,9 +352,9 @@ include 'includes/navbar.php';
 
             <!-- inventory -->
             <div class="animate-on-scroll delay-200 glass-card bg-stone-900/5 p-2 rounded-[2.5rem] flex flex-col group hover:shadow-3xl hover:-translate-y-2 transition-all duration-500 border border-stone-200">
-                <div class="aspect-[4/3] bg-stone-900 rounded-[2rem] mb-8 overflow-hidden relative shadow-inner">
-                    <img alt="Inventory Dashboard" class="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida/ADBb0ujHlInSL1d_UIXgC_s-At3DdGWD40BOhlyXuuxzDm06ln87CAn4pT8EKI1Zs4jRL9kT8Qx7rPF_z3whkfG8RXYSG8oCYGxKnDtE0dwkEbg4D1V7G7p4FXVW9SHsx53EvqNDaunDvWR-llr8piHSS7A6LNQEckuU9x3ySqag_F7R5fM5uPyISUQ4346GXB2wqmPNSH1fSo5eIdsrWsLxnd2ijqzTQ-vw58uJM7BIlnJNcj0f91xN57yuIEc" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent"></div>
+                <div class="bg-stone-900 rounded-[2rem] mb-8 overflow-hidden relative shadow-inner">
+                    <img alt="Inventory Dashboard" class="w-full h-auto object-contain opacity-90 group-hover:scale-105 transition-transform duration-700 block cursor-zoom-in" data-lightbox src="<?= url('assets/images/sparepart.png') ?>" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-stone-900/30 to-transparent pointer-events-none"></div>
                 </div>
                 <div class="px-8 pb-10 flex-grow flex flex-col">
                     <h3 class="font-headline text-2xl font-bold mb-3">Data Spare Part</h3>
@@ -367,9 +367,9 @@ include 'includes/navbar.php';
 
             <!-- analytics -->
             <div class="animate-on-scroll delay-300 glass-card bg-stone-900/5 p-2 rounded-[2.5rem] flex flex-col group hover:shadow-3xl hover:-translate-y-2 transition-all duration-500 border border-stone-200">
-                <div class="aspect-[4/3] bg-stone-900 rounded-[2rem] mb-8 overflow-hidden relative shadow-inner">
-                    <img alt="Analytics Dashboard" class="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida/ADBb0ujHlInSL1d_UIXgC_s-At3DdGWD40BOhlyXuuxzDm06ln87CAn4pT8EKI1Zs4jRL9kT8Qx7rPF_z3whkfG8RXYSG8oCYGxKnDtE0dwkEbg4D1V7G7p4FXVW9SHsx53EvqNDaunDvWR-llr8piHSS7A6LNQEckuU9x3ySqag_F7R5fM5uPyISUQ4346GXB2wqmPNSH1fSo5eIdsrWsLxnd2ijqzTQ-vw58uJM7BIlnJNcj0f91xN57yuIEc" />
-                    <div class="absolute inset-0 bg-gradient-to-t from-stone-900/60 to-transparent"></div>
+                <div class="bg-stone-900 rounded-[2rem] mb-8 overflow-hidden relative shadow-inner">
+                    <img alt="Analytics Dashboard" class="w-full h-auto object-contain opacity-90 group-hover:scale-105 transition-transform duration-700 block cursor-zoom-in" data-lightbox src="<?= url('assets/images/pembayaran_laporan.png') ?>" />
+                    <div class="absolute inset-0 bg-gradient-to-t from-stone-900/30 to-transparent pointer-events-none"></div>
                 </div>
                 <div class="px-8 pb-10 flex-grow flex flex-col">
                     <h3 class="font-headline text-2xl font-bold mb-3">Pembayaran dan Laporan</h3>
@@ -382,6 +382,16 @@ include 'includes/navbar.php';
         </div>
     </div>
 </section>
+
+<!-- lightbox modal -->
+<div id="lightbox" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+    <button id="lightbox-close" class="absolute top-6 right-6 text-white/70 hover:text-white transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+    </button>
+    <img id="lightbox-img" src="" alt="" class="max-w-[90vw] max-h-[90vh] rounded-2xl shadow-2xl object-contain scale-95 transition-transform duration-300" />
+</div>
 
 <?php
 $pageScripts = ['assets/js/landing.js'];
